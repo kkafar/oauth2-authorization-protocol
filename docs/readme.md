@@ -7,6 +7,7 @@
 3. [OAuth2 Token Introspection redirect page](https://oauth.net/2/token-introspection/)
 4. [OAuth2 Docs](https://oauth.net/2/)
 5. [RFC 6749 (OAuth 2.0 Authorization Framework)](https://datatracker.ietf.org/doc/html/rfc6749)
+6. [RFC 8252 (OAuth 2.0 for native apps)](https://datatracker.ietf.org/doc/html/rfc8252)
 
 ## Additional
 
