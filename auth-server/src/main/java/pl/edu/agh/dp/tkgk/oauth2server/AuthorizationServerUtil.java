@@ -20,13 +20,19 @@ public class AuthorizationServerUtil {
 
     private static SslContext serverSSLContext = null;
 
-    public static SslContext createSSLContext() {
+    public static SslContext getSSLContext() {
+        if (serverSSLContext != null) return serverSSLContext;
+
+        try {
+            initSSLContext();
+        } catch (CertificateException | SSLException e) {
+            e.printStackTrace();
+        }
+
         return serverSSLContext;
     }
 
-    public static void initSSLContext() throws CertificateException, SSLException {
-        if(serverSSLContext != null) return; // TODO: trow exception
-
+    private static void initSSLContext() throws CertificateException, SSLException {
         String certPath = Objects.requireNonNull(AuthorizationServerUtil.class.getResource("cert.pem")).getPath();
         File cert = new File(certPath);
 
