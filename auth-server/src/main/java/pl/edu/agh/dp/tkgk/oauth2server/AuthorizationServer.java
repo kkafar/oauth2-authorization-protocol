@@ -13,20 +13,13 @@ import java.security.cert.CertificateException;
 public class AuthorizationServer {
 
     public void run(String host, int port){
-
-        try {
-            AuthorizationServerUtil.initSSLContext();
-        } catch (CertificateException | SSLException e) {
-            e.printStackTrace();
-        }
-
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup,workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new MainChannelInitializer(AuthorizationServerUtil.createSSLContext()))
+                    .childHandler(new MainChannelInitializer(AuthorizationServerUtil.getSSLContext()))
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, false); // to reconsider
 
@@ -39,8 +32,5 @@ public class AuthorizationServer {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
-
     }
-
-
 }
