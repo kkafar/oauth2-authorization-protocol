@@ -13,7 +13,6 @@ import java.security.cert.CertificateException;
 public class AuthorizationServer {
 
     public void run(String host, int port){
-
         try {
             AuthorizationServerUtil.initSSLContext();
         } catch (CertificateException | SSLException e) {
