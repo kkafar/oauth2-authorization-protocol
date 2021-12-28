@@ -12,6 +12,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
+
 import java.util.Objects;
 
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {

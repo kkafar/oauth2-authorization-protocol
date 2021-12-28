@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
@@ -16,7 +17,11 @@ import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.TokenIntrospectionRequ
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
 
+import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
+
 import java.util.HashMap;
+import java.util.List;
 
 public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
@@ -44,6 +49,7 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
         fetchTokenDataHandler.setNext(tokenDataResponseBuilder);
 
         endpointHandlerMap.put("/introspect", tokenIntrospectionRequestValidator);
+
 
         // Ping
         Handler<FullHttpRequest, ?> pingHandler = new PingHandler();

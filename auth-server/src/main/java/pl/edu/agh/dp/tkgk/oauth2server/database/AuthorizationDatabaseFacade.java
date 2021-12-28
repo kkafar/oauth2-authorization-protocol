@@ -18,7 +18,7 @@ class AuthorizationDatabaseFacade implements Database{
     public Optional<JSONObject> fetchTokenData() {
         return Optional.empty();
     }
-
+  
     private static class AuthorizationDatabaseFacadeHolder{
         private static final AuthorizationDatabaseFacade database = new AuthorizationDatabaseFacade();
     }
