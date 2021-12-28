@@ -12,4 +12,18 @@ class MockAuthorizationDatabaseFacade implements Database{
         return MockAuthorizationDatabaseFacadeHolder.database;
     }
 
+    @Override
+    public boolean revokeAccessToken() {
+        // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
+        return true;
+    }
+
+    @Override
+    public boolean revokeRefreshToken() {
+        // after revoking refresh token revoke all access tokens with the same authorization grant
+        revokeAllAccessTokensWithGivenGrant();
+        return true;
+    }
+
+    public void revokeAllAccessTokensWithGivenGrant() {}
 }

@@ -4,6 +4,12 @@ class AuthorizationDatabaseFacade implements Database{
 
     private AuthorizationDatabaseFacade(){}
 
+    @Override
+    public boolean revokeAccessToken() { return true; }
+
+    @Override
+    public boolean revokeRefreshToken() { return true; }
+
     private static class AuthorizationDatabaseFacadeHolder{
         private static final AuthorizationDatabaseFacade database = new AuthorizationDatabaseFacade();
     }
