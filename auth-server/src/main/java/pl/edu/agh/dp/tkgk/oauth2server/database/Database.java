@@ -8,4 +8,13 @@ public interface Database {
 
     Optional<Client> getClient(String clientId);
 
+    /**
+     * @return true if access token was revoked
+     */
+    boolean revokeAccessToken();
+
+    /**
+     * @return true if refresh token was revoked
+     */
+    boolean revokeRefreshToken();
 }

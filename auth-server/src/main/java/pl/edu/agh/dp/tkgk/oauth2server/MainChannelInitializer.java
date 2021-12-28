@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
 
 import java.util.HashMap;
 
@@ -21,6 +22,10 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
     private HashMap<String, Handler> buildEndpointHandlerMap(){
         HashMap<String, Handler> endpointHandlerMap = new HashMap<>();
+
+        // Token Revocation
+        Handler tokenRevocationRequestValidator = new TokenRevocationRequestValidator();
+        endpointHandlerMap.put("/revoke", tokenRevocationRequestValidator);
 
         // Ping
         Handler pingHandler = new PingHandler();
