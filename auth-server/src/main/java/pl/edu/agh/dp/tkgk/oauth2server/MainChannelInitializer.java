@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
+
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
 
@@ -32,6 +33,10 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
         Handler<HttpPostRequestDecoder, ?> tokenRevocationHandler = new TokenRevocationHandler();
         tokenRevocationRequestValidator.setNext(tokenRevocationHandler);
 
+        endpointHandlerMap.put("/revoke", tokenRevocationRequestValidator);
+
+        // Token Revocation
+        Handler tokenRevocationRequestValidator = new TokenRevocationRequestValidator();
         endpointHandlerMap.put("/revoke", tokenRevocationRequestValidator);
 
         // Ping

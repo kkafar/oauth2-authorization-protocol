@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import org.json.JSONObject;
@@ -24,7 +25,6 @@ public class TokenRevocationRequestValidator extends BaseHandler<FullHttpRequest
         if (!requestValid(request)) {
             return badRequestHttpResponse();
         }
-
         return next.handle(decoder);
     }
 
@@ -44,7 +44,7 @@ public class TokenRevocationRequestValidator extends BaseHandler<FullHttpRequest
         String contentType = headers.get(HttpHeaderNames.CONTENT_TYPE);
         return Objects.equals(contentType, CORRECT_CONTENT_TYPE);
     }
-
+  
     private boolean hasToken() {
         InterfaceHttpData tokenData = decoder.getBodyHttpData("token");
         return tokenData != null;
