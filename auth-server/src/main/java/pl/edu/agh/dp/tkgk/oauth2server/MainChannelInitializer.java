@@ -6,6 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
 
 import java.util.HashMap;
@@ -24,6 +25,14 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
         // Ping
         Handler pingHandler = new PingHandler();
         endpointHandlerMap.put("/ping", pingHandler);
+
+        // Authorization request module
+        Handler authFirstHandler = new RedirectionUriVerifier();
+        authFirstHandler.setNext(new ParametersVerifier())
+                .setNext(new UserIdentityVerifier())
+                .setNext(new ScopeValidator())
+                .setNext(new AuthorizationCodeResponder());
+        endpointHandlerMap.put("/authorize", authFirstHandler);
 
         return endpointHandlerMap;
     }

@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server;
 
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.CertificateException;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AuthorizationServerUtil {
@@ -57,5 +59,28 @@ public class AuthorizationServerUtil {
         }
 
         return textResource;
+    }
+
+    public static String buildSimpleHtml(String title, String content){
+        return "<html><body><h1>" +
+                title +
+                "</h1>" +
+                content.replaceAll("\n", "</br>") +
+                "</body></html>";
+    }
+
+    public static HashMap<String,String> extractParameters(FullHttpRequest request){
+        HashMap<String,String> parameters = new HashMap<>();
+        int questionMarkPosition = request.uri().lastIndexOf('?');
+        if(questionMarkPosition == -1) return parameters;
+
+        String parametersString = request.uri().substring(questionMarkPosition+1);
+        String[] keyValuePairs = parametersString.split("&");
+        for(String keyValuePair: keyValuePairs){
+            String[] keyThenValue = keyValuePair.split("=");
+            parameters.put(keyThenValue[0],keyThenValue[1]);
+        }
+
+        return parameters;
     }
 }
