@@ -3,13 +3,18 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
@@ -19,15 +24,18 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
         this.sslContext = sslContext;
     }
 
-    private HashMap<String, Handler> buildEndpointHandlerMap(){
-        HashMap<String, Handler> endpointHandlerMap = new HashMap<>();
+    private HashMap<String, Handler<FullHttpRequest, ?>> buildEndpointHandlerMap(){
+        HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap = new HashMap<>();
 
         // Token Revocation
-        Handler tokenRevocationRequestValidator = new TokenRevocationRequestValidator();
+        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenRevocationRequestValidator = new TokenRevocationRequestValidator();
+        Handler<HttpPostRequestDecoder, ?> tokenRevocationHandler = new TokenRevocationHandler();
+        tokenRevocationRequestValidator.setNext(tokenRevocationHandler);
+
         endpointHandlerMap.put("/revoke", tokenRevocationRequestValidator);
 
         // Ping
-        Handler pingHandler = new PingHandler();
+        Handler<FullHttpRequest, ?> pingHandler = new PingHandler();
         endpointHandlerMap.put("/ping", pingHandler);
 
         return endpointHandlerMap;

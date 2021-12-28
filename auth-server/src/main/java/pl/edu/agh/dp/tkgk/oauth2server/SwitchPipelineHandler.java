@@ -7,13 +7,15 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.pagenotfound.PageNotFoundHandler;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SwitchPipelineHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    private final HashMap<String, Handler> endpointHandlerMap;
-    private final Handler pageNotFoundHandler; // TODO: to reconsider
+    private final HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap;
+    private final Handler<FullHttpRequest, ?> pageNotFoundHandler; // TODO: to reconsider
 
-    public SwitchPipelineHandler(HashMap<String, Handler> endpointHandlerMap) {
+    public SwitchPipelineHandler(HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap) {
         this.endpointHandlerMap = endpointHandlerMap;
         pageNotFoundHandler = new PageNotFoundHandler();
     }
@@ -27,7 +29,7 @@ public class SwitchPipelineHandler extends SimpleChannelInboundHandler<FullHttpR
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) {
         String endpoint = extractEndpoint(msg);
-        Handler requestHandler = endpointHandlerMap.getOrDefault(endpoint, pageNotFoundHandler);
+        Handler<FullHttpRequest, ?> requestHandler = endpointHandlerMap.getOrDefault(endpoint, pageNotFoundHandler);
         ctx.writeAndFlush(requestHandler.handle(msg))
                 .addListener(ChannelFutureListener.CLOSE);
     }

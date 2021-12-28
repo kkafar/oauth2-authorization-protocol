@@ -1,10 +1,9 @@
 package pl.edu.agh.dp.tkgk.oauth2server;
 
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 
-public interface Handler {
+public interface Handler<T, K> {
 
-    Handler setNext(Handler handler);
-    FullHttpResponse handle(FullHttpRequest request);
+    Handler<K, ?> setNext(Handler<K, ?> handler);
+    FullHttpResponse handle(T request);
 }

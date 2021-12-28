@@ -7,7 +7,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
 import java.nio.charset.StandardCharsets;
 
-public class PingHandler extends BaseHandler {
+public class PingHandler extends BaseHandler<FullHttpRequest, FullHttpRequest> {
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         String resString = "PONG!!!";
