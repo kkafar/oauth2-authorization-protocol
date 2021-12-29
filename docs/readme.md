@@ -17,6 +17,7 @@
 4. [RFC 2617 HTTP Basic authentication](https://datatracker.ietf.org/doc/html/rfc2617)
 5. [Article on SSO & OAuth](https://curity.io/resources/learn/sso-for-mobile-apps-with-openid-connect/)
 6. [Article on OAuth in application](https://aaronparecki.com/oauth-2-simplified/)
+7. [Article on Token Introspection](https://docs.cidaas.com/standard-endpoints/token-introspection.html)
   
 
 # [Existing implementations](https://oauth.net/code/)
