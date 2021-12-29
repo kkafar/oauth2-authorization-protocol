@@ -6,21 +6,18 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
 import java.util.Objects;
 
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {
 
     private static final String ACCESS_TOKEN = "access_token";
-    private static final String TOKEN_TYPE_HINT = "token_type_hint";
 
     // todo: change the way the secret for HS256 is stored
     private static final String SECRET = "ultra-secret-key-that-is-at-least-32-bits-long-for-hs256-algorithm-top-secret";
@@ -32,9 +29,11 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
+        HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
-        fetchToken(decoder.getBodyHttpData("token"));
-        checkForTokenHint(decoder.getBodyHttpData(TOKEN_TYPE_HINT));
+        // token must be in the request body as checked in the TokenRevocationRequestValidator
+        tokenString = bodyDecoder.fetchToken().orElse("invalid_token");
+        tokenHint = bodyDecoder.fetchTokenHint().orElse("no_token_hint");
 
         // todo: check if the token is assigned to the user that sent it to be revoked -> if it is not the user's token
         // then the revocation request should be refused
@@ -50,30 +49,6 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
 
     private FullHttpResponse responseWith200StatusCode() {
         return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-    }
-
-    private void checkForTokenHint(InterfaceHttpData tokenHintData) {
-        if (tokenHintData != null) {
-            if (tokenHintData.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
-                Attribute tokenHintAttribute = (Attribute) tokenHintData;
-                try {
-                    tokenHint = tokenHintAttribute.getString(StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private void fetchToken(InterfaceHttpData tokenData) {
-        if (tokenData.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
-            Attribute tokenAttribute = (Attribute) tokenData;
-            try {
-                tokenString = tokenAttribute.getString(StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void decodeTokenString() {
