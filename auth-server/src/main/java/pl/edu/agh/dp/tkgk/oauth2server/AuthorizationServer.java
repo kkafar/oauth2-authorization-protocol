@@ -7,9 +7,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
-
 public class AuthorizationServer {
 
     public void run(String host, int port){

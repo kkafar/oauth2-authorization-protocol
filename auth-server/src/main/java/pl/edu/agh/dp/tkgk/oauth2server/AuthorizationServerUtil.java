@@ -1,8 +1,13 @@
 package pl.edu.agh.dp.tkgk.oauth2server;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import org.json.JSONObject;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -10,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.CertificateException;
@@ -19,6 +25,7 @@ import java.util.Objects;
 public class AuthorizationServerUtil {
 
     public static final String HTML_PAGE_404 = "html/page_not_found_404.html";
+    private static final String INVALID_REQUEST = "invalid_request";
 
     private static SslContext serverSSLContext = null;
 
@@ -43,6 +50,17 @@ public class AuthorizationServerUtil {
 
         serverSSLContext = SslContextBuilder.forServer(cert, key)
                 .build();
+    }
+
+    public static FullHttpResponse badRequestHttpResponse() {
+        JSONObject json = new JSONObject();
+        json.put("error", INVALID_REQUEST);
+
+        ByteBuf content = Unpooled.copiedBuffer(json.toString(), StandardCharsets.UTF_8);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST, content);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+        return response;
     }
 
     public static String loadTextResource(String resourcePath) throws FileNotFoundException {

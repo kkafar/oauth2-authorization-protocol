@@ -9,7 +9,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 
-public class PageNotFoundHandler extends BaseHandler {
+public class PageNotFoundHandler extends BaseHandler<FullHttpRequest, FullHttpRequest> {
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         String page = "Page not found";

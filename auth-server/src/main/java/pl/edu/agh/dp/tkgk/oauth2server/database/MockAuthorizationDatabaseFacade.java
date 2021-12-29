@@ -4,6 +4,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
 
 import java.util.Collections;
 import java.util.Optional;
+import org.json.JSONObject;
+
 
 class MockAuthorizationDatabaseFacade implements Database{
 
@@ -37,6 +39,11 @@ class MockAuthorizationDatabaseFacade implements Database{
         // after revoking refresh token revoke all access tokens with the same authorization grant
         revokeAllAccessTokensWithGivenGrant();
         return true;
+    }
+
+    @Override
+    public Optional<JSONObject> fetchTokenData() {
+        return Optional.empty();
     }
 
     public void revokeAllAccessTokensWithGivenGrant() {}
