@@ -28,10 +28,7 @@ import java.util.List;
 public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
     private final SslContext sslContext;
-
-    private Handler<?, ?> refreshTokenGrantTokenRequestHandler;
-    private Handler<?, ?> authorizationCodeGrantTokenRequestHandler;
-
+    
     public MainChannelInitializer(SslContext sslContext){
         this.sslContext = sslContext;
     }
