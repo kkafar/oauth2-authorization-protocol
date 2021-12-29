@@ -20,7 +20,7 @@ public record HttpPostRequestBodyDecoder(HttpPostRequestDecoder decoder) {
         return getStringFromData(tokenData);
     }
 
-    private Optional<String> getStringFromData(InterfaceHttpData data) {
+    public Optional<String> getStringFromData(InterfaceHttpData data) {
         Optional<String> dataString = Optional.empty();
 
         if (data != null) {

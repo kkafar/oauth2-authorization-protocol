@@ -3,9 +3,12 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.json.JSONObject;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant.AuthorizationCodeGrantTokenRequestValidator;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant.RefreshTokenGrantTokenRequestValidator;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -49,14 +52,23 @@ public class AuthorizationServerUtil {
                 .build();
     }
 
-    public static FullHttpResponse badRequestHttpResponse() {
+    public static FullHttpResponse badRequestHttpResponse(boolean includeCacheAndPragmaControl) {
         JSONObject json = new JSONObject();
         json.put("error", INVALID_REQUEST);
+        return badRequestHttpResponseWithCustomError(includeCacheAndPragmaControl, json);
+    }
 
-        ByteBuf content = Unpooled.copiedBuffer(json.toString(), StandardCharsets.UTF_8);
+    public static FullHttpResponse badRequestHttpResponseWithCustomError(boolean includeCacheAndPragmaControl,
+                                                                         JSONObject error) {
+        ByteBuf content = Unpooled.copiedBuffer(error.toString(), StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST, content);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+
+        if (includeCacheAndPragmaControl) {
+            response.headers().set(HttpHeaderNames.CACHE_CONTROL, "no-store");
+            response.headers().set(HttpHeaderNames.PRAGMA, "no-cache");
+        }
         return response;
     }
 

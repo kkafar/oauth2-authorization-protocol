@@ -14,19 +14,15 @@ public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequ
     public FullHttpResponse handle(FullHttpRequest request) {
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
         if (!requestValid(request, decoder)) {
-            return AuthorizationServerUtil.badRequestHttpResponse();
+            return AuthorizationServerUtil.badRequestHttpResponse(false);
         }
 
         ResourceServerAuthenticator authenticator = new ResourceServerAuthenticator(request);
         if (!authenticator.authenticate()) {
-            return failedAuthenticationResponse();
+            return authenticator.failedBearerTokenAuthenticationResponse();
         }
 
         return next.handle(decoder);
-    }
-
-    private FullHttpResponse responseWith200StatusCode() {
-        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
     }
 
     private boolean requestValid(FullHttpRequest request, HttpPostRequestDecoder decoder) {
@@ -35,9 +31,5 @@ public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequ
                 && validator.validContentType(CORRECT_CONTENT_TYPE)
                 && validator.hasTokenInRequestBody()
                 && validator.hasAuthorizationHeader();
-    }
-
-    private FullHttpResponse failedAuthenticationResponse() {
-        return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.UNAUTHORIZED);
     }
 }
