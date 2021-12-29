@@ -17,9 +17,10 @@ public record ResourceServerAuthenticator(FullHttpRequest request) {
         return true;
     }
 
-    private FullHttpResponse failedBearerTokenAuthenticationResponse() {
-        // todo: complete this response
+    public FullHttpResponse failedBearerTokenAuthenticationResponse() {
+        // todo: MAY add error_description to this response
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.UNAUTHORIZED);
+        response.headers().set(HttpHeaderNames.WWW_AUTHENTICATE, "Bearer realm=\"auth_server\", error=\"invalid_token\"");
         return response;
     }
 }
