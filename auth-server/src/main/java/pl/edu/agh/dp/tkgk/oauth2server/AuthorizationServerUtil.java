@@ -15,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,7 +86,7 @@ public class AuthorizationServerUtil {
     public static String loadTextResource(String resourcePath) throws FileNotFoundException {
         URL resourceURL = AuthorizationServerUtil.class.getResource(resourcePath);
         if (resourceURL == null){
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Couldn't find resource: " + resourcePath);
         }
 
         String textResource = "";
@@ -105,18 +107,27 @@ public class AuthorizationServerUtil {
                 "</body></html>";
     }
 
-    public static HashMap<String,String> extractParameters(FullHttpRequest request){
-        HashMap<String,String> parameters = new HashMap<>();
-        int questionMarkPosition = request.uri().lastIndexOf('?');
-        if(questionMarkPosition == -1) return parameters;
 
-        String parametersString = request.uri().substring(questionMarkPosition+1);
-        String[] keyValuePairs = parametersString.split("&");
-        for(String keyValuePair: keyValuePairs){
-            String[] keyThenValue = keyValuePair.split("=");
-            parameters.put(keyThenValue[0],keyThenValue[1]);
-        }
+    public static FullHttpResponse buildSimpleHttpResponse(HttpResponseStatus status, String content){
+        ByteBuf contentByteBuf = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, contentByteBuf);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_HTML);
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentByteBuf.readableBytes());
+        return response;
+    }
 
-        return parameters;
+    public static FullHttpResponse buildServerErrorResponse(String msg){
+        String pageContent = buildSimpleHtml("Error 500", msg);
+        FullHttpResponse serverErrorResponse = buildSimpleHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, pageContent);
+        return serverErrorResponse;
+    }
+
+    public static FullHttpResponse buildErrorResponse(String error, String errorUri, String redirectUri, String state){
+        String url = redirectUri + "?error=" + error + "&error_uri=" + errorUri + "&state=" + state;
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+        response.headers().set(HttpHeaderNames.LOCATION, url);
+        return response;
     }
 }

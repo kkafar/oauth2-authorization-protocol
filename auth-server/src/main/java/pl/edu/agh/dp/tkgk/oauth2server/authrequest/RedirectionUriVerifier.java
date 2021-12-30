@@ -11,6 +11,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -18,24 +20,24 @@ import java.util.Optional;
  * and if given redirect_uri matches that of client redirect_uri
  */
 
-public class RedirectionUriVerifier extends BaseHandler {
+public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> {
 
     private static final String CLIENT_ID = "client_id";
     private static final String REDIRECTION_URI = "redirect_uri";
 
     @Override
-    public FullHttpResponse handle(FullHttpRequest request) {
-        HashMap<String,String> parameters = AuthorizationServerUtil.extractParameters(request);
+    public FullHttpResponse handle(HttpRequestWithParameters request) {
+        Map<String, List<String>> parameters = request.urlParameters;
 
         if(!parameters.containsKey(CLIENT_ID)){
             return buildErrorResponse("client_id is missing");
         }
-        String clientId = parameters.get(CLIENT_ID);
+        String clientId = parameters.get(CLIENT_ID).get(0);
 
         if(!parameters.containsKey(REDIRECTION_URI)){
             return buildErrorResponse("redirect_uri is missing");
         }
-        String redirectionUri = parameters.get(REDIRECTION_URI);
+        String redirectionUri = parameters.get(REDIRECTION_URI).get(0);
 
         Database database = AuthorizationDatabaseProvider.getInstance();
         Optional<Client> optionalClient = database.getClient(clientId);
