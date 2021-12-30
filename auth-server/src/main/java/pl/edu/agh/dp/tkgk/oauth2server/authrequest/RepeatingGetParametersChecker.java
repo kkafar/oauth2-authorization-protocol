@@ -7,9 +7,6 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
 

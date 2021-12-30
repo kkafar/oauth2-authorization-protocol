@@ -1,13 +1,8 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
-import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-
-import java.nio.charset.StandardCharsets;
 
 public class AuthorizationCodeResponder extends BaseHandler<AuthorizationRequest, Void> {
     @Override

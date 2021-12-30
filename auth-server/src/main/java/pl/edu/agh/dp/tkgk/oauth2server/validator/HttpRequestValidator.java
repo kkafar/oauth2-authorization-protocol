@@ -6,8 +6,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-
-import java.util.Objects;
+import io.netty.util.AsciiString;
 
 public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecoder decoder) {
 
@@ -16,10 +15,9 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
         return method.equals(validHttpMethod);
     }
 
-    public boolean validContentType(String validContentType) {
+    public boolean validContentType(AsciiString validContentType) {
         HttpHeaders headers = request.headers();
-        String contentType = headers.get(HttpHeaderNames.CONTENT_TYPE);
-        return Objects.equals(contentType, validContentType);
+        return headers.contains(HttpHeaderNames.CONTENT_TYPE, validContentType, true);
     }
 
     public boolean hasTokenInRequestBody() {

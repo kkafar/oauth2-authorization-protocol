@@ -19,9 +19,8 @@ import java.util.Objects;
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {
 
     private static final String ACCESS_TOKEN = "access_token";
-
-    // todo: change the way the secret for HS256 is stored
-    private static final String SECRET = "ultra-secret-key-that-is-at-least-32-bits-long-for-hs256-algorithm-top-secret";
+    private static final String INVALID_TOKEN = "invalid_token";
+    private static final String NO_TOKEN_HINT = "no_token_hint";
 
     private String tokenString;
     private String tokenHint;
@@ -34,8 +33,8 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
 
         try {
             // token must be in the request body as checked in the TokenRevocationRequestValidator
-            tokenString = bodyDecoder.fetchToken().orElse("invalid_token");
-            tokenHint = bodyDecoder.fetchTokenHint().orElse("no_token_hint");
+            tokenString = bodyDecoder.fetchToken().orElse(INVALID_TOKEN);
+            tokenHint = bodyDecoder.fetchTokenHint().orElse(NO_TOKEN_HINT);
 
             // todo: check if the token is assigned to the user that sent it to be revoked -> if it is not the user's token
             // then the revocation request should be refused
@@ -59,7 +58,7 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
     }
 
     private void decodeTokenString() throws JWTVerificationException {
-        Algorithm algorithm = Algorithm.HMAC256(SECRET);
+        Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
         JWTVerifier verifier = JWT.require(algorithm)
                 .build();
         tokenFromString = verifier.verify(tokenString);

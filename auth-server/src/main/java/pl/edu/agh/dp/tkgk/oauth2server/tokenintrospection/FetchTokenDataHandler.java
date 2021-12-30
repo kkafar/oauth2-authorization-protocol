@@ -18,6 +18,9 @@ import java.io.IOException;
 
 public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, JSONObject> {
 
+    private static final String INVALID_TOKEN = "invalid_token";
+    private static final String NO_TOKEN_HINT = "no_token_hint";
+
     private String tokenString;
     private String tokenHint;
 
@@ -31,8 +34,8 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, J
 
         try {
             // token must be in the request body as checked in the TokenIntrospectionRequestValidator
-            tokenString = bodyDecoder.fetchToken().orElse("invalid_token");
-            tokenHint = bodyDecoder.fetchTokenHint().orElse("no_token_hint");
+            tokenString = bodyDecoder.fetchToken().orElse(INVALID_TOKEN);
+            tokenHint = bodyDecoder.fetchTokenHint().orElse(NO_TOKEN_HINT);
             decodeTokenString();
         } catch (IOException | JWTVerificationException e) {
             e.printStackTrace();
