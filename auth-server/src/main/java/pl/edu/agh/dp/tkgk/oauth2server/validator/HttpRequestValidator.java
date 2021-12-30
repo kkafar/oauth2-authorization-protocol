@@ -32,4 +32,9 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
         String authorizationHeader = headers.get(HttpHeaderNames.AUTHORIZATION);
         return authorizationHeader != null;
     }
+    
+    public boolean hasGrantTypeInRequestBody() {
+        InterfaceHttpData grantTypeData = decoder.getBodyHttpData("grant_type");
+        return grantTypeData != null;
+    }
 }

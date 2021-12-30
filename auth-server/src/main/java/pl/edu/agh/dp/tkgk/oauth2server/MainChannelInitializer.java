@@ -5,29 +5,27 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypeDispatcher;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypesHandlerChainsBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenRequestValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.FetchTokenDataHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.TokenDataResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.TokenIntrospectionRequestValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
 
-import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
-
 import java.util.HashMap;
-import java.util.List;
 
 public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
     private final SslContext sslContext;
-
+    
     public MainChannelInitializer(SslContext sslContext){
         this.sslContext = sslContext;
     }
@@ -51,6 +49,12 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
         endpointHandlerMap.put("/introspect", tokenIntrospectionRequestValidator);
 
+        // Token Request
+        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenRequestValidator = new TokenRequestValidator();
+        Handler<HttpPostRequestDecoder, ?> tokenGrantTypeDispatcher = new TokenGrantTypeDispatcher();
+        tokenRequestValidator.setNext(tokenGrantTypeDispatcher);
+
+        endpointHandlerMap.put("/token", tokenRequestValidator);
 
         // Ping
         Handler<FullHttpRequest, ?> pingHandler = new PingHandler();
@@ -75,5 +79,8 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast(new HttpObjectAggregator(Integer.MAX_VALUE));
         pipeline.addLast(new SwitchPipelineHandler(buildEndpointHandlerMap()));
 
+        // to make sure that handler chains serving different grant types on token endpoint are built before
+        // the server receives any requests from the clients
+        TokenGrantTypesHandlerChainsBuilder.buildChains();
     }
 }

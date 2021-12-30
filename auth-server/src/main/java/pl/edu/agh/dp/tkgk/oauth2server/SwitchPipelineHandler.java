@@ -7,8 +7,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.pagenotfound.PageNotFoundHandler;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SwitchPipelineHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 

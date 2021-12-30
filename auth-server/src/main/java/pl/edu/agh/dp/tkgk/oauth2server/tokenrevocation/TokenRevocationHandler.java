@@ -7,12 +7,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
-
+import java.io.IOException;
 import java.util.Objects;
 
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {
@@ -31,13 +32,19 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
         HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
-        // token must be in the request body as checked in the TokenRevocationRequestValidator
-        tokenString = bodyDecoder.fetchToken().orElse("invalid_token");
-        tokenHint = bodyDecoder.fetchTokenHint().orElse("no_token_hint");
+        try {
+            // token must be in the request body as checked in the TokenRevocationRequestValidator
+            tokenString = bodyDecoder.fetchToken().orElse("invalid_token");
+            tokenHint = bodyDecoder.fetchTokenHint().orElse("no_token_hint");
 
-        // todo: check if the token is assigned to the user that sent it to be revoked -> if it is not the user's token
-        // then the revocation request should be refused
-        decodeTokenString();
+            // todo: check if the token is assigned to the user that sent it to be revoked -> if it is not the user's token
+            // then the revocation request should be refused
+            decodeTokenString();
+        } catch (IOException | JWTVerificationException e) {
+            e.printStackTrace();
+            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+        }
+
         revokeToken();
 
         // RFC7009 says that the error response with code 503 with error : unsupported_token_type is used only if the
@@ -51,15 +58,11 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
         return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
     }
 
-    private void decodeTokenString() {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(SECRET);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .build();
-            tokenFromString = verifier.verify(tokenString);
-        } catch (JWTVerificationException e) {
-            e.printStackTrace();
-        }
+    private void decodeTokenString() throws JWTVerificationException {
+        Algorithm algorithm = Algorithm.HMAC256(SECRET);
+        JWTVerifier verifier = JWT.require(algorithm)
+                .build();
+        tokenFromString = verifier.verify(tokenString);
     }
 
     // todo: how to store tokens in the db?
