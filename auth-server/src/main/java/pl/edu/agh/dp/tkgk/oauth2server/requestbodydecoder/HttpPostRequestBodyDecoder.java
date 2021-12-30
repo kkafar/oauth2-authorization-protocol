@@ -10,27 +10,26 @@ import java.util.Optional;
 
 public record HttpPostRequestBodyDecoder(HttpPostRequestDecoder decoder) {
 
-    public Optional<String> fetchTokenHint() {
-        InterfaceHttpData tokenHintData = decoder.getBodyHttpData("token_hint_data");
-        return getStringFromData(tokenHintData);
+    public Optional<String> fetchTokenHint() throws IOException {
+        return fetchAttribute("token_hint_data");
     }
 
-    public Optional<String> fetchToken() {
-        InterfaceHttpData tokenData = decoder.getBodyHttpData("token");
-        return getStringFromData(tokenData);
+    public Optional<String> fetchToken() throws IOException {
+        return fetchAttribute("token");
     }
 
-    public Optional<String> getStringFromData(InterfaceHttpData data) {
+    public Optional<String> fetchAttribute(String attributeName) throws IOException {
+        InterfaceHttpData attributeData = decoder.getBodyHttpData(attributeName);
+        return getStringFromData(attributeData);
+    }
+
+    public Optional<String> getStringFromData(InterfaceHttpData data) throws IOException {
         Optional<String> dataString = Optional.empty();
 
         if (data != null) {
             if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
                 Attribute dataAttribute = (Attribute) data;
-                try {
-                    dataString = Optional.of(dataAttribute.getString(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                dataString = Optional.of(dataAttribute.getString(StandardCharsets.UTF_8));
             }
         }
 

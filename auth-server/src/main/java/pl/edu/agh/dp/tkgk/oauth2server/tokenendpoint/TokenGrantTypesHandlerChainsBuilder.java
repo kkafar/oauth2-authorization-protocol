@@ -1,8 +1,11 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint;
 
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.Handler;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant.AuthorizationCodeGrantAccessTokenGenerator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant.AuthorizationCodeGrantTokenRequestValidator;
+import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant.RefreshTokenGrantAccessTokenGenerator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant.RefreshTokenGrantTokenRequestValidator;
 
 import java.util.Objects;
@@ -13,27 +16,36 @@ import java.util.Objects;
  */
 public class TokenGrantTypesHandlerChainsBuilder {
 
-    private static Handler<HttpPostRequestDecoder, ?> authorizationCodeGrantTokenRequestValidator;
-    private static Handler<HttpPostRequestDecoder, ?> refreshTokenGrantTokenRequestValidator;
+    private static Handler<HttpPostRequestDecoder, String> authorizationCodeGrantTokenRequestValidator;
+    private static Handler<HttpPostRequestDecoder, String> refreshTokenGrantTokenRequestValidator;
+    private static final Handler<JSONObject, ?> tokenResponseBuilder = new TokenResponseBuilder();
 
-    private static Handler<HttpPostRequestDecoder, ?> buildRefreshTokenGrantTokenRequestHandlersChain() {
-        refreshTokenGrantTokenRequestValidator =
-                new RefreshTokenGrantTokenRequestValidator();
+    private static Handler<HttpPostRequestDecoder, String> buildRefreshTokenGrantTokenRequestHandlersChain() {
+        refreshTokenGrantTokenRequestValidator = new RefreshTokenGrantTokenRequestValidator();
+        Handler<String, JSONObject> accessTokenGenerator = new RefreshTokenGrantAccessTokenGenerator();
+
+        refreshTokenGrantTokenRequestValidator.setNext(accessTokenGenerator);
+        accessTokenGenerator.setNext(tokenResponseBuilder);
+
         return refreshTokenGrantTokenRequestValidator;
     }
 
-    private static Handler<HttpPostRequestDecoder, ?> buildAuthorizationCodeGrantTokenRequestHandlersChain() {
-        authorizationCodeGrantTokenRequestValidator =
-                new AuthorizationCodeGrantTokenRequestValidator();
+    private static Handler<HttpPostRequestDecoder, String> buildAuthorizationCodeGrantTokenRequestHandlersChain() {
+        authorizationCodeGrantTokenRequestValidator = new AuthorizationCodeGrantTokenRequestValidator();
+        Handler<String, JSONObject> accessTokenGenerator = new AuthorizationCodeGrantAccessTokenGenerator();
+
+        authorizationCodeGrantTokenRequestValidator.setNext(accessTokenGenerator);
+        accessTokenGenerator.setNext(tokenResponseBuilder);
+
         return authorizationCodeGrantTokenRequestValidator;
     }
 
-    public static Handler<HttpPostRequestDecoder, ?> getRefreshTokenGrantTokenRequestHandler() {
+    public static Handler<HttpPostRequestDecoder, String> getRefreshTokenGrantTokenRequestHandler() {
         return Objects.requireNonNullElseGet(refreshTokenGrantTokenRequestValidator,
                 TokenGrantTypesHandlerChainsBuilder::buildRefreshTokenGrantTokenRequestHandlersChain);
     }
 
-    public static Handler<HttpPostRequestDecoder, ?> getAuthorizationCodeGrantTokenRequestHandler() {
+    public static Handler<HttpPostRequestDecoder, String> getAuthorizationCodeGrantTokenRequestHandler() {
         return Objects.requireNonNullElseGet(authorizationCodeGrantTokenRequestValidator,
                 TokenGrantTypesHandlerChainsBuilder::buildAuthorizationCodeGrantTokenRequestHandlersChain);
     }

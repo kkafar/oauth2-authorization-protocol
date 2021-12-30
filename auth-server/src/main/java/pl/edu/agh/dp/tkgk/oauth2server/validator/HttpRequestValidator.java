@@ -6,10 +6,8 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecoder decoder) {
 
