@@ -9,6 +9,8 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import org.json.JSONObject;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
+import pl.edu.agh.dp.tkgk.oauth2server.errorsendpoint.ErrorsPageHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypeDispatcher;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypesHandlerChainsBuilder;
@@ -55,11 +57,37 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
         endpointHandlerMap.put("/token", tokenRequestValidator);
 
-        // Ping
-        Handler<FullHttpRequest, ?> pingHandler = new PingHandler();
-        endpointHandlerMap.put("/ping", pingHandler);
+        buildPingEndpoint(endpointHandlerMap);
+        buildAuthorizationEndpoint(endpointHandlerMap);
+        buildErrorsPageEndpoint(endpointHandlerMap);
 
         return endpointHandlerMap;
+    }
+
+    private void buildAuthorizationEndpoint(HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap) {
+        Handler<FullHttpRequest, FullHttpRequest> authFirstHandler = new HttpHeadersValidator();
+        authFirstHandler.setNextAndGet(new RepeatingGetParametersChecker())
+                .setNextAndGet(new FullHttpRequest2HttpRequestWithParameters())
+                .setNextAndGet(new RedirectionUriVerifier())
+                .setNextAndGet(new StateValidator())
+                .setNextAndGet(new ResponseTypeVerifier())
+                .setNextAndGet(new ScopeValidator())
+                .setNextAndGet(new CodeChallengeValidator())
+                .setNextAndGet(new HttpRequestWithParameters2AuthorizationRequest())
+                .setNextAndGet(new IdentityVerifier())
+                .setNextAndGet(new ScopeAcceptedVerifier())
+                .setNextAndGet(new AuthorizationCodeResponder());
+        endpointHandlerMap.put("/authorize", authFirstHandler);
+    }
+
+    private void buildErrorsPageEndpoint(HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap) {
+        Handler<FullHttpRequest, Void> errorsPageHandler = new ErrorsPageHandler();
+        endpointHandlerMap.put("/errors_page", errorsPageHandler);
+    }
+
+    private void buildPingEndpoint(HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap) {
+        Handler<FullHttpRequest, ?> pingHandler = new PingHandler();
+        endpointHandlerMap.put("/ping", pingHandler);
     }
 
     @Override

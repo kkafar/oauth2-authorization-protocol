@@ -2,7 +2,9 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.json.JSONObject;
@@ -13,10 +15,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.CertificateException;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class AuthorizationServerUtil {
@@ -81,7 +86,7 @@ public class AuthorizationServerUtil {
     public static String loadTextResource(String resourcePath) throws FileNotFoundException {
         URL resourceURL = AuthorizationServerUtil.class.getResource(resourcePath);
         if (resourceURL == null){
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("Couldn't find resource: " + resourcePath);
         }
 
         String textResource = "";
@@ -92,5 +97,37 @@ public class AuthorizationServerUtil {
         }
 
         return textResource;
+    }
+
+    public static String buildSimpleHtml(String title, String content){
+        return "<html><body><h1>" +
+                title +
+                "</h1>" +
+                content.replaceAll("\n", "</br>") +
+                "</body></html>";
+    }
+
+
+    public static FullHttpResponse buildSimpleHttpResponse(HttpResponseStatus status, String content){
+        ByteBuf contentByteBuf = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, contentByteBuf);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_HTML);
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentByteBuf.readableBytes());
+        return response;
+    }
+
+    public static FullHttpResponse buildServerErrorResponse(String msg){
+        String pageContent = buildSimpleHtml("Error 500", msg);
+        FullHttpResponse serverErrorResponse = buildSimpleHttpResponse(HttpResponseStatus.INTERNAL_SERVER_ERROR, pageContent);
+        return serverErrorResponse;
+    }
+
+    public static FullHttpResponse buildErrorResponse(String error, String errorUri, String redirectUri, String state){
+        String url = redirectUri + "?error=" + error + "&error_uri=" + errorUri + "&state=" + state;
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+        response.headers().set(HttpHeaderNames.LOCATION, url);
+        return response;
     }
 }

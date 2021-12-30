@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 
 public interface Handler<T, K> {
 
-    Handler<K, ?> setNext(Handler<K, ?> handler);
+    void setNext(Handler<K, ?> handler);
+    <S> Handler<K, S> setNextAndGet(Handler<K, S> handler);
     FullHttpResponse handle(T request);
 }
