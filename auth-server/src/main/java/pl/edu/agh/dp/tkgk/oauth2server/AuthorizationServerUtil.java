@@ -3,13 +3,9 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import org.json.JSONObject;
-import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant.AuthorizationCodeGrantTokenRequestValidator;
-import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant.RefreshTokenGrantTokenRequestValidator;
-
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -25,6 +21,7 @@ import java.util.Objects;
 
 public class AuthorizationServerUtil {
 
+    public static final String SECRET = "ultra-secret-key-that-is-at-least-32-bits-long-for-hs256-algorithm-top-secret";
     public static final String HTML_PAGE_404 = "html/page_not_found_404.html";
     private static final String INVALID_REQUEST = "invalid_request";
 
@@ -54,13 +51,21 @@ public class AuthorizationServerUtil {
     }
 
     public static FullHttpResponse badRequestHttpResponse(boolean includeCacheAndPragmaControl) {
-        JSONObject json = new JSONObject();
-        json.put("error", INVALID_REQUEST);
-        return badRequestHttpResponseWithCustomError(includeCacheAndPragmaControl, json);
+        return badRequestHttpResponseWithCustomError(includeCacheAndPragmaControl, INVALID_REQUEST);
+    }
+
+    public static FullHttpResponse serverErrorHttpResponse(String errorMsg) {
+        JSONObject error = new JSONObject().put("error", errorMsg);
+        ByteBuf content = Unpooled.copiedBuffer(error.toString(), StandardCharsets.UTF_8);
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, content);
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+        return response;
     }
 
     public static FullHttpResponse badRequestHttpResponseWithCustomError(boolean includeCacheAndPragmaControl,
-                                                                         JSONObject error) {
+                                                                         String errorMsg) {
+        JSONObject error = new JSONObject().put("error", errorMsg);
         ByteBuf content = Unpooled.copiedBuffer(error.toString(), StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST, content);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");

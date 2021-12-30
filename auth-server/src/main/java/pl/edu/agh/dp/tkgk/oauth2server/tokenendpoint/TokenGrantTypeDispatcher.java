@@ -2,12 +2,11 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -20,22 +19,26 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
         HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
-        InterfaceHttpData grantTypeData = decoder.getBodyHttpData("grant_type");
-        Optional<String> grantTypeString = bodyDecoder.getStringFromData(grantTypeData);
+        try {
+            Optional<String> grantTypeString = bodyDecoder.fetchAttribute("grant_type");
 
-        if (grantTypeString.isPresent()) {
+            if (grantTypeString.isPresent()) {
 
-            if (grantTypeString.get().equals("refresh_token")) {
-                return TokenGrantTypesHandlerChainsBuilder.getRefreshTokenGrantTokenRequestHandler().handle(decoder);
+                if (grantTypeString.get().equals("refresh_token")) {
+                    return TokenGrantTypesHandlerChainsBuilder.getRefreshTokenGrantTokenRequestHandler().handle(decoder);
+                }
+
+                else if (grantTypeString.get().equals("authorization_code")) {
+                    return TokenGrantTypesHandlerChainsBuilder.getAuthorizationCodeGrantTokenRequestHandler().handle(decoder);
+                }
+
             }
-
-            else if (grantTypeString.get().equals("authorization_code")) {
-                return TokenGrantTypesHandlerChainsBuilder.getAuthorizationCodeGrantTokenRequestHandler().handle(decoder);
-            }
-
+        } catch (IOException e) {
+            e.printStackTrace();
+            AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
         }
 
         return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                new JSONObject().put("error", "unsupported_grant_type"));
+                "unsupported_grant_type");
     }
 }
