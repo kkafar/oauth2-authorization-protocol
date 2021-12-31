@@ -15,6 +15,11 @@ import java.util.Optional;
  */
 public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPostRequestDecoder, String> {
 
+    private static final String INVALID_GRANT = "invalid_grant";
+    private static final String INVALID_SCOPE = "invalid_scope";
+    private static final String SCOPE = "scope";
+    private static final String REFRESH_TOKEN = "refresh_token";
+
     private String refreshTokenString;
 
     @Override
@@ -25,12 +30,12 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
         try {
             if (!refreshTokenValid(bodyDecoder)) {
                 return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        "invalid_grant");
+                        INVALID_GRANT);
             }
 
             if (!scopeValidIfAdded(bodyDecoder)) {
                 return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        "invalid_scope");
+                        INVALID_SCOPE);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +48,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
     }
 
     private boolean scopeValidIfAdded(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> scopeString = bodyDecoder.fetchAttribute("scope");
+        Optional<String> scopeString = bodyDecoder.fetchAttribute(SCOPE);
 
         if (scopeString.isPresent()) {
             // check if attached scope does not exceed scope assigned in the authorization process to the refresh token
@@ -53,7 +58,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
     }
 
     private boolean refreshTokenValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> refreshTokenString = bodyDecoder.fetchAttribute("refresh_token");
+        Optional<String> refreshTokenString = bodyDecoder.fetchAttribute(REFRESH_TOKEN);
 
         if (refreshTokenString.isPresent()) {
             this.refreshTokenString = refreshTokenString.get();

@@ -13,6 +13,13 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
  */
 public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<String, JSONObject> {
 
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String TOKEN_TYPE = "token_type";
+    private static final String BEARER = "Bearer";
+    private static final String EXPIRES_IN = "expires_in";
+
+    private static final int ONE_DAY_IN_SECONDS = 86400;
+
     @Override
     public FullHttpResponse handle(String refreshTokenString) {
         // generate new access token and store it in the db
@@ -20,9 +27,9 @@ public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<String, J
             Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
             String accessToken = JWT.create().sign(algorithm); // should have some claim with random string building the token
             JSONObject responseBody = new JSONObject();
-            responseBody.put("access_token", accessToken);
-            responseBody.put("token_type", "Bearer");
-            responseBody.put("expires_in", 86400); // 1 day in seconds
+            responseBody.put(ACCESS_TOKEN, accessToken);
+            responseBody.put(TOKEN_TYPE, BEARER);
+            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS);
             return next.handle(responseBody);
         } catch (JWTCreationException e) {
             e.printStackTrace();

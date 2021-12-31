@@ -10,6 +10,15 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
 public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<String, JSONObject> {
 
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String TOKEN_TYPE = "token_type";
+    private static final String BEARER = "Bearer";
+    private static final String EXPIRES_IN = "expires_in";
+    private static final String SCOPE = "scope";
+
+    private static final int ONE_DAY_IN_SECONDS = 86400;
+
     @Override
     public FullHttpResponse handle(String authorizationCodeString) {
         // generate new access token and store it in the db
@@ -19,11 +28,11 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Stri
             String refreshToken = JWT.create().sign(algorithm); // same as above
             JSONObject responseBody = new JSONObject();
             // set authorizationCode as used in the db
-            responseBody.put("access_token", accessToken);
-            responseBody.put("token_type", "Bearer");
-            responseBody.put("expires_in", 86400); // 1 day in seconds
-            responseBody.put("refresh_token", refreshToken);
-            responseBody.put("scope", "something");
+            responseBody.put(ACCESS_TOKEN, accessToken);
+            responseBody.put(TOKEN_TYPE, BEARER);
+            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS); // 1 day in seconds
+            responseBody.put(REFRESH_TOKEN, refreshToken);
+            responseBody.put(SCOPE, "something");
             return next.handle(responseBody);
         } catch (JWTCreationException e) {
             e.printStackTrace();

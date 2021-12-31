@@ -18,7 +18,7 @@ public class TokenDataResponseBuilder extends BaseHandler<JSONObject, Object> {
     private FullHttpResponse responseWithTokenDataAndStatus200(JSONObject tokenDataJSON) {
         ByteBuf content = Unpooled.copiedBuffer(tokenDataJSON.toString(), StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
         return response;
     }

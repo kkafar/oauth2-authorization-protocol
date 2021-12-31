@@ -1,15 +1,14 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.records.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.database.records.Session;
 
 import java.time.Instant;
 import java.util.*;
-
-import org.json.JSONObject;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Session;
 
 
 class MockAuthorizationDatabaseFacade implements Database{
@@ -95,6 +94,11 @@ class MockAuthorizationDatabaseFacade implements Database{
                 new AuthCode(code, request.redirectUri, request.codeChallenge, request.codeChallengeMethod, expireTime);
         authCodeHashMap.put(code, authCode);
         return code;
+    }
+
+    @Override
+    public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
+        return Optional.empty();
     }
 
     public void revokeAllAccessTokensWithGivenGrant() {}

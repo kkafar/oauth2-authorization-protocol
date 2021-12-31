@@ -15,20 +15,25 @@ import java.util.Optional;
  */
 public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder, HttpPostRequestDecoder> {
 
+    private static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
+    private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String AUTHORIZATION_CODE = "authorization_code";
+    private static final String GRANT_TYPE = "grant_type";
+
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
         HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
         try {
-            Optional<String> grantTypeString = bodyDecoder.fetchAttribute("grant_type");
+            Optional<String> grantTypeString = bodyDecoder.fetchAttribute(GRANT_TYPE);
 
             if (grantTypeString.isPresent()) {
 
-                if (grantTypeString.get().equals("refresh_token")) {
+                if (grantTypeString.get().equals(REFRESH_TOKEN)) {
                     return TokenGrantTypesHandlerChainsBuilder.getRefreshTokenGrantTokenRequestHandler().handle(decoder);
                 }
 
-                else if (grantTypeString.get().equals("authorization_code")) {
+                else if (grantTypeString.get().equals(AUTHORIZATION_CODE)) {
                     return TokenGrantTypesHandlerChainsBuilder.getAuthorizationCodeGrantTokenRequestHandler().handle(decoder);
                 }
 
@@ -39,6 +44,6 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
         }
 
         return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                "unsupported_grant_type");
+                UNSUPPORTED_GRANT_TYPE);
     }
 }

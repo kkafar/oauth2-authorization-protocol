@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<HttpRequestWithParameters, AuthorizationRequest> {

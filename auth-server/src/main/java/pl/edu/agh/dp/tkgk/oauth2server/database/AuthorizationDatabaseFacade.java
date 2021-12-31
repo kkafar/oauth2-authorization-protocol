@@ -1,11 +1,11 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import org.json.JSONObject;
-import java.util.Optional;
-
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
+
+import java.util.Optional;
 
 
 class AuthorizationDatabaseFacade implements Database{
@@ -44,6 +44,11 @@ class AuthorizationDatabaseFacade implements Database{
     @Override
     public String generateCode(AuthorizationRequest request) {
         return null;
+    }
+
+    @Override
+    public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
+        return Optional.empty();
     }
 
     private static class AuthorizationDatabaseFacadeHolder{

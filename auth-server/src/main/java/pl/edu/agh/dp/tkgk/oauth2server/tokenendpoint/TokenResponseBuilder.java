@@ -18,10 +18,10 @@ public class TokenResponseBuilder extends BaseHandler<JSONObject, Object> {
     private FullHttpResponse responseWithTokenAndStatusCode200(JSONObject responseBody) {
         ByteBuf content = Unpooled.copiedBuffer(responseBody.toString(), StandardCharsets.UTF_8);
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
-        response.headers().set(HttpHeaderNames.CACHE_CONTROL, "no-store");
-        response.headers().set(HttpHeaderNames.PRAGMA, "no-cache");
+        response.headers().set(HttpHeaderNames.CACHE_CONTROL, HttpHeaderValues.NO_STORE);
+        response.headers().set(HttpHeaderNames.PRAGMA, HttpHeaderValues.NO_CACHE);
         return response;
     }
 }
