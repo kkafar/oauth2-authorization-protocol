@@ -1,6 +1,6 @@
 import sys
 import config as cfg
-from flask import Flask
+from flask import Flask, request
 
 
 app = Flask(__name__)
@@ -9,6 +9,10 @@ app = Flask(__name__)
 def echo():
     return "<p>Everybody hands up! We are going crazy!</p>"
 
+
+@app.route("/data", methods=['POST', 'GET'])
+def reply_with_json():
+    return {'statusCode': 200, 'content': 'some content'}
 
 
 if __name__ == "__main__":
