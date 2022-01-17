@@ -1,4 +1,4 @@
-package com.example.clientapp;
+package com.dp;
 
 import android.os.Bundle;
 
@@ -13,7 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.clientapp.databinding.ActivityMainBinding;
+import com.dp.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
