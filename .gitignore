@@ -12,3 +12,6 @@ notes.md
 
 # files explicitly defined as local
 *.local.*
+
+# vscode configuration
+.vscode
