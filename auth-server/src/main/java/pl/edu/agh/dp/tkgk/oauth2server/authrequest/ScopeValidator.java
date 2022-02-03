@@ -5,7 +5,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
         Client client = database.getClient(clientId).orElseThrow();
         StringBuilder invalidEntries = new StringBuilder();
         for(String s : scopeEntries){
-            if(client.scope.contains(s)) continue;
+            if(client.getScope().contains(s)) continue;
             invalidEntries.append(s).append(" ");
         }
 

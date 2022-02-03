@@ -1,11 +1,12 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Session;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Session;
 
 import java.time.Instant;
 import java.util.*;
@@ -44,16 +45,9 @@ class MockAuthorizationDatabaseFacade implements Database{
     }
 
     @Override
-    public boolean revokeAccessToken() {
-        // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
-        return true;
-    }
-
-    @Override
-    public boolean revokeRefreshToken() {
+    public void tokenRevocation(DecodedJWT decodedToken, boolean isAccessToken) {
         // after revoking refresh token revoke all access tokens with the same authorization grant
-        revokeAllAccessTokensWithGivenGrant();
-        return true;
+        // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
     }
 
     @Override
@@ -65,7 +59,7 @@ class MockAuthorizationDatabaseFacade implements Database{
     public boolean isSessionIdValid(String sessionId) {
         if(!sessionHashMap.containsKey(sessionId)) return false;
         Session session = sessionHashMap.get(sessionId);
-        return session.expireTimeInSeconds > Instant.now().getEpochSecond();
+        return session.getExpireTimeInSeconds() > Instant.now().getEpochSecond();
     }
 
     @Override
@@ -91,7 +85,8 @@ class MockAuthorizationDatabaseFacade implements Database{
         String code = new String(Base64.getUrlEncoder().encode(randomBytes));
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
-                new AuthCode(code, request.redirectUri, request.codeChallenge, request.codeChallengeMethod, expireTime);
+                new AuthCode(code, request.redirectUri, request.codeChallenge, request.codeChallengeMethod, expireTime,
+                        "client", false); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
     }
@@ -101,5 +96,4 @@ class MockAuthorizationDatabaseFacade implements Database{
         return Optional.empty();
     }
 
-    public void revokeAllAccessTokensWithGivenGrant() {}
 }

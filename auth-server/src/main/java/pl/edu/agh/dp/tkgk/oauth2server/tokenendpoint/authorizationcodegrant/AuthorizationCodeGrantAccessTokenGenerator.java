@@ -30,7 +30,7 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Stri
             // set authorizationCode as used in the db
             responseBody.put(ACCESS_TOKEN, accessToken);
             responseBody.put(TOKEN_TYPE, BEARER);
-            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS); // 1 day in seconds
+            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS);
             responseBody.put(REFRESH_TOKEN, refreshToken);
             responseBody.put(SCOPE, "something");
             return next.handle(responseBody);

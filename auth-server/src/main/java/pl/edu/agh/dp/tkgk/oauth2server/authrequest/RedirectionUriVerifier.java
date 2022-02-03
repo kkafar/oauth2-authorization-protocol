@@ -7,7 +7,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -46,7 +46,7 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         }
 
         Client client = optionalClient.get();
-        if(!client.redirectionUri.equals(redirectionUri)){
+        if(!client.getRedirectUri().equals(redirectionUri)){
             return buildErrorResponse("Given redirect_id does not match client redirect_uri");
         }
 
