@@ -3,7 +3,6 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.bson.conversions.Bson;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
@@ -12,17 +11,15 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
-import pl.edu.agh.dp.tkgk.oauth2server.database.queries.TokenQueries;
+import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
 
 import java.util.Optional;
-
-import static com.mongodb.client.model.Filters.eq;
 
 class MongoDBFacade implements Database {
 
     private final MongoDatabase db = MongoClientInstance.getDatabase();
 
-    private final TokenQueries tokenQueries = new TokenQueries();
+    private final Queries queries = new Queries();
 
     private MongoDBFacade(){}
 
@@ -70,8 +67,6 @@ class MongoDBFacade implements Database {
 
     @Override
     public void tokenRevocation(DecodedJWT decodedToken, boolean isAccessToken) {
-        Bson idFilter = eq("_id", decodedToken.getId());
-        Bson authCodeFilter = eq("auth_code", decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE));
 
         MongoCollection<Token> accessTokens =
                 getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
@@ -79,12 +74,14 @@ class MongoDBFacade implements Database {
         MongoCollection<Token> refreshTokens =
                 getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
 
+        String authCodeValue = decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE).asString();
+
         if (isAccessToken) {
-            tokenQueries.deleteTokens(accessTokens, idFilter);
-            tokenQueries.deleteTokens(refreshTokens, authCodeFilter);
+            queries.deleteObjectFromCollection(accessTokens, Token.JsonFields.ID, decodedToken.getId());
+            queries.deleteObjectsFromCollection(refreshTokens, Token.JsonFields.AUTH_CODE, authCodeValue);
         } else {
-            tokenQueries.deleteTokens(refreshTokens, idFilter);
-            tokenQueries.deleteTokens(accessTokens, authCodeFilter);
+            queries.deleteObjectFromCollection(refreshTokens, Token.JsonFields.ID, decodedToken.getId());
+            queries.deleteObjectsFromCollection(accessTokens, Token.JsonFields.AUTH_CODE, authCodeValue);
         }
     }
 

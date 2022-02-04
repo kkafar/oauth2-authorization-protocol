@@ -10,9 +10,9 @@ public class Token {
     @BsonId
     private final String jwtId;
     private final String token;
-    @BsonProperty(value = "auth_code")
+    @BsonProperty(value = JsonFields.AUTH_CODE)
     private final String authCode;
-    @BsonProperty(value = "client_id")
+    @BsonProperty(value = JsonFields.CLIENT_ID)
     private final String clientId;
 
     @BsonCreator
@@ -25,6 +25,18 @@ public class Token {
         this.token = token;
         this.authCode = authCode;
         this.clientId = clientId;
+    }
+
+    public static class JsonFields {
+
+        public static final String ID = "_id";
+
+        public static final String TOKEN = "token";
+
+        public static final String AUTH_CODE = "auth_code";
+
+        public static final String CLIENT_ID = "client_id";
+
     }
 
     public String getJwtId() {
