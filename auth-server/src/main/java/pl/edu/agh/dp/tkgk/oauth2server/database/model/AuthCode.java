@@ -4,6 +4,8 @@ import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import java.util.Objects;
+
 public final class AuthCode {
     @BsonId
     private final String code;
@@ -20,7 +22,8 @@ public final class AuthCode {
     private boolean used;
 
     @BsonCreator
-    public AuthCode(@BsonProperty("code") String code, @BsonProperty("redirectUri") String redirectUri,
+    public AuthCode(@BsonProperty("code") String code,
+                    @BsonProperty("redirectUri") String redirectUri,
                     @BsonProperty("codeChallenge") String codeChallenge,
                     @BsonProperty("codeChallengeMethod") String codeChallengeMethod,
                     @BsonProperty("expireTime") long expireTime,
@@ -66,5 +69,22 @@ public final class AuthCode {
 
     public boolean isUsed() {
         return used;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuthCode authCode = (AuthCode) o;
+        return expireTime == authCode.expireTime && used == authCode.used && Objects.equals(code, authCode.code)
+                && Objects.equals(redirectUri, authCode.redirectUri)
+                && Objects.equals(codeChallenge, authCode.codeChallenge)
+                && Objects.equals(codeChallengeMethod, authCode.codeChallengeMethod)
+                && Objects.equals(clientId, authCode.clientId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code, redirectUri, codeChallenge, codeChallengeMethod, expireTime, clientId, used);
     }
 }

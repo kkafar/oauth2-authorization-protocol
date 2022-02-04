@@ -15,24 +15,24 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
 
 import java.util.Optional;
 
-class MongoDBFacade implements Database {
+public class MongoDBFacade implements Database {
 
-    private final MongoDatabase db = MongoClientInstance.getDatabase();
+    private MongoDatabase database = MongoClientInstance.getDatabase();
 
     private final Queries queries = new Queries();
 
-    private MongoDBFacade(){}
+    private MongoDBFacade() { }
 
-    private static class AuthorizationDatabaseFacadeHolder{
-        private static final MongoDBFacade database = new MongoDBFacade();
+    private static class AuthorizationDatabaseFacadeHolder {
+        private static final MongoDBFacade facade = new MongoDBFacade();
     }
 
     public static MongoDBFacade getInstance(){
-        return AuthorizationDatabaseFacadeHolder.database;
+        return AuthorizationDatabaseFacadeHolder.facade;
     }
 
     private <T> MongoCollection<T> getCollection(Class<T> type, String collectionName) {
-        return db.getCollection(collectionName, type);
+        return database.getCollection(collectionName, type);
     }
 
     @Override
@@ -88,5 +88,10 @@ class MongoDBFacade implements Database {
     @Override
     public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
         return Optional.empty();
+    }
+
+    // for testing purposes now only
+    public void setDatabase(MongoDatabase database) {
+        this.database = database;
     }
 }

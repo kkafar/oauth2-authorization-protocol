@@ -1,9 +1,13 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database.queries;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Updates;
 import org.bson.conversions.Bson;
 
-import static com.mongodb.client.model.Filters.eq;
+import java.util.List;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 /**
  * Converts methods' parameters to Bson objects and then uses them with <code>GenericQueries</code> class' methods
@@ -17,6 +21,10 @@ public class Queries {
         genericQueries.addObjectToCollection(object, objects);
     }
 
+    public <T> void addObjectsToCollection(List<T> newObjects, MongoCollection<T> objects) {
+        genericQueries.addObjectsToCollection(newObjects, objects);
+    }
+
     public <T, K> void deleteObjectsFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
         Bson filter = eq(fieldName, fieldValue);
         genericQueries.deleteObjectsFromCollection(objects, filter);
@@ -27,9 +35,11 @@ public class Queries {
         genericQueries.deleteObjectFromCollection(objects, filter);
     }
 
-    public <T, K> void updateObjectFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue, K updateValue) {
+    public <T, K> void updateObjectFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue,
+                                                  String updateFieldName, K updateValue)
+    {
         Bson filter = eq(fieldName, fieldValue);
-        Bson update = eq(fieldName, updateValue);
+        Bson update = set(updateFieldName, updateValue);
         genericQueries.updateObjectFromCollection(objects, filter, update);
     }
 

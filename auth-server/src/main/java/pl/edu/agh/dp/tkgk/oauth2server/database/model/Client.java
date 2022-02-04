@@ -5,6 +5,7 @@ import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Client {
     @BsonId
@@ -14,7 +15,10 @@ public class Client {
     private final List<String> scope;
 
     @BsonCreator
-    public Client(@BsonProperty("clientId") String clientId, @BsonProperty("redirectUri") String redirectUri, List<String> scope) {
+    public Client(@BsonProperty("clientId") String clientId,
+                  @BsonProperty("redirectUri") String redirectUri,
+                  @BsonProperty("scope") List<String> scope)
+    {
         this.clientId = clientId;
         this.redirectUri = redirectUri;
         this.scope = scope;
@@ -34,5 +38,19 @@ public class Client {
 
     public void setRedirectUri(String redirectUri) {
         this.redirectUri = redirectUri;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(clientId, client.clientId) && Objects.equals(redirectUri, client.redirectUri)
+                && Objects.equals(scope, client.scope);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clientId, redirectUri, scope);
     }
 }

@@ -6,6 +6,8 @@ import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
 
+import java.util.Objects;
+
 public class Token {
     @BsonId
     private final String jwtId;
@@ -53,6 +55,20 @@ public class Token {
 
     public String getClientId() {
         return clientId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Token token1 = (Token) o;
+        return Objects.equals(jwtId, token1.jwtId) && Objects.equals(token, token1.token)
+                && Objects.equals(authCode, token1.authCode) && Objects.equals(clientId, token1.clientId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jwtId, token, authCode, clientId);
     }
 
     @BsonIgnore

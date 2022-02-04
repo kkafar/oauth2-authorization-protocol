@@ -10,6 +10,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class DecodedToken {
     private final String jwtId;
@@ -96,5 +97,21 @@ public class DecodedToken {
 
     public String getAuthCode() {
         return authCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DecodedToken that = (DecodedToken) o;
+        return issuedAt == that.issuedAt && expiresAt == that.expiresAt && isAccessToken == that.isAccessToken
+                && Objects.equals(jwtId, that.jwtId) && Objects.equals(scopeList, that.scopeList)
+                && Objects.equals(tokenType, that.tokenType) && Objects.equals(clientId, that.clientId)
+                && Objects.equals(authCode, that.authCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jwtId, issuedAt, expiresAt, scopeList, tokenType, isAccessToken, clientId, authCode);
     }
 }

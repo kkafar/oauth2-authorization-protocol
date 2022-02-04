@@ -4,9 +4,14 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
+
+import java.util.Arrays;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -20,7 +25,7 @@ public class MongoClientInstance {
             CodecRegistry codecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
                     pojoCodecRegistry);
             ConnectionString connectionString =
-                    new ConnectionString("mongodb+srv://auth-server-oauth2:auth-server-oauth2@cluster0.yvxcd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+                    new ConnectionString("mongodb+srv://auth-server-oauth2:auth-server-oauth2@cluster0.yvxcd.mongodb.net/auth-server?retryWrites=true&w=majority");
             return MongoClientSettings.builder()
                     .applyConnectionString(connectionString)
                     .codecRegistry(codecRegistry)
