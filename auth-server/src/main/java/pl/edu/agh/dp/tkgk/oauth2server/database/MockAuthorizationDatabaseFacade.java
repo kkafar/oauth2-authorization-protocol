@@ -7,12 +7,14 @@ import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Session;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 
 import java.time.Instant;
 import java.util.*;
 
 
-class MockAuthorizationDatabaseFacade implements Database{
+public class MockAuthorizationDatabaseFacade implements Database {
 
     private final HashMap<String, Session> sessionHashMap;
     private final HashMap<String, AuthCode> authCodeHashMap;
@@ -45,13 +47,13 @@ class MockAuthorizationDatabaseFacade implements Database{
     }
 
     @Override
-    public void tokenRevocation(DecodedJWT decodedToken, boolean isAccessToken) {
+    public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
         // after revoking refresh token revoke all access tokens with the same authorization grant
         // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
     }
 
     @Override
-    public Optional<JSONObject> fetchTokenData() {
+    public Optional<Token> fetchToken(DecodedJWT decodedToken, TokenHint tokenHint) {
         return Optional.empty();
     }
 

@@ -1,3 +1,5 @@
+package mongoDbFacadeTests;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -12,6 +14,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
@@ -25,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MongoDBFacadeTests {
+public class TokenRevocationTests {
     MongoClient mongoClient = MongoClientInstance.get();
     MongoDatabase db = mongoClient.getDatabase("test");
 
@@ -39,7 +42,7 @@ public class MongoDBFacadeTests {
 
     String properToken = generateToken();
     DecodedJWT decodedProperToken = TokenUtil.decodeToken(properToken);
-    String properTokenAuthCode = decodedProperToken.getClaim(DecodedToken.Claims.AUTH_CODE).asString();
+    String properTokenAuthCode = decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
 
     Token accessToken1 = new Token("1", "token1", properTokenAuthCode, "client1");
     Token accessToken2 = new Token("2", "token2", properTokenAuthCode, "client1");
@@ -53,12 +56,12 @@ public class MongoDBFacadeTests {
     private String generateToken() {
         Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
         return JWT.create()
-                .withClaim(DecodedToken.Claims.AUTH_CODE, "authcode1")
-                .withClaim(DecodedToken.Claims.TOKEN_TYPE, "Bearer")
-                .withClaim(DecodedToken.Claims.IS_ACCESS_TOKEN, true)
-                .withClaim(DecodedToken.Claims.SCOPE, "all")
-                .withJWTId("abcdefgh")
-                .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(7)))
+                .withClaim(DecodedToken.CustomClaims.AUTH_CODE, "authcode1")
+                .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, "Bearer")
+                .withClaim(DecodedToken.CustomClaims.IS_ACCESS_TOKEN, true)
+                .withClaim(DecodedToken.CustomClaims.SCOPE, "all")
+                .withJWTId("someJWTID")
+                .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(356)))
                 .withIssuedAt(Date.valueOf(LocalDate.now()))
                 .sign(algorithm);
     }
@@ -87,11 +90,11 @@ public class MongoDBFacadeTests {
 
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
-        when(decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE))
-                .thenReturn(decodedProperToken.getClaim(DecodedToken.Claims.AUTH_CODE));
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
 
         // when
-        mongoDBFacade.tokenRevocation(decodedToken, true);
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.ACCESS_TOKEN);
 
         ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
         ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
@@ -111,11 +114,11 @@ public class MongoDBFacadeTests {
 
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(refreshToken1.getJwtId());
-        when(decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE))
-                .thenReturn(decodedProperToken.getClaim(DecodedToken.Claims.AUTH_CODE));
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
 
         // when
-        mongoDBFacade.tokenRevocation(decodedToken, false);
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.REFRESH_TOKEN);
 
         ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
         ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
@@ -135,8 +138,8 @@ public class MongoDBFacadeTests {
 
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn("-1");
-        when(decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE))
-                .thenReturn(decodedProperToken.getClaim(DecodedToken.Claims.AUTH_CODE));
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
 
         // to make sure that there is no refresh token using the same authentication code as the access token we're testing:
         queries.updateObjectFromCollection(refreshTokens,
@@ -148,7 +151,7 @@ public class MongoDBFacadeTests {
                 Token.JsonFields.AUTH_CODE, "authcode3");
 
         // when
-        mongoDBFacade.tokenRevocation(decodedToken, true);
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.ACCESS_TOKEN);
 
         ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
         ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
@@ -166,8 +169,8 @@ public class MongoDBFacadeTests {
 
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn("-1");
-        when(decodedToken.getClaim(DecodedToken.Claims.AUTH_CODE))
-                .thenReturn(decodedProperToken.getClaim(DecodedToken.Claims.AUTH_CODE));
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
 
         // to make sure that there is no access token using the same authentication code as the refresh token we're testing:
         queries.updateObjectFromCollection(accessTokens,
@@ -179,7 +182,7 @@ public class MongoDBFacadeTests {
                 Token.JsonFields.AUTH_CODE, "authcode3");
 
         // when
-        mongoDBFacade.tokenRevocation(decodedToken, false);
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.REFRESH_TOKEN);
 
         ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
         ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
@@ -187,5 +190,53 @@ public class MongoDBFacadeTests {
         // then
         assertEquals(4, accessTokensAfterRevocation.size());
         assertEquals(4, refreshTokensAfterRevocation.size());
+    }
+
+    @Test
+    public void tokenRevocationOfActiveAccessTokenWithMissingTokenHintTest() {
+        // given
+        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
+        mongoDBFacade.setDatabase(db);
+
+        DecodedJWT decodedToken = mock(DecodedJWT.class);
+        when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
+
+        // when
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.NO_TOKEN_HINT);
+
+        ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
+        ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
+
+        // then
+        assertEquals(3, accessTokensAfterRevocation.size());
+        assertEquals(2, refreshTokensAfterRevocation.size());
+        assertTrue(accessTokensAfterRevocation.containsAll(List.of(accessToken2, accessToken3, accessToken4)));
+        assertTrue(refreshTokensAfterRevocation.containsAll(List.of(refreshToken3, refreshToken4)));
+    }
+
+    @Test
+    public void tokenRevocationOfActiveAccessTokenWithWrongTokenHintTest() {
+        // given
+        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
+        mongoDBFacade.setDatabase(db);
+
+        DecodedJWT decodedToken = mock(DecodedJWT.class);
+        when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
+        when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
+                .thenReturn(decodedProperToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE));
+
+        // when
+        mongoDBFacade.tokenRevocation(decodedToken, TokenHint.REFRESH_TOKEN);
+
+        ArrayList<Token> accessTokensAfterRevocation = accessTokens.find().into(new ArrayList<>());
+        ArrayList<Token> refreshTokensAfterRevocation = refreshTokens.find().into(new ArrayList<>());
+
+        // then
+        assertEquals(3, accessTokensAfterRevocation.size());
+        assertEquals(2, refreshTokensAfterRevocation.size());
+        assertTrue(accessTokensAfterRevocation.containsAll(List.of(accessToken2, accessToken3, accessToken4)));
+        assertTrue(refreshTokensAfterRevocation.containsAll(List.of(refreshToken3, refreshToken4)));
     }
 }

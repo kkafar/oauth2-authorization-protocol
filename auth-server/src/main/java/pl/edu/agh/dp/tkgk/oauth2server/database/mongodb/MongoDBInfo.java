@@ -1,7 +1,7 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database.mongodb;
 
 public class MongoDBInfo {
-    public static final String DATABASE_NAME = "auth-server";
+    public static final String DATABASE_NAME = "auth_server";
 
     public enum Collections {
         ACCESS_TOKENS_COLLECTION,

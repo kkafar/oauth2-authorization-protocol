@@ -11,7 +11,7 @@ import static com.mongodb.client.model.Updates.*;
 
 /**
  * Converts methods' parameters to Bson objects and then uses them with <code>GenericQueries</code> class' methods
- * to execute database queries.
+ * to execute database queries indirectly.
  */
 public class Queries {
 
@@ -25,22 +25,22 @@ public class Queries {
         genericQueries.addObjectsToCollection(newObjects, objects);
     }
 
-    public <T, K> void deleteObjectsFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
+    public <T, K> boolean deleteObjectsFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
         Bson filter = eq(fieldName, fieldValue);
-        genericQueries.deleteObjectsFromCollection(objects, filter);
+        return genericQueries.deleteObjectsFromCollection(objects, filter);
     }
 
-    public <T, K> void deleteObjectFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
+    public <T, K> boolean deleteObjectFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
         Bson filter = eq(fieldName, fieldValue);
-        genericQueries.deleteObjectFromCollection(objects, filter);
+        return genericQueries.deleteObjectFromCollection(objects, filter);
     }
 
-    public <T, K> void updateObjectFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue,
+    public <T, K> boolean updateObjectFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue,
                                                   String updateFieldName, K updateValue)
     {
         Bson filter = eq(fieldName, fieldValue);
         Bson update = set(updateFieldName, updateValue);
-        genericQueries.updateObjectFromCollection(objects, filter, update);
+        return genericQueries.updateObjectFromCollection(objects, filter, update);
     }
 
     public <T, K> T getObjectFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue) {

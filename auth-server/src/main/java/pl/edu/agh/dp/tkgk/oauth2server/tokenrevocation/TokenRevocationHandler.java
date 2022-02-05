@@ -9,6 +9,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
     private static final String INVALID_TOKEN = "invalid_token";
     private static final String NO_TOKEN_HINT = "no_token_hint";
 
-    private String tokenHint;
+    private TokenHint tokenHint;
 
     private DecodedJWT decodedToken;
 
@@ -30,19 +31,16 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
 
         try {
             String token = bodyDecoder.fetchToken().orElse(INVALID_TOKEN);
-            tokenHint = bodyDecoder.fetchTokenHint().orElse(NO_TOKEN_HINT);
+            tokenHint = bodyDecoder.fetchTokenHint();
             decodedToken = TokenUtil.decodeToken(token);
         } catch (IOException | JWTVerificationException e) {
             e.printStackTrace();
+            // todo: should probably just send back HTTP 200 instead of the one with error referring to the 7009 RFC,
+            // todo: will leave it for the debug now
             return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
         }
 
         revokeToken();
-
-        // RFC7009 says that the error response with code 503 with error : unsupported_token_type is used only if the
-        // authorization server can't handle the token revocation for a specific token type (refresh or access token)
-        // or if this operation is unavailable for some time
-
         return responseWith200StatusCode();
     }
 
@@ -52,6 +50,6 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
 
     private void revokeToken() {
         Database database = AuthorizationDatabaseProvider.getInstance();
-        database.tokenRevocation(decodedToken, Objects.equals(tokenHint, ACCESS_TOKEN));
+        database.tokenRevocation(decodedToken, tokenHint);
     }
 }

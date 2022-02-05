@@ -6,6 +6,9 @@ import org.bson.conversions.Bson;
 
 import java.util.List;
 
+/**
+ * Executes database queries directly
+ */
 public class GenericQueries {
 
     public <T> void addObjectToCollection(T object, MongoCollection<T> objects) {
@@ -16,17 +19,17 @@ public class GenericQueries {
         objects.insertMany(newObjects);
     }
 
-    public <T> void deleteObjectsFromCollection(MongoCollection<T> objects, Bson filter) {
-        objects.deleteMany(filter);
+    public <T> boolean deleteObjectsFromCollection(MongoCollection<T> objects, Bson filter) {
+        return objects.deleteMany(filter).getDeletedCount() != 0;
     }
 
-    public <T> void deleteObjectFromCollection(MongoCollection<T> objects, Bson filter) { objects.deleteOne(filter); }
+    public <T> boolean deleteObjectFromCollection(MongoCollection<T> objects, Bson filter) { return objects.deleteOne(filter).getDeletedCount() != 0; }
 
     public <T> FindIterable<T> getObjectsFromCollection(MongoCollection<T> objects, Bson filter) {
         return objects.find(filter);
     }
 
-    public <T> void updateObjectFromCollection(MongoCollection<T> objects, Bson filter, Bson update) {
-        objects.updateOne(filter, update);
+    public <T> boolean updateObjectFromCollection(MongoCollection<T> objects, Bson filter, Bson update) {
+        return objects.updateOne(filter, update).getModifiedCount() != 0;
     }
 }

@@ -8,6 +8,7 @@ import org.json.JSONPropertyName;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -32,12 +33,12 @@ public class DecodedToken {
 
         this.issuedAt = decodedToken.getIssuedAt().toInstant().getEpochSecond();
         this.expiresAt = decodedToken.getExpiresAt().toInstant().getEpochSecond();
-        this.scopeList = decodedToken.getClaim(Claims.SCOPE).asList(String.class);
-        this.tokenType = decodedToken.getClaim(Claims.TOKEN_TYPE).asString();
-        this.isAccessToken = decodedToken.getClaim(Claims.IS_ACCESS_TOKEN).asBoolean();
+        this.scopeList = decodedToken.getClaim(CustomClaims.SCOPE).asList(String.class);
+        this.tokenType = decodedToken.getClaim(CustomClaims.TOKEN_TYPE).asString();
+        this.isAccessToken = decodedToken.getClaim(CustomClaims.IS_ACCESS_TOKEN).asBoolean();
     }
 
-    public static class Claims {
+    public static class CustomClaims {
 
         public static final String SCOPE = "scope";
 
@@ -80,12 +81,12 @@ public class DecodedToken {
         return scopeList;
     }
 
-    @JSONPropertyName(value = "token_type")
+    @JSONPropertyIgnore
     public String getTokenType() {
         return tokenType;
     }
 
-    @JSONPropertyName(value = "is_access_token")
+    @JSONPropertyIgnore
     public boolean isAccessToken() {
         return isAccessToken;
     }
@@ -95,9 +96,13 @@ public class DecodedToken {
         return clientId;
     }
 
+    @JSONPropertyIgnore
     public String getAuthCode() {
         return authCode;
     }
+
+    @JSONPropertyIgnore
+    public boolean isActive() { return expiresAt > Instant.now().getEpochSecond(); }
 
     @Override
     public boolean equals(Object o) {

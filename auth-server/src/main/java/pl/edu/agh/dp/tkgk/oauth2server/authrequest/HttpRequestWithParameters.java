@@ -35,7 +35,6 @@ public class HttpRequestWithParameters {
         final Map<String, List<String>> parameters;
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(parametersString, hasPath);
         parameters = queryStringDecoder.parameters();
-        System.out.println(parameters);
         return parameters;
     }
 
