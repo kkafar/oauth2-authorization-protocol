@@ -53,7 +53,7 @@ public class MockAuthorizationDatabaseFacade implements Database {
     }
 
     @Override
-    public Optional<Token> fetchToken(DecodedJWT decodedToken, TokenHint tokenHint) {
+    public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
         return Optional.empty();
     }
 

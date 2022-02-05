@@ -6,9 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
@@ -28,9 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TokenRevocationTests {
     MongoClient mongoClient = MongoClientInstance.get();
     MongoDatabase db = mongoClient.getDatabase("test");
+
+    MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
 
     MongoCollection<Token> accessTokens =
             db.getCollection(MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString(), Token.class);
@@ -66,12 +67,15 @@ public class TokenRevocationTests {
                 .sign(algorithm);
     }
 
+    @BeforeAll
+    public void beforeAll() {
+        mongoDBFacade.setDatabase(db);
+    }
+
     @AfterAll
-    public static void afterAll() {
-        MongoClient mongoClient = MongoClientInstance.get();
-        MongoDatabase db = mongoClient.getDatabase("test");
-        db.getCollection(MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString()).drop();
-        db.getCollection(MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString()).drop();
+    public void afterAll() {
+        accessTokens.drop();
+        refreshTokens.drop();
     }
 
     @BeforeEach
@@ -85,9 +89,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationWithPresentAccessTokenTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
@@ -109,9 +110,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationWithPresentRefreshTokenTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(refreshToken1.getJwtId());
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
@@ -133,9 +131,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationWithMissingAccessTokenTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn("-1");
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
@@ -164,9 +159,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationWithMissingRefreshTokenTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn("-1");
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
@@ -195,9 +187,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationOfActiveAccessTokenWithMissingTokenHintTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))
@@ -219,9 +208,6 @@ public class TokenRevocationTests {
     @Test
     public void tokenRevocationOfActiveAccessTokenWithWrongTokenHintTest() {
         // given
-        MongoDBFacade mongoDBFacade = MongoDBFacade.getInstance();
-        mongoDBFacade.setDatabase(db);
-
         DecodedJWT decodedToken = mock(DecodedJWT.class);
         when(decodedToken.getId()).thenReturn(accessToken1.getJwtId());
         when(decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE))

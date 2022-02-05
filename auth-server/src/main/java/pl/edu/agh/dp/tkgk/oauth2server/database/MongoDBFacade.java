@@ -36,12 +36,7 @@ public class MongoDBFacade implements Database {
     }
 
     @Override
-    public Optional<Client> getClient(String clientId) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Token> fetchToken(DecodedJWT decodedToken, TokenHint tokenHint) {
+    public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
         MongoCollection<Token> accessTokens =
                 getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
 
@@ -49,16 +44,65 @@ public class MongoDBFacade implements Database {
                 getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
 
         if (tokenHint == TokenHint.ACCESS_TOKEN) {
-            return Optional.ofNullable(queries.getObjectFromCollection(accessTokens, Token.JsonFields.ID, decodedToken.getId()));
-        } else if (tokenHint == TokenHint.REFRESH_TOKEN) {
-            return Optional.ofNullable(queries.getObjectFromCollection(refreshTokens, Token.JsonFields.ID, decodedToken.getId()));
-        } else {
-            Token token = queries.getObjectFromCollection(accessTokens, Token.JsonFields.ID, decodedToken.getId());
-            if (token == null) {
-                return Optional.ofNullable(queries.getObjectFromCollection(refreshTokens, Token.JsonFields.ID, decodedToken.getId()));
-            }
-            return Optional.of(token);
+            return fetchTokenWithTwoTries(tokenId, accessTokens, refreshTokens);
         }
+
+        return fetchTokenWithTwoTries(tokenId, refreshTokens, accessTokens);
+    }
+
+    private Optional<Token> fetchTokenWithTwoTries(String tokenId, MongoCollection<Token> expectedTokens,
+                                                   MongoCollection<Token> otherTokens)
+    {
+        Token token = queries.getObjectFromCollection(expectedTokens, Token.JsonFields.ID, tokenId);
+        if (token == null) {
+            return Optional.ofNullable(queries.getObjectFromCollection(otherTokens, Token.JsonFields.ID, tokenId));
+        }
+        return Optional.of(token);
+    }
+
+    @Override
+    public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
+
+        MongoCollection<Token> accessTokens =
+                getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
+
+        MongoCollection<Token> refreshTokens =
+                getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
+
+        String authCode = decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
+
+        String tokenId = decodedToken.getId();
+
+        if (tokenHint == TokenHint.NO_TOKEN_HINT) {
+            if (queries.getObjectFromCollection(accessTokens, Token.JsonFields.ID, tokenId) != null) {
+                tokenHint = TokenHint.ACCESS_TOKEN;
+            } else if (queries.getObjectFromCollection(refreshTokens, Token.JsonFields.ID, tokenId) != null) {
+                tokenHint = TokenHint.REFRESH_TOKEN;
+            }
+        }
+
+        if (tokenHint == TokenHint.ACCESS_TOKEN) {
+            tokenAndAssociatedTokensRevocation(refreshTokens, accessTokens, tokenId, authCode);
+        } else if (tokenHint == TokenHint.REFRESH_TOKEN) {
+            tokenAndAssociatedTokensRevocation(accessTokens, refreshTokens, tokenId, authCode);
+        }
+    }
+
+    private void tokenAndAssociatedTokensRevocation(MongoCollection<Token> expectedTokens,
+                                                    MongoCollection<Token> otherTokens,
+                                                    String tokenId, String authCode)
+    {
+        if (queries.deleteObjectFromCollection(otherTokens, Token.JsonFields.ID, tokenId)) {
+            queries.deleteObjectsFromCollection(expectedTokens, Token.JsonFields.AUTH_CODE, authCode);
+        } else {
+            if (!queries.deleteObjectFromCollection(expectedTokens, Token.JsonFields.ID, tokenId)) return;
+            queries.deleteObjectsFromCollection(otherTokens, Token.JsonFields.AUTH_CODE, authCode);
+        }
+    }
+
+    @Override
+    public Optional<Client> getClient(String clientId) {
+        return Optional.empty();
     }
 
     @Override
@@ -79,46 +123,6 @@ public class MongoDBFacade implements Database {
     @Override
     public String generateCode(AuthorizationRequest request) {
         return null;
-    }
-
-    @Override
-    public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
-
-        MongoCollection<Token> accessTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
-
-        MongoCollection<Token> refreshTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
-
-        String authCodeValue = decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
-
-        String tokenId = decodedToken.getId();
-
-        if (tokenHint == TokenHint.NO_TOKEN_HINT) {
-            if (queries.getObjectFromCollection(accessTokens, Token.JsonFields.ID, tokenId) != null) {
-                tokenHint = TokenHint.ACCESS_TOKEN;
-            } else if (queries.getObjectFromCollection(refreshTokens, Token.JsonFields.ID, tokenId) != null) {
-                tokenHint = TokenHint.REFRESH_TOKEN;
-            }
-        }
-
-        if (tokenHint == TokenHint.ACCESS_TOKEN) {
-            tokenAndAssociatedTokensRevocation(refreshTokens, accessTokens, tokenId, authCodeValue);
-        } else if (tokenHint == TokenHint.REFRESH_TOKEN) {
-            tokenAndAssociatedTokensRevocation(accessTokens, refreshTokens, tokenId, authCodeValue);
-        }
-    }
-
-    private void tokenAndAssociatedTokensRevocation(MongoCollection<Token> tokensCollection1,
-                                                    MongoCollection<Token> tokensCollection2,
-                                                    String tokenId, String authCodeValue)
-    {
-        if (queries.deleteObjectFromCollection(tokensCollection2, Token.JsonFields.ID, tokenId)) {
-            queries.deleteObjectsFromCollection(tokensCollection1, Token.JsonFields.AUTH_CODE, authCodeValue);
-        } else {
-            if (!queries.deleteObjectFromCollection(tokensCollection1, Token.JsonFields.ID, tokenId)) return;
-            queries.deleteObjectsFromCollection(tokensCollection2, Token.JsonFields.AUTH_CODE, authCodeValue);
-        }
     }
 
     @Override

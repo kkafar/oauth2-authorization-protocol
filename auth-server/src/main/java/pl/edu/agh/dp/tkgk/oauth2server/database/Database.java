@@ -26,12 +26,12 @@ public interface Database {
 
     /**
      *
-     * @param decodedToken - decodedToken whose info (id) will be used to fetch the requested token from the database
+     * @param tokenId - tokenId used to fetch the requested token from the database
      * @param tokenHint - token hint indicating if given token is an access or refresh token, or if the token hint was
      *                  not given at all
      * @return Optional of the fetched token, Optional.empty if the requested token was not available
      */
-    Optional<Token> fetchToken(DecodedJWT decodedToken, TokenHint tokenHint);
+    Optional<Token> fetchToken(String tokenId, TokenHint tokenHint);
 
     boolean isSessionIdValid(String sessionId);
 
