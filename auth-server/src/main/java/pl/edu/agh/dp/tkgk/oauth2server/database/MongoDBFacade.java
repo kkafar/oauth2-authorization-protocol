@@ -5,6 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
@@ -101,8 +102,15 @@ public class MongoDBFacade implements Database {
     }
 
     @Override
-    public Optional<Client> getClient(String clientId) {
-        return Optional.empty();
+    public Optional<Client> fetchClient(String clientId) {
+        MongoCollection<Client> clients = getCollection(Client.class, MongoDBInfo.Collections.CLIENTS_COLLECTION.toString());
+        return Optional.ofNullable(queries.getObjectFromCollection(clients, Client.JsonFields.ID, clientId));
+    }
+
+    @Override
+    public Optional<AuthCode> fetchAuthorizationCode(String authorizationCode) {
+        MongoCollection<AuthCode> authCodes = getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
+        return Optional.ofNullable(queries.getObjectFromCollection(authCodes, Client.JsonFields.ID, authorizationCode));
     }
 
     @Override
@@ -123,11 +131,6 @@ public class MongoDBFacade implements Database {
     @Override
     public String generateCode(AuthorizationRequest request) {
         return null;
-    }
-
-    @Override
-    public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
-        return Optional.empty();
     }
 
     // for testing purposes now only

@@ -2,15 +2,15 @@ package pl.edu.agh.dp.tkgk.oauth2server.database.model;
 
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public final class AuthCode {
     @BsonId
     private final String code;
-    @BsonProperty(value = "redirect_uri")
-    private final String redirectUri;
     @BsonProperty(value = "code_challenge")
     private final String codeChallenge;
     @BsonProperty(value = "code_challenge_method")
@@ -23,7 +23,6 @@ public final class AuthCode {
 
     @BsonCreator
     public AuthCode(@BsonProperty("code") String code,
-                    @BsonProperty("redirectUri") String redirectUri,
                     @BsonProperty("codeChallenge") String codeChallenge,
                     @BsonProperty("codeChallengeMethod") String codeChallengeMethod,
                     @BsonProperty("expireTime") long expireTime,
@@ -31,7 +30,6 @@ public final class AuthCode {
                     @BsonProperty("used") boolean used)
     {
         this.code = code;
-        this.redirectUri = redirectUri;
         this.codeChallenge = codeChallenge;
         this.codeChallengeMethod = codeChallengeMethod;
         this.expireTime = expireTime;
@@ -45,10 +43,6 @@ public final class AuthCode {
 
     public String getCode() {
         return code;
-    }
-
-    public String getRedirectUri() {
-        return redirectUri;
     }
 
     public String getCodeChallenge() {
@@ -71,13 +65,17 @@ public final class AuthCode {
         return used;
     }
 
+    @BsonIgnore
+    public boolean isActive() {
+        return expireTime > Instant.now().getEpochSecond();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthCode authCode = (AuthCode) o;
         return expireTime == authCode.expireTime && used == authCode.used && Objects.equals(code, authCode.code)
-                && Objects.equals(redirectUri, authCode.redirectUri)
                 && Objects.equals(codeChallenge, authCode.codeChallenge)
                 && Objects.equals(codeChallengeMethod, authCode.codeChallengeMethod)
                 && Objects.equals(clientId, authCode.clientId);
@@ -85,6 +83,6 @@ public final class AuthCode {
 
     @Override
     public int hashCode() {
-        return Objects.hash(code, redirectUri, codeChallenge, codeChallengeMethod, expireTime, clientId, used);
+        return Objects.hash(code, codeChallenge, codeChallengeMethod, expireTime, clientId, used);
     }
 }

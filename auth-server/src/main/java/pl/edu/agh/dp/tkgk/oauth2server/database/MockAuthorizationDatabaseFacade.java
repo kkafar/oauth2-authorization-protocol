@@ -1,7 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
@@ -30,7 +29,7 @@ public class MockAuthorizationDatabaseFacade implements Database {
     }
 
     @Override
-    public Optional<Client> getClient(String clientId) {
+    public Optional<Client> fetchClient(String clientId) {
         if("some_fake_client_id".equals(clientId)){
             Client fakeClient = new Client("some_fake_client_id", "https://www.google.pl", Collections.singletonList("all"));
             return Optional.of(fakeClient);
@@ -81,21 +80,21 @@ public class MockAuthorizationDatabaseFacade implements Database {
     }
 
     @Override
+    public Optional<AuthCode> fetchAuthorizationCode(String authorizationCode) {
+        return Optional.empty();
+    }
+
+    @Override
     public String generateCode(AuthorizationRequest request) {
         byte[] randomBytes = new byte[64];
         random.nextBytes(randomBytes);
         String code = new String(Base64.getUrlEncoder().encode(randomBytes));
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
-                new AuthCode(code, request.redirectUri, request.codeChallenge, request.codeChallengeMethod, expireTime,
+                new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
                         "client", false); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
-    }
-
-    @Override
-    public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
-        return Optional.empty();
     }
 
 }

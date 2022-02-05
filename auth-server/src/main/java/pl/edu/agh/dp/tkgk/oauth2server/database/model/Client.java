@@ -24,6 +24,16 @@ public class Client {
         this.scope = scope;
     }
 
+    public static class JsonFields {
+
+        public static final String ID = "_id";
+
+        public static final String REDIRECT_URI = "redirect_uri";
+
+        public static final String SCOPE = "scope";
+
+    }
+
     public List<String> getScope() {
         return scope;
     }
