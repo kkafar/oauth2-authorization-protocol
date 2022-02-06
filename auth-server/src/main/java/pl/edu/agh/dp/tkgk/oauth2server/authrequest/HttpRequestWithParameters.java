@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import model.util.CodeChallengeMethod;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class HttpRequestWithParameters {
     public final Map<String, List<String>> urlParameters;
     public final Map<String, List<String>> bodyParameters;
     public final Map<String, String> cookies;
+    private CodeChallengeMethod codeChallengeMethod;
 
     public HttpRequestWithParameters(FullHttpRequest fullHttpRequest) {
         this.fullHttpRequest = fullHttpRequest;
@@ -48,5 +50,13 @@ public class HttpRequestWithParameters {
             cookies.put(cookie.name(), cookie.value());
         }
         return cookies;
+    }
+
+    public CodeChallengeMethod getCodeChallengeMethod() {
+        return codeChallengeMethod;
+    }
+
+    public void setCodeChallengeMethod(CodeChallengeMethod codeChallengeMethod) {
+        this.codeChallengeMethod = codeChallengeMethod;
     }
 }

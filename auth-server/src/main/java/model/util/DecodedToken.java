@@ -1,15 +1,13 @@
-package pl.edu.agh.dp.tkgk.oauth2server.database.model.util;
-
+package model.util;
 
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import model.Token;
 import org.json.JSONPropertyIgnore;
 import org.json.JSONPropertyName;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
 
 import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,13 +50,7 @@ public class DecodedToken {
 
     @JSONPropertyName(value = "scope")
     public String getScopeItems() {
-        StringBuilder result = new StringBuilder();
-        Iterator<String> iterator = scopeList.iterator();
-        while (iterator.hasNext()) {
-            result.append(iterator.next());
-            if (iterator.hasNext()) result.append(" ");
-        }
-        return result.toString();
+        return TokenUtil.getScopeAsString(scopeList);
     }
 
     @JSONPropertyIgnore

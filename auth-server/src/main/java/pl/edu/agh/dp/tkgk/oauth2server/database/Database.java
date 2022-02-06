@@ -1,13 +1,14 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import model.AuthCode;
+import model.Client;
+import model.Token;
+import model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface Database {
@@ -34,6 +35,27 @@ public interface Database {
     Optional<Client> fetchClient(String clientId);
 
     Optional<AuthCode> fetchAuthorizationCode(String authorizationCode);
+
+    /**
+     * Generates new token with given parameters and unique token id, adds token to database and then updates
+     * <code>authorizationCode</code> as used
+     * @param expiresIn - validity time in days
+     * @param authorizationCode - authorization code to be marked as used
+     * @param isAccessToken - indicates if token is access or refresh token
+     * @param tokenType - e.g. "Bearer"
+     * @return generated token
+     */
+    Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType);
+
+    /**
+     * Generates new token with given parameters and unique token id, adds token to database
+     * @param expiresIn - validity time in days
+     * @param authorizationCode - authorization code to be marked as used
+     * @param isAccessToken - indicates if token is access or refresh token
+     * @param tokenType - e.g. "Bearer"
+     * @return generated token
+     */
+    Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId);
 
     boolean isSessionIdValid(String sessionId);
 

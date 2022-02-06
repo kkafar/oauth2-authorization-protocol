@@ -1,4 +1,4 @@
-package pl.edu.agh.dp.tkgk.oauth2server.database.model.util;
+package model.util;
 
 public enum TokenHint {
     ACCESS_TOKEN,

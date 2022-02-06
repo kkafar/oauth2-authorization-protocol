@@ -4,20 +4,18 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import model.Token;
+import model.util.DecodedToken;
+import model.util.TokenHint;
 import org.json.JSONObject;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.NoSuchAttributeException;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, JSONObject> {

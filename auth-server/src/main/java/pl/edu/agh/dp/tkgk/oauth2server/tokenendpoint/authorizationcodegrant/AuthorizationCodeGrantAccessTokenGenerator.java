@@ -1,14 +1,16 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import io.netty.handler.codec.http.FullHttpResponse;
+import model.AuthCode;
+import model.Token;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 
-public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<String, JSONObject> {
+public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<AuthCode, JSONObject> {
 
     private static final String ACCESS_TOKEN = "access_token";
     private static final String REFRESH_TOKEN = "refresh_token";
@@ -17,26 +19,36 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Stri
     private static final String EXPIRES_IN = "expires_in";
     private static final String SCOPE = "scope";
 
-    private static final int ONE_DAY_IN_SECONDS = 86400;
+    private static final int EXPIRE_IN_DAYS_ACCESS_TOKEN = 1;
+    private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
+    private static final int EXPIRE_IN_DAYS_REFRESH_TOKEN = 7;
+
+    private final Database database = AuthorizationDatabaseProvider.getInstance();
+
 
     @Override
-    public FullHttpResponse handle(String authorizationCodeString) {
-        // generate new access token and store it in the db
+    public FullHttpResponse handle(AuthCode authorizationCode) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
-            String accessToken = JWT.create().sign(algorithm); // should have some claim with random string building the token
-            String refreshToken = JWT.create().sign(algorithm); // same as above
-            JSONObject responseBody = new JSONObject();
-            // set authorizationCode as used in the db
-            responseBody.put(ACCESS_TOKEN, accessToken);
-            responseBody.put(TOKEN_TYPE, BEARER);
-            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS);
-            responseBody.put(REFRESH_TOKEN, refreshToken);
-            responseBody.put(SCOPE, "something");
-            return next.handle(responseBody);
+            Token accessToken = database.getNewTokenFromAuthCode(EXPIRE_IN_DAYS_ACCESS_TOKEN,
+                    authorizationCode, true, BEARER);
+
+            Token refreshToken = database.getNewToken(EXPIRE_IN_DAYS_REFRESH_TOKEN, authorizationCode.getScope(),
+                    authorizationCode.getCode(), false, BEARER, authorizationCode.getClientId());
+
+            return next.handle(buildResponseBody(accessToken.getToken(), refreshToken.getToken(), authorizationCode));
         } catch (JWTCreationException e) {
             e.printStackTrace();
             return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
         }
+    }
+
+    private JSONObject buildResponseBody(String accessToken, String refreshToken, AuthCode authorizationCode) {
+        JSONObject responseBody = new JSONObject();
+        responseBody.put(ACCESS_TOKEN, accessToken);
+        responseBody.put(TOKEN_TYPE, BEARER);
+        responseBody.put(EXPIRES_IN, EXPIRE_IN_SECONDS_ACCESS_TOKEN);
+        responseBody.put(REFRESH_TOKEN, refreshToken);
+        responseBody.put(SCOPE, authorizationCode.getScopeItems());
+        return responseBody;
     }
 }

@@ -3,11 +3,11 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -39,7 +39,7 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         String redirectionUri = parameters.get(REDIRECTION_URI).get(0);
 
         Database database = AuthorizationDatabaseProvider.getInstance();
-        Optional<Client> optionalClient = database.getClient(clientId);
+        Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){
             return buildErrorResponse("Unknown client_id");

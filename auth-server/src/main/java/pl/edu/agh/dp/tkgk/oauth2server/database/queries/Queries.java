@@ -1,13 +1,12 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database.queries;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Updates;
 import org.bson.conversions.Bson;
 
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.set;
 
 /**
  * Converts methods' parameters to Bson objects and then uses them with <code>GenericQueries</code> class' methods

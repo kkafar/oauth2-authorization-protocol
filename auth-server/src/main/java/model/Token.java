@@ -1,10 +1,10 @@
-package pl.edu.agh.dp.tkgk.oauth2server.database.model;
+package model;
 
+import model.util.DecodedToken;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
 
 import java.util.Objects;
 
@@ -56,6 +56,8 @@ public class Token {
     public String getClientId() {
         return clientId;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

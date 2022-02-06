@@ -1,13 +1,13 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import model.AuthCode;
+import model.Client;
+import model.Session;
+import model.Token;
+import model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Session;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 
 import java.time.Instant;
 import java.util.*;
@@ -85,6 +85,16 @@ public class MockAuthorizationDatabaseFacade implements Database {
     }
 
     @Override
+    public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType) {
+        return null;
+    }
+
+    @Override
+    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId) {
+        return null;
+    }
+
+    @Override
     public String generateCode(AuthorizationRequest request) {
         byte[] randomBytes = new byte[64];
         random.nextBytes(randomBytes);
@@ -92,7 +102,7 @@ public class MockAuthorizationDatabaseFacade implements Database {
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        "client", false); // AuthCode needs clientId and used parameters, so I added them here
+                        "client", false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
     }

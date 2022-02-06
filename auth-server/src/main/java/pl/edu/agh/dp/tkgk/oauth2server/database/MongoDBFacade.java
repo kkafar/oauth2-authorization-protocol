@@ -3,17 +3,19 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import model.AuthCode;
+import model.Client;
+import model.Token;
+import model.util.DecodedToken;
+import model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Token;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.DecodedToken;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MongoDBFacade implements Database {
@@ -83,15 +85,15 @@ public class MongoDBFacade implements Database {
         }
 
         if (tokenHint == TokenHint.ACCESS_TOKEN) {
-            tokenAndAssociatedTokensRevocation(refreshTokens, accessTokens, tokenId, authCode);
+            tokenAndAssociatedTokensRemoval(refreshTokens, accessTokens, tokenId, authCode);
         } else if (tokenHint == TokenHint.REFRESH_TOKEN) {
-            tokenAndAssociatedTokensRevocation(accessTokens, refreshTokens, tokenId, authCode);
+            tokenAndAssociatedTokensRemoval(accessTokens, refreshTokens, tokenId, authCode);
         }
     }
 
-    private void tokenAndAssociatedTokensRevocation(MongoCollection<Token> expectedTokens,
-                                                    MongoCollection<Token> otherTokens,
-                                                    String tokenId, String authCode)
+    private void tokenAndAssociatedTokensRemoval(MongoCollection<Token> expectedTokens,
+                                                 MongoCollection<Token> otherTokens,
+                                                 String tokenId, String authCode)
     {
         if (queries.deleteObjectFromCollection(otherTokens, Token.JsonFields.ID, tokenId)) {
             queries.deleteObjectsFromCollection(expectedTokens, Token.JsonFields.AUTH_CODE, authCode);
@@ -110,7 +112,53 @@ public class MongoDBFacade implements Database {
     @Override
     public Optional<AuthCode> fetchAuthorizationCode(String authorizationCode) {
         MongoCollection<AuthCode> authCodes = getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
-        return Optional.ofNullable(queries.getObjectFromCollection(authCodes, Client.JsonFields.ID, authorizationCode));
+        return Optional.ofNullable(queries.getObjectFromCollection(authCodes, AuthCode.JsonFields.ID, authorizationCode));
+    }
+
+    @Override
+    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
+                             boolean isAccessToken, String tokenType, String clientId)
+    {
+        String tokenId = getUniqueTokenId();
+        String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
+
+        Token tokenObj = new Token(authorizationCode, token, tokenId, clientId);
+
+        String tokensCollection = isAccessToken ? MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString()
+                : MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString();
+
+        MongoCollection<Token> tokens = getCollection(Token.class, tokensCollection);
+        queries.addObjectToCollection(tokenObj, tokens);
+
+        return tokenObj;
+    }
+
+    @Override
+    public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode,
+                             boolean isAccessToken, String tokenType)
+    {
+        Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
+                isAccessToken, tokenType, authorizationCode.getClientId());
+
+        MongoCollection<AuthCode> authCodes =
+                getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
+
+        queries.updateObjectFromCollection(authCodes, AuthCode.JsonFields.ID, authorizationCode.getCode(),
+                AuthCode.JsonFields.USED, true);
+
+        return token;
+    }
+
+    private String getUniqueTokenId() {
+        Optional<Token> token;
+        String tokenId;
+
+        do {
+            tokenId = TokenUtil.generateTokenId();
+            token = fetchToken(tokenId, TokenHint.NO_TOKEN_HINT);
+        } while (token.isPresent());
+
+        return tokenId;
     }
 
     @Override

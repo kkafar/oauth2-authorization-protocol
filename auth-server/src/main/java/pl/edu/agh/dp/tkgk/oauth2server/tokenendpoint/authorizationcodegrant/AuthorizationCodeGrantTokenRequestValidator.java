@@ -2,15 +2,20 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import model.AuthCode;
+import model.Client;
+import model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,7 +23,7 @@ import java.util.Optional;
  * Checks if there is a valid authorization code, code_verifier (that is compared to code_challenge sent during authorization)
  * and redirection uri (compared to the one sent during authorization)
  */
-public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<HttpPostRequestDecoder, String> {
+public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<HttpPostRequestDecoder, AuthCode> {
 
     private static final String REDIRECT_URI = "redirect_uri";
     private static final String CLIENT_ID = "client_id";
@@ -27,8 +32,6 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
     private static final String UNAUTHORIZED_CLIENT = "unauthorized_client";
     private static final String CODE = "code";
     private static final String CODE_VERIFIER = "code_verifier";
-
-    private String authorizationCodeString;
 
     private AuthCode authorizationCode;
 
@@ -54,19 +57,19 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
                         INVALID_REQUEST);
             }
 
-        } catch (IOException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
             return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
         }
 
-        return next.handle(authorizationCodeString);
+        return next.handle(authorizationCode);
     }
 
     private boolean authorizationCodeValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
         Optional<String> authorizationCodeOptional = bodyDecoder.fetchAttribute(CODE);
 
         if (authorizationCodeOptional.isPresent()) {
-            this.authorizationCodeString = authorizationCodeOptional.get();
+            String authorizationCodeString = authorizationCodeOptional.get();
             Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(authorizationCodeString);
 
             if (authCodeOptional.isEmpty()) return false;
@@ -79,13 +82,26 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return false;
     }
 
-    private boolean codeVerifierValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> codeVerifierString = bodyDecoder.fetchAttribute(CODE_VERIFIER);
+    private boolean codeVerifierValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException, NoSuchAlgorithmException {
+        Optional<String> codeVerifierOptional = bodyDecoder.fetchAttribute(CODE_VERIFIER);
 
-        if (codeVerifierString.isPresent()) {
-            // check if codeVerifier matches with codeChallenge sent during authorization of this client
+        if (codeVerifierOptional.isPresent()) {
+            String codeVerifier = codeVerifierOptional.get();
+
+            CodeChallengeMethod codeChallengeMethod = authorizationCode.getCodeChallengeMethod();
+            String codeChallenge = authorizationCode.getCodeChallenge();
+
+            if (codeChallengeMethod.equals(CodeChallengeMethod.PLAIN)) {
+                return codeChallenge.equalsIgnoreCase(codeVerifier);
+            } else if (codeChallengeMethod.equals(CodeChallengeMethod.S256)) {
+                String codeVerifierHashed = hashSHA256(codeVerifier);
+                return codeChallenge.equalsIgnoreCase(codeVerifierHashed);
+            }
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     private boolean redirectUriValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
@@ -103,5 +119,25 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         }
 
         return false;
+    }
+
+    public static String hashSHA256(String stringToHash) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedHash = digest.digest(
+                stringToHash.getBytes(StandardCharsets.UTF_8));
+        return toHexString(encodedHash);
+    }
+
+    public static String toHexString(byte[] hash)
+    {
+        BigInteger number = new BigInteger(1, hash);
+
+        StringBuilder hexString = new StringBuilder(number.toString(16));
+
+        while (hexString.length() < 32) {
+            hexString.insert(0, '0');
+        }
+
+        return hexString.toString();
     }
 }
