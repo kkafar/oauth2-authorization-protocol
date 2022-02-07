@@ -1,4 +1,4 @@
-package model;
+package pl.edu.agh.dp.tkgk.oauth2server.model;
 
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;

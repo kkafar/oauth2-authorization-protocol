@@ -2,9 +2,9 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import model.AuthCode;
-import model.Client;
-import model.util.CodeChallengeMethod;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;

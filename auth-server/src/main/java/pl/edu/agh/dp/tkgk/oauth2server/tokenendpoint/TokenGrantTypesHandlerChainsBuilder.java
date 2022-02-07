@@ -1,7 +1,7 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint;
 
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.Handler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant.AuthorizationCodeGrantAccessTokenGenerator;

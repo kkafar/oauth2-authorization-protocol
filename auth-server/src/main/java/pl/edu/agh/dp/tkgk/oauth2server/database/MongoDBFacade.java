@@ -3,11 +3,12 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import model.AuthCode;
-import model.Client;
-import model.Token;
-import model.util.DecodedToken;
-import model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
@@ -15,8 +16,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 
 public class MongoDBFacade implements Database {
 
@@ -24,7 +25,20 @@ public class MongoDBFacade implements Database {
 
     private final Queries queries = new Queries();
 
-    private MongoDBFacade() { }
+    // mock area
+    private final HashMap<String, Session> sessionHashMap;
+    private final HashMap<String, AuthCode> authCodeHashMap;
+    private final Random random;
+    private final static int SESSION_LIFE_TIME_IN_SECONDS = 1200;
+    private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
+    private final Credentials validCredentials = new Credentials("ala", "1234");
+    // mock area end
+
+    private MongoDBFacade() {
+        sessionHashMap = new HashMap<>();
+        authCodeHashMap = new HashMap<>();
+        random = new Random();
+    }
 
     private static class AuthorizationDatabaseFacadeHolder {
         private static final MongoDBFacade facade = new MongoDBFacade();
@@ -163,22 +177,38 @@ public class MongoDBFacade implements Database {
 
     @Override
     public boolean isSessionIdValid(String sessionId) {
-        return false;
+        if(!sessionHashMap.containsKey(sessionId)) return false;
+        Session session = sessionHashMap.get(sessionId);
+        return session.getExpireTimeInSeconds() > Instant.now().getEpochSecond();
     }
 
     @Override
     public boolean areCredentialsValid(Credentials credentials) {
-        return false;
+        return validCredentials.equals(credentials);
     }
 
     @Override
     public String createNewSession(String login) {
-        return null;
+        byte[] randomBytes = new byte[128];
+        random.nextBytes(randomBytes);
+        String session_id = new String(Base64.getUrlEncoder().encode(randomBytes));
+        long expireTime = Instant.now().getEpochSecond() + SESSION_LIFE_TIME_IN_SECONDS;
+        Session session = new Session(session_id, login, expireTime);
+        sessionHashMap.put(session_id, session);
+        return session_id;
     }
 
     @Override
     public String generateCode(AuthorizationRequest request) {
-        return null;
+        byte[] randomBytes = new byte[64];
+        random.nextBytes(randomBytes);
+        String code = new String(Base64.getUrlEncoder().encode(randomBytes));
+        long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
+        AuthCode authCode =
+                new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
+                        "client", false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
+        authCodeHashMap.put(code, authCode);
+        return code;
     }
 
     // for testing purposes now only
