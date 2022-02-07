@@ -5,11 +5,21 @@ public abstract class BaseHandler<T, K> implements Handler<T, K> {
 
     /**
      * @param handler next handler in the pipeline
-     * @return handler given as parameter
+     * @return given handler
      */
+
     @Override
-    public Handler<K, ?> setNext(Handler<K, ?> handler) {
-        next = handler;
+    public <S> Handler<K, S> setNextAndGet(Handler<K, S> handler) {
+        setNext(handler);
         return handler;
     }
+
+    /**
+     * @param handler next handler in the pipeline
+     */
+
+    public void setNext(Handler<K, ?> handler) {
+        next = handler;
+    }
+
 }
