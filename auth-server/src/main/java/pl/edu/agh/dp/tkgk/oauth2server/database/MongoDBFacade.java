@@ -136,7 +136,7 @@ public class MongoDBFacade implements Database {
         String tokenId = getUniqueTokenId();
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
 
-        Token tokenObj = new Token(authorizationCode, token, tokenId, clientId);
+        Token tokenObj = new Token(tokenId, token, authorizationCode, clientId);
 
         String tokensCollection = isAccessToken ? MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString()
                 : MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString();

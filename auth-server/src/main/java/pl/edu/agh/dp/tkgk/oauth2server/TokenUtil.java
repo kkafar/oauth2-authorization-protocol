@@ -38,10 +38,10 @@ public class TokenUtil {
         Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
 
         return JWT.create()
-                .withClaim(DecodedToken.CustomClaims.AUTH_CODE, scope)
+                .withClaim(DecodedToken.CustomClaims.AUTH_CODE, authorizationCode)
                 .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, tokenType)
                 .withClaim(DecodedToken.CustomClaims.IS_ACCESS_TOKEN, isAccessToken)
-                .withClaim(DecodedToken.CustomClaims.SCOPE, authorizationCode)
+                .withClaim(DecodedToken.CustomClaims.SCOPE, scope)
                 .withJWTId(tokenId)
                 .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(expiresIn)))
                 .withIssuedAt(Date.valueOf(LocalDate.now()))
