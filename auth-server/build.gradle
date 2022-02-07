@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'pl.edu.agh.dp.tkgk'
@@ -17,9 +18,16 @@ dependencies {
     implementation 'com.auth0:java-jwt:3.18.2'
     implementation 'org.json:json:20211205'
     implementation 'org.mongodb:mongo-java-driver:3.12.10'
-    implementation 'org.mockito:mockito-core:4.3.1'
 }
 
+mainClassName = 'pl.edu.agh.dp.tkgk.oauth2server.Launcher'
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/java'
+        }
+    }
+}
 test {
     useJUnitPlatform()
 }
