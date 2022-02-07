@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -92,10 +93,10 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
             String codeChallenge = authorizationCode.getCodeChallenge();
 
             if (codeChallengeMethod.equals(CodeChallengeMethod.PLAIN)) {
-                return codeChallenge.equalsIgnoreCase(codeVerifier);
+                return codeChallenge.equals(codeVerifier);
             } else if (codeChallengeMethod.equals(CodeChallengeMethod.S256)) {
-                String codeVerifierHashed = hashSHA256(codeVerifier);
-                return codeChallenge.equalsIgnoreCase(codeVerifierHashed);
+                String codeVerifierHashed = hashSHA256InBase64Url(codeVerifier);
+                return codeChallenge.equals(codeVerifierHashed);
             }
 
             return true;
@@ -121,23 +122,9 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return false;
     }
 
-    public static String hashSHA256(String stringToHash) throws NoSuchAlgorithmException {
+    public static String hashSHA256InBase64Url(String stringToHash) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] encodedHash = digest.digest(
-                stringToHash.getBytes(StandardCharsets.UTF_8));
-        return toHexString(encodedHash);
-    }
-
-    public static String toHexString(byte[] hash)
-    {
-        BigInteger number = new BigInteger(1, hash);
-
-        StringBuilder hexString = new StringBuilder(number.toString(16));
-
-        while (hexString.length() < 32) {
-            hexString.insert(0, '0');
-        }
-
-        return hexString.toString();
+        byte[] hash = digest.digest(stringToHash.getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
     }
 }
