@@ -1,5 +1,7 @@
+import org.gradle.api.JavaVersion
+
 plugins {
-    id 'java'
+    id 'application'
 }
 
 group 'pl.edu.agh.dp.tkgk'
@@ -20,6 +22,24 @@ dependencies {
     implementation 'org.mockito:mockito-core:4.3.1'
 }
 
+mainClassName = 'pl.edu.agh.dp.tkgk.oauth2server.Launcher'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs =  ['src/main/resources']
+        }
+    }
+}
+
 test {
     useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
