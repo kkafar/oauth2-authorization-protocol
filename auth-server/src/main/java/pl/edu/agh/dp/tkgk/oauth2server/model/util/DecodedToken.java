@@ -1,8 +1,8 @@
-package model.util;
+package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import org.json.JSONPropertyIgnore;
 import org.json.JSONPropertyName;
 import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;

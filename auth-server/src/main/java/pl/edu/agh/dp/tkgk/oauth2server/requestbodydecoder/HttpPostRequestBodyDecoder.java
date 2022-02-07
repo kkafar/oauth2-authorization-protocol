@@ -3,7 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
-import model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

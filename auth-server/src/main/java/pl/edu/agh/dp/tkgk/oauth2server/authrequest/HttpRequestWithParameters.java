@@ -5,7 +5,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import model.util.CodeChallengeMethod;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

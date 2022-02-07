@@ -1,6 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
-import model.util.CodeChallengeMethod;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 
 import java.util.Optional;
 import java.util.Set;

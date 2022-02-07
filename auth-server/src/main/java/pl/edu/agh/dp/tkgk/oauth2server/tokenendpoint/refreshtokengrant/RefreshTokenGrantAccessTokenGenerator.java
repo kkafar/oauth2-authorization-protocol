@@ -2,8 +2,8 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
 import io.netty.handler.codec.http.FullHttpResponse;
-import model.AuthCode;
-import model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;

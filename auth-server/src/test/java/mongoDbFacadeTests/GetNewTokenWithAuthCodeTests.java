@@ -1,17 +1,14 @@
 package mongoDbFacadeTests;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import model.AuthCode;
-import model.Client;
-import model.Token;
-import model.util.CodeChallengeMethod;
-import model.util.DecodedToken;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import org.junit.jupiter.api.*;
 import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
