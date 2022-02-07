@@ -1,11 +1,11 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
+import model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
 
 import java.util.List;
 import java.util.Map;
@@ -36,10 +36,10 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
     private Optional<String> getInvalidScopeEntries(String scope, String clientId){
         String[] scopeEntries = scope.split(" ");
         Database database = AuthorizationDatabaseProvider.getInstance();
-        Client client = database.getClient(clientId).orElseThrow();
+        Client client = database.fetchClient(clientId).orElseThrow();
         StringBuilder invalidEntries = new StringBuilder();
         for(String s : scopeEntries){
-            if(client.scope.contains(s)) continue;
+            if(client.getScope().contains(s)) continue;
             invalidEntries.append(s).append(" ");
         }
 

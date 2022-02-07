@@ -1,6 +1,7 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
+import model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
@@ -29,7 +30,7 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
         if(!parameters.containsKey("code_challenge_method")){
             return AuthorizationServerUtil.buildErrorResponse("invalid_request", CODE_CHALLENGE_METHOD_NOT_PRESENT_URI, redirect_uri, state);
         }
-        if(!parameters.get("code_challenge_method").get(0).equals("sha256")){
+        if(!isCodeChallengeMethodValid(parameters.get("code_challenge_method").get(0), request)){
             return AuthorizationServerUtil.buildErrorResponse("invalid_request", INVALID_CODE_CHALLENGE_METHOD_URI, redirect_uri, state);
         }
 
@@ -38,5 +39,14 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
 
     private boolean isCodeChallengeValid(String codeChallenge) {
         return codeChallenge.matches("[a-zA-Z0-9_-]+");
+    }
+
+    private boolean isCodeChallengeMethodValid(String codeChallengeMethod, HttpRequestWithParameters request) {
+        try {
+            request.setCodeChallengeMethod(CodeChallengeMethod.valueOf(codeChallengeMethod));
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

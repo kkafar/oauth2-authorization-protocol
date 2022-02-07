@@ -1,12 +1,18 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.*;
+import model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 
 public record ResourceServerAuthenticator(FullHttpRequest request) {
 
     private static final String WWW_AUTHENTICATE_STRING = "Bearer realm=\"auth_server\", error=\"invalid_token\"";
 
-    public boolean authenticate() {
+    public boolean authenticate() throws JWTVerificationException {
         HttpHeaders headers = request.headers();
         String authorizationString = headers.get(HttpHeaderNames.AUTHORIZATION);
 
@@ -14,13 +20,14 @@ public record ResourceServerAuthenticator(FullHttpRequest request) {
 
         String tokenString = authorizationString.split(" ")[1];
 
-        // todo: Bearer token validation
+        DecodedJWT decodedToken = TokenUtil.decodeToken(tokenString);
 
-        return true;
+        Database database = AuthorizationDatabaseProvider.getInstance();
+
+        return database.fetchToken(decodedToken.getId(), TokenHint.NO_TOKEN_HINT).isPresent();
     }
 
     public FullHttpResponse failedBearerTokenAuthenticationResponse() {
-        // todo: MAY add error_description to this response
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.UNAUTHORIZED);
         response.headers().set(HttpHeaderNames.WWW_AUTHENTICATE, WWW_AUTHENTICATE_STRING);
         return response;

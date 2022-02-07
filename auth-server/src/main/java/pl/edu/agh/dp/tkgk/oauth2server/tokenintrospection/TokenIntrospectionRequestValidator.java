@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderValues;
@@ -19,7 +20,13 @@ public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequ
         }
 
         ResourceServerAuthenticator authenticator = new ResourceServerAuthenticator(request);
-        if (!authenticator.authenticate()) {
+
+        try {
+            if (!authenticator.authenticate()) {
+                return authenticator.failedBearerTokenAuthenticationResponse();
+            }
+        } catch (JWTVerificationException e) {
+            e.printStackTrace();
             return authenticator.failedBearerTokenAuthenticationResponse();
         }
 

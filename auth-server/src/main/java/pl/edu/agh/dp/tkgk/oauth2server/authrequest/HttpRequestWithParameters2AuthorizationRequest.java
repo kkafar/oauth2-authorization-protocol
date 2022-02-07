@@ -17,18 +17,19 @@ public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<
         Credentials credentials = getCredentials(request);
         String sessionIdOptional = request.cookies.get("session_id");
         int i = 0;
-        AuthorizationRequest authorizationRequest = new AuthorizationRequest(
-                request.fullHttpRequest.uri(),
-                urlParametersValue[i++],
-                urlParametersValue[i++],
-                urlParametersValue[i++],
-                urlParametersValue[i++],
-                urlParametersValue[i++],
-                urlParametersValue[i],
-                scope,
-                credentials,
-                sessionIdOptional,
-                isScopeAccepted);
+        AuthorizationRequest authorizationRequest = null;
+            authorizationRequest = new AuthorizationRequest(
+                    request.fullHttpRequest.uri(),
+                    urlParametersValue[i++],
+                    urlParametersValue[i++],
+                    urlParametersValue[i++],
+                    urlParametersValue[i++],
+                    urlParametersValue[i],
+                    request.getCodeChallengeMethod(),
+                    scope,
+                    credentials,
+                    sessionIdOptional,
+                    isScopeAccepted);
         return next.handle(authorizationRequest);
     }
 

@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import model.util.TokenHint;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,8 +11,9 @@ import java.util.Optional;
 
 public record HttpPostRequestBodyDecoder(HttpPostRequestDecoder decoder) {
 
-    public Optional<String> fetchTokenHint() throws IOException {
-        return fetchAttribute("token_hint_data");
+    public TokenHint fetchTokenHint() throws IOException {
+        Optional<String> tokenHintData = fetchAttribute("token_type_hint");
+        return TokenHint.value(tokenHintData.orElse("no token hint"));
     }
 
     public Optional<String> fetchToken() throws IOException {

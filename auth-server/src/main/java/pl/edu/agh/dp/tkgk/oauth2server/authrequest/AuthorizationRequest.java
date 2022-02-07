@@ -1,5 +1,7 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
+import model.util.CodeChallengeMethod;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -10,14 +12,16 @@ public final class AuthorizationRequest {
     public final String responseType;
     public final String state;
     public final String codeChallenge;
-    public final String codeChallengeMethod;
+    public final CodeChallengeMethod codeChallengeMethod;
     public final Set<String> scope;
 
     public final Credentials credentials;
     public final String sessionId;
     final boolean isScopeAccepted;
 
-    public AuthorizationRequest(String uri, String redirectUri, String clientId, String responseType, String state, String codeChallenge, String codeChallengeMethod, Set<String> scope, Credentials credentials, String sessionId, boolean isScopeAccepted) {
+    public AuthorizationRequest(String uri, String redirectUri, String clientId, String responseType, String state, String codeChallenge,
+                                CodeChallengeMethod codeChallengeMethod, Set<String> scope, Credentials credentials, String sessionId, boolean isScopeAccepted)
+    {
         this.redirectUri = redirectUri;
         this.clientId = clientId;
         this.responseType = responseType;

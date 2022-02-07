@@ -1,17 +1,19 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
-import org.json.JSONObject;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import model.AuthCode;
+import model.Client;
+import model.Session;
+import model.Token;
+import model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.database.records.Session;
 
 import java.time.Instant;
 import java.util.*;
 
 
-class MockAuthorizationDatabaseFacade implements Database{
+public class MockAuthorizationDatabaseFacade implements Database {
 
     private final HashMap<String, Session> sessionHashMap;
     private final HashMap<String, AuthCode> authCodeHashMap;
@@ -27,7 +29,7 @@ class MockAuthorizationDatabaseFacade implements Database{
     }
 
     @Override
-    public Optional<Client> getClient(String clientId) {
+    public Optional<Client> fetchClient(String clientId) {
         if("some_fake_client_id".equals(clientId)){
             Client fakeClient = new Client("some_fake_client_id", "https://www.google.pl", Collections.singletonList("all"));
             return Optional.of(fakeClient);
@@ -44,20 +46,13 @@ class MockAuthorizationDatabaseFacade implements Database{
     }
 
     @Override
-    public boolean revokeAccessToken() {
-        // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
-        return true;
-    }
-
-    @Override
-    public boolean revokeRefreshToken() {
+    public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
         // after revoking refresh token revoke all access tokens with the same authorization grant
-        revokeAllAccessTokensWithGivenGrant();
-        return true;
+        // RFC7009 says that we MAY revoke all refresh tokens assigned to the same authorization grant
     }
 
     @Override
-    public Optional<JSONObject> fetchTokenData() {
+    public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
         return Optional.empty();
     }
 
@@ -65,7 +60,7 @@ class MockAuthorizationDatabaseFacade implements Database{
     public boolean isSessionIdValid(String sessionId) {
         if(!sessionHashMap.containsKey(sessionId)) return false;
         Session session = sessionHashMap.get(sessionId);
-        return session.expireTimeInSeconds > Instant.now().getEpochSecond();
+        return session.getExpireTimeInSeconds() > Instant.now().getEpochSecond();
     }
 
     @Override
@@ -85,21 +80,31 @@ class MockAuthorizationDatabaseFacade implements Database{
     }
 
     @Override
+    public Optional<AuthCode> fetchAuthorizationCode(String authorizationCode) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType) {
+        return null;
+    }
+
+    @Override
+    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId) {
+        return null;
+    }
+
+    @Override
     public String generateCode(AuthorizationRequest request) {
         byte[] randomBytes = new byte[64];
         random.nextBytes(randomBytes);
         String code = new String(Base64.getUrlEncoder().encode(randomBytes));
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
-                new AuthCode(code, request.redirectUri, request.codeChallenge, request.codeChallengeMethod, expireTime);
+                new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
+                        "client", false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
     }
 
-    @Override
-    public Optional<String> getAuthorizationRedirectUri(String authorizationCodeString) {
-        return Optional.empty();
-    }
-
-    public void revokeAllAccessTokensWithGivenGrant() {}
 }

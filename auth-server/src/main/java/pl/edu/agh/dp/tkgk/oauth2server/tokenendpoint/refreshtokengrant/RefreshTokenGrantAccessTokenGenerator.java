@@ -1,39 +1,49 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import io.netty.handler.codec.http.FullHttpResponse;
+import model.AuthCode;
+import model.Token;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 
 /**
- * Generates access token and builds response JSON body (this class could probably be used in both grant type pipelines)
+ * Generates access token and builds response JSON body
  */
-public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<String, JSONObject> {
+public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<AuthCode, JSONObject> {
 
     private static final String ACCESS_TOKEN = "access_token";
     private static final String TOKEN_TYPE = "token_type";
     private static final String BEARER = "Bearer";
     private static final String EXPIRES_IN = "expires_in";
+    private static final String SCOPE = "scope";
 
-    private static final int ONE_DAY_IN_SECONDS = 86400;
+    private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
 
     @Override
-    public FullHttpResponse handle(String refreshTokenString) {
-        // generate new access token and store it in the db
+    public FullHttpResponse handle(AuthCode authorizationCode) {
         try {
-            Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
-            String accessToken = JWT.create().sign(algorithm); // should have some claim with random string building the token
-            JSONObject responseBody = new JSONObject();
-            responseBody.put(ACCESS_TOKEN, accessToken);
-            responseBody.put(TOKEN_TYPE, BEARER);
-            responseBody.put(EXPIRES_IN, ONE_DAY_IN_SECONDS);
-            return next.handle(responseBody);
+            Database database = AuthorizationDatabaseProvider.getInstance();
+
+            Token accessToken = database.getNewToken(EXPIRE_IN_SECONDS_ACCESS_TOKEN, authorizationCode.getScope(),
+                    authorizationCode.getCode(), false, BEARER, authorizationCode.getClientId());
+
+            return next.handle(buildResponseBody(accessToken.getToken(), authorizationCode.getScopeItems()));
         } catch (JWTCreationException e) {
             e.printStackTrace();
             return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
         }
+    }
+
+    private JSONObject buildResponseBody(String accessToken, String scopeItems) {
+        JSONObject responseBody = new JSONObject();
+        responseBody.put(ACCESS_TOKEN, accessToken);
+        responseBody.put(TOKEN_TYPE, BEARER);
+        responseBody.put(EXPIRES_IN, EXPIRE_IN_SECONDS_ACCESS_TOKEN);
+        responseBody.put(SCOPE, scopeItems);
+        return responseBody;
     }
 }
