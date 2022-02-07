@@ -2,7 +2,6 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import model.util.CodeChallengeMethod;
-import model.util.UnsupportedCodeChallengeMethodException;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 
@@ -44,9 +43,9 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
 
     private boolean isCodeChallengeMethodValid(String codeChallengeMethod, HttpRequestWithParameters request) {
         try {
-            request.setCodeChallengeMethod(CodeChallengeMethod.value(codeChallengeMethod));
+            request.setCodeChallengeMethod(CodeChallengeMethod.valueOf(codeChallengeMethod));
             return true;
-        } catch (UnsupportedCodeChallengeMethodException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }

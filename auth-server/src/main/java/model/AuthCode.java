@@ -14,13 +14,13 @@ import java.util.Objects;
 public final class AuthCode {
     @BsonId
     private final String code;
-    @BsonProperty(value = "code_challenge")
+    @BsonProperty(value = JsonFields.CODE_CHALLENGE)
     private final String codeChallenge;
-    @BsonProperty(value = "code_challenge_method")
+    @BsonProperty(value = JsonFields.CODE_CHALLENGE_METHOD)
     private final CodeChallengeMethod codeChallengeMethod;
-    @BsonProperty(value = "expire_time")
+    @BsonProperty(value = JsonFields.EXPIRE_TIME)
     private final long expireTime;
-    @BsonProperty(value = "client_id")
+    @BsonProperty(value = JsonFields.CLIENT_ID)
     private final String clientId;
     private boolean used;
     private List<String> scope;

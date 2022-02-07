@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Client {
     @BsonId
     private final String clientId;
-    @BsonProperty(value = "redirect_uri")
+    @BsonProperty(value = JsonFields.REDIRECT_URI)
     private String redirectUri;
     private final List<String> scope;
 
