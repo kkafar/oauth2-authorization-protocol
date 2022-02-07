@@ -50,6 +50,7 @@ public interface Database {
     /**
      * Generates new token with given parameters and unique token id, adds token to database
      * @param expiresIn validity time in days
+     * @param authorizationCode authorization code to be marked as used
      * @param isAccessToken indicates if token is access or refresh token
      * @param tokenType e.g. "Bearer"
      * @return generated token
