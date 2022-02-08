@@ -8,7 +8,6 @@ public class FullHttpRequest2HttpRequestWithParameters extends BaseHandler<FullH
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         HttpRequestWithParameters httpRequestWithParameters = new HttpRequestWithParameters(request);
-        FullHttpResponse nextHandlerResponse = next.handle(httpRequestWithParameters);
-        return nextHandlerResponse;
+        return next.handle(httpRequestWithParameters);
     }
 }
