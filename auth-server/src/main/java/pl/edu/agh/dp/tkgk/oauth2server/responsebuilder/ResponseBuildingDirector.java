@@ -22,7 +22,7 @@ public class ResponseBuildingDirector {
     }
 
     public FullHttpResponse constructJsonServerErrorResponse(ResponseBuilder<JSONObject> builder, String errorMessage) {
-        JSONObject errorJson = new JSONObject("error", errorMessage);
+        JSONObject errorJson = new JSONObject().put("error", errorMessage);
 
         return constructJsonResponse(builder, errorJson, HttpResponseStatus.INTERNAL_SERVER_ERROR, false);
     }
@@ -31,7 +31,7 @@ public class ResponseBuildingDirector {
                                                                  String errorMessage,
                                                                  boolean includeCacheAndPragmaControl)
     {
-        JSONObject errorJson = new JSONObject("error", errorMessage);
+        JSONObject errorJson = new JSONObject().put("error", errorMessage);
 
         return constructJsonResponse(builder, errorJson, HttpResponseStatus.BAD_REQUEST, includeCacheAndPragmaControl);
     }

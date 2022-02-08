@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.responsebuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
