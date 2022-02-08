@@ -2,22 +2,24 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
 public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
     private static final AsciiString ALLOWED_CONTENT_TYPE = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED;
 
-
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         if(!isContentTypeValid(request)){
             return buildInvalidContentTypeResponse();
         }
-        FullHttpResponse nextHandlerResponse = next.handle(request);
-        return nextHandlerResponse;
+        return next.handle(request);
     }
 
     private boolean isContentTypeValid(FullHttpRequest request){
@@ -25,10 +27,8 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
-        String pageContent = AuthorizationServerUtil.buildSimpleHtml("Invalid content type",
+        String pageContent = director.buildSimpleHtml("Invalid content type",
                 "Allowed content type: " + ALLOWED_CONTENT_TYPE);
-        FullHttpResponse invalidContentResponse =
-                AuthorizationServerUtil.buildSimpleHttpResponse(HttpResponseStatus.OK, pageContent);
-        return invalidContentResponse;
+        return director.constructHtmlResponse(responseBuilder, pageContent, HttpResponseStatus.OK);
     }
 }

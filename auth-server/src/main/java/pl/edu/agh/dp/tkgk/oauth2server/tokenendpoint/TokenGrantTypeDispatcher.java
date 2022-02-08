@@ -3,7 +3,6 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import org.json.JSONObject;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;

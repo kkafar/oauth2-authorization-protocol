@@ -36,16 +36,30 @@ public class ResponseBuildingDirector {
         return constructJsonResponse(builder, errorJson, HttpResponseStatus.BAD_REQUEST, includeCacheAndPragmaControl);
     }
 
-    public FullHttpResponse constructUrlEncodedServerErrorResponse(ResponseBuilder<String> builder,
-                                                                   String redirectUri, String error,
-                                                                   String errorUri, String state)
+    private FullHttpResponse constructUrlEncodedResponse(ResponseBuilder<String> builder, String urlMessage,
+                                                         HttpResponseStatus responseStatus)
     {
-        String urlMessage = redirectUri + "?error=" + error + "&error_uri=" + errorUri + "&state=" + state;
-
-        builder.setHttpResponseStatus(HttpResponseStatus.FOUND);
+        builder.setHttpResponseStatus(responseStatus);
         builder.setMessage(urlMessage);
 
         return builder.getResponse();
+    }
+
+    public FullHttpResponse constructUrlEncodedErrorResponse(ResponseBuilder<String> builder,
+                                                             String redirectUri, String error,
+                                                             String errorUri, String state)
+    {
+        String urlMessage = redirectUri + "?error=" + error + "&error_uri=" + errorUri + "&state=" + state;
+
+        return constructUrlEncodedResponse(builder, urlMessage, HttpResponseStatus.FOUND);
+    }
+
+    public FullHttpResponse constructUrlEncodedAuthCodeResponse(ResponseBuilder<String> builder, String redirectUri,
+                                                                String state, String code)
+    {
+        String urlMessage = redirectUri + "?state=" + state + "&code=" + code;
+
+        return constructUrlEncodedResponse(builder, urlMessage, HttpResponseStatus.FOUND);
     }
 
     public FullHttpResponse constructHtmlServerErrorResponse(ResponseBuilder<String> builder, String errorMessage,
@@ -53,10 +67,10 @@ public class ResponseBuildingDirector {
     {
         String htmlContent = buildSimpleHtml("Error 500", errorMessage);
 
-        return constructHtmlErrorResponse(builder, htmlContent, responseStatus);
+        return constructHtmlResponse(builder, htmlContent, responseStatus);
     }
 
-    public FullHttpResponse constructHtmlErrorResponse(ResponseBuilder<String> builder, String htmlContent,
+    public FullHttpResponse constructHtmlResponse(ResponseBuilder<String> builder, String htmlContent,
                                                        HttpResponseStatus responseStatus)
     {
         builder.setHttpResponseStatus(responseStatus);

@@ -1,12 +1,12 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 
 import java.util.List;
 import java.util.Optional;

@@ -4,10 +4,17 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
 import java.io.FileNotFoundException;
 
 public class ScopeAcceptedVerifier extends BaseHandler<AuthorizationRequest, AuthorizationRequest> {
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
+
     @Override
     public FullHttpResponse handle(AuthorizationRequest request) {
         if(!request.isScopeAccepted){
@@ -15,7 +22,8 @@ public class ScopeAcceptedVerifier extends BaseHandler<AuthorizationRequest, Aut
                 return buildAcceptScopePage(request.uri, request.scope.toString());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                return AuthorizationServerUtil.buildServerErrorResponse("Couldn't find file html/accept_scope_page.html");
+                return director.constructHtmlServerErrorResponse(responseBuilder,
+                        "Couldn't find file html/accept_scope_page.html", HttpResponseStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
@@ -26,6 +34,6 @@ public class ScopeAcceptedVerifier extends BaseHandler<AuthorizationRequest, Aut
         String acceptScopePage = AuthorizationServerUtil.loadTextResource("html/accept_scope_page.html");
         acceptScopePage = acceptScopePage.replace("$SUBMIT_URL", uri);
         acceptScopePage = acceptScopePage.replace("$SCOPE", scope);
-        return AuthorizationServerUtil.buildSimpleHttpResponse(HttpResponseStatus.OK, acceptScopePage);
+        return director.constructHtmlResponse(responseBuilder, acceptScopePage, HttpResponseStatus.OK);
     }
 }

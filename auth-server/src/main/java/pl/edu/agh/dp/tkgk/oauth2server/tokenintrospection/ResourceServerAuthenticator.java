@@ -3,10 +3,10 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.*;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 
 public record ResourceServerAuthenticator(FullHttpRequest request) {
 
