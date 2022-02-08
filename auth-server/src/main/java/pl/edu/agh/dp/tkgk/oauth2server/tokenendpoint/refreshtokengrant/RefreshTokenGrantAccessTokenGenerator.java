@@ -9,6 +9,9 @@ import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 /**
  * Generates access token and builds response JSON body
@@ -23,6 +26,9 @@ public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<AuthCode,
 
     private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
 
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
+
     @Override
     public FullHttpResponse handle(AuthCode authorizationCode) {
         try {
@@ -34,7 +40,7 @@ public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<AuthCode,
             return next.handle(buildResponseBody(accessToken.getToken(), authorizationCode.getScopeItems()));
         } catch (JWTCreationException e) {
             e.printStackTrace();
-            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
     }
 

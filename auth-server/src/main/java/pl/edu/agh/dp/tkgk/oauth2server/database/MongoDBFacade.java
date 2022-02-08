@@ -9,7 +9,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;

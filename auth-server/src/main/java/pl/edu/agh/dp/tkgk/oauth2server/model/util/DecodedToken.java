@@ -5,7 +5,6 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import org.json.JSONPropertyIgnore;
 import org.json.JSONPropertyName;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 
 import java.time.Instant;
 import java.util.List;

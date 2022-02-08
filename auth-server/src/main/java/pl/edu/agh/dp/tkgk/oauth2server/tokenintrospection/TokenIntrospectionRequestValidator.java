@@ -6,17 +6,24 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.validator.HttpRequestValidator;
 
 public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequest, HttpPostRequestDecoder> {
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
         if (!requestValid(request, decoder)) {
-            return AuthorizationServerUtil.badRequestHttpResponse(false);
+            return director.constructJsonBadRequestErrorResponse(responseBuilder, "invalid_request", false);
         }
 
         ResourceServerAuthenticator authenticator = new ResourceServerAuthenticator(request);

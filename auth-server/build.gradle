@@ -1,5 +1,3 @@
-import org.gradle.api.JavaVersion
-
 plugins {
     id 'application'
 }
@@ -12,17 +10,19 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:20.1.0'
+    implementation 'org.jetbrains:annotations:22.0.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
     implementation 'io.netty:netty-all:4.1.72.Final'
-    implementation 'com.auth0:java-jwt:3.18.2'
+    implementation 'com.auth0:java-jwt:3.18.3'
     implementation 'org.json:json:20211205'
     implementation 'org.mongodb:mongo-java-driver:3.12.10'
     implementation 'org.mockito:mockito-core:4.3.1'
 }
 
-mainClassName = 'pl.edu.agh.dp.tkgk.oauth2server.Launcher'
+application {
+    mainClassName = 'pl.edu.agh.dp.tkgk.oauth2server.Launcher'
+}
 
 sourceSets {
     main {

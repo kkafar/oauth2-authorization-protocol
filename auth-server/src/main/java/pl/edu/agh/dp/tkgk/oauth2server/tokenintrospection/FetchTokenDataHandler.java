@@ -9,7 +9,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;

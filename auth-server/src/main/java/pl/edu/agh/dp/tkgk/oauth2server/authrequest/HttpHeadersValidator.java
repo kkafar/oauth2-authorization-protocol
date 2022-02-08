@@ -9,6 +9,8 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
 
     private static final AsciiString ALLOWED_CONTENT_TYPE = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED;
 
+
+
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         if(!isContentTypeValid(request)){

@@ -3,16 +3,20 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,11 +34,14 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
     private static final String SCOPE = "scope";
     private static final String REFRESH_TOKEN = "refresh_token";
 
-    Database database = AuthorizationDatabaseProvider.getInstance();
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
-    Token refreshTokenObj;
+    private final Database database = AuthorizationDatabaseProvider.getInstance();
 
-    AuthCode authCodeObj;
+    private Token refreshTokenObj;
+
+    private AuthCode authCodeObj;
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
@@ -43,17 +50,15 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
 
         try {
             if (!refreshTokenValid(bodyDecoder)) {
-                return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        INVALID_GRANT);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_GRANT, true);
             }
 
             if (!scopeValidIfAdded(bodyDecoder)) {
-                return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        INVALID_SCOPE);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_SCOPE, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
         return next.handle(authCodeObj);
