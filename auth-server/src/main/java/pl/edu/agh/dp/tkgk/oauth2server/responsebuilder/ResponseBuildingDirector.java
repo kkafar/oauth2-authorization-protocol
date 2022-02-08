@@ -62,12 +62,11 @@ public class ResponseBuildingDirector {
         return constructUrlEncodedResponse(builder, urlMessage, HttpResponseStatus.FOUND);
     }
 
-    public FullHttpResponse constructHtmlServerErrorResponse(ResponseBuilder<String> builder, String errorMessage,
-                                                             HttpResponseStatus responseStatus)
+    public FullHttpResponse constructHtmlServerErrorResponse(ResponseBuilder<String> builder, String errorMessage)
     {
         String htmlContent = buildSimpleHtml("Error 500", errorMessage);
 
-        return constructHtmlResponse(builder, htmlContent, responseStatus);
+        return constructHtmlResponse(builder, htmlContent, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     }
 
     public FullHttpResponse constructHtmlResponse(ResponseBuilder<String> builder, String htmlContent,

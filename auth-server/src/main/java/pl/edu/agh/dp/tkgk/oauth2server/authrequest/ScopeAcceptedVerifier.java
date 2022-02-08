@@ -23,7 +23,7 @@ public class ScopeAcceptedVerifier extends BaseHandler<AuthorizationRequest, Aut
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 return director.constructHtmlServerErrorResponse(responseBuilder,
-                        "Couldn't find file html/accept_scope_page.html", HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                        "Couldn't find file html/accept_scope_page.html");
             }
         }
 

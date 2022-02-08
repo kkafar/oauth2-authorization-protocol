@@ -5,6 +5,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
 import java.io.FileNotFoundException;
 import java.util.Optional;
@@ -13,17 +16,18 @@ public class ErrorsPageHandler extends BaseHandler<FullHttpRequest, Void> {
 
     public static final String ERRORS_PAGE_HTML_PATH = "html/errors_page.html";
 
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
+
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         Optional<String> errorsPageHtmlOptional = tryToLoadErrorsPageHtml();
         if(errorsPageHtmlOptional.isPresent()){
-            FullHttpResponse errorsPageResponse =
-                    AuthorizationServerUtil.buildSimpleHttpResponse(HttpResponseStatus.OK, errorsPageHtmlOptional.get());
-            return errorsPageResponse;
+            return director.constructHtmlResponse(responseBuilder, errorsPageHtmlOptional.get(), HttpResponseStatus.OK);
         }
 
         String errorDescription = "Couldn't load file " + ERRORS_PAGE_HTML_PATH;
-        return AuthorizationServerUtil.buildServerErrorResponse(errorDescription);
+        return director.constructHtmlServerErrorResponse(responseBuilder, errorDescription);
     }
 
     private Optional<String> tryToLoadErrorsPageHtml() {

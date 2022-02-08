@@ -45,7 +45,7 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return director.constructHtmlServerErrorResponse(htmlResponseBuilder,
-                    "Couldn't open html/login_page.html", HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                    "Couldn't open html/login_page.html");
         }
     }
 
