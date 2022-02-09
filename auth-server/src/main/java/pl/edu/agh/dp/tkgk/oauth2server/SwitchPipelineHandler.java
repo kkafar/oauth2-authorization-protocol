@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class SwitchPipelineHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     private final HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap;
-    private final Handler<FullHttpRequest, ?> pageNotFoundHandler; // TODO: to reconsider
+    private final Handler<FullHttpRequest, ?> pageNotFoundHandler;
 
     public SwitchPipelineHandler(HashMap<String, Handler<FullHttpRequest, ?>> endpointHandlerMap) {
         this.endpointHandlerMap = endpointHandlerMap;

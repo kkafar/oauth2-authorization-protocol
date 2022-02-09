@@ -13,9 +13,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class TokenUtil {
-
     private final static int TOKEN_ID_LENGTH = 32;
     private final static String JWT_ID_CLAIM_NAME = "jti";
+    public static final String SECRET = "ultra-secret-key-that-is-at-least-32-bits-long-for-hs256-algorithm-top-secret";
 
     public static String generateTokenId() {
         String alphaNumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -35,7 +35,7 @@ public class TokenUtil {
 
     public static String generateToken(int expiresIn, List<String> scope, String authorizationCode,
                                        boolean isAccessToken, String tokenType, String tokenId) {
-        Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
+        Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
         return JWT.create()
                 .withClaim(DecodedToken.CustomClaims.AUTH_CODE, authorizationCode)
@@ -49,7 +49,7 @@ public class TokenUtil {
     }
 
     public static DecodedJWT decodeToken(String token) throws JWTVerificationException {
-        Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
+        Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
         JWTVerifier verifier = JWT.require(algorithm)
                 .withClaimPresence(DecodedToken.CustomClaims.AUTH_CODE)

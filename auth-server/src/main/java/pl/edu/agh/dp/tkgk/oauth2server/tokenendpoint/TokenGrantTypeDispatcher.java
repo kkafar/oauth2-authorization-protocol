@@ -4,6 +4,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpRequestError;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
@@ -18,10 +21,7 @@ import java.util.Optional;
  */
 public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder, HttpPostRequestDecoder> {
 
-    private static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
-    private static final String REFRESH_TOKEN = "refresh_token";
-    private static final String AUTHORIZATION_CODE = "authorization_code";
-    private static final String GRANT_TYPE = "grant_type";
+    public static final String AUTHORIZATION_CODE = "authorization_code";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
@@ -31,11 +31,11 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
         HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
         try {
-            Optional<String> grantTypeString = bodyDecoder.fetchAttribute(GRANT_TYPE);
+            Optional<String> grantTypeString = bodyDecoder.fetchAttribute(HttpParameters.GRANT_TYPE);
 
             if (grantTypeString.isPresent()) {
 
-                if (grantTypeString.get().equals(REFRESH_TOKEN)) {
+                if (grantTypeString.get().equals(TokenHint.REFRESH_TOKEN.toString())) {
                     return TokenGrantTypesHandlerChainsBuilder.getRefreshTokenGrantTokenRequestHandler().handle(decoder);
                 }
 
@@ -49,6 +49,6 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
-        return director.constructJsonBadRequestErrorResponse(responseBuilder, UNSUPPORTED_GRANT_TYPE, true);
+        return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.UNSUPPORTED_GRANT_TYPE, true);
     }
 }

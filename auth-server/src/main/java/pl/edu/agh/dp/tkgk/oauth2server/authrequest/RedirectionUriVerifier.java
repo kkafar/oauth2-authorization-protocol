@@ -6,6 +6,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
@@ -21,8 +22,6 @@ import java.util.Optional;
 
 public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> {
 
-    private static final String CLIENT_ID = "client_id";
-    private static final String REDIRECTION_URI = "redirect_uri";
     private static final String REDIRECTION_URI_ERROR = "Redirection uri error";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
@@ -33,19 +32,19 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         Map<String, List<String>> parameters = request.urlParameters;
         String message;
 
-        if(!parameters.containsKey(CLIENT_ID)){
+        if(!parameters.containsKey(HttpParameters.CLIENT_ID)){
             message = "client_id is missing";
             return director.constructHtmlResponse(responseBuilder,
                     director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
-        String clientId = parameters.get(CLIENT_ID).get(0);
+        String clientId = parameters.get(HttpParameters.CLIENT_ID).get(0);
 
-        if(!parameters.containsKey(REDIRECTION_URI)){
+        if(!parameters.containsKey(HttpParameters.REDIRECT_URI)){
             message = "redirect_uri is missing";
             return director.constructHtmlResponse(responseBuilder,
                     director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
-        String redirectionUri = parameters.get(REDIRECTION_URI).get(0);
+        String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
         Database database = AuthorizationDatabaseProvider.getInstance();
         Optional<Client> optionalClient = database.fetchClient(clientId);

@@ -10,6 +10,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
@@ -39,7 +40,7 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, J
 
         } catch (IOException | JWTVerificationException | NoSuchAttributeException e) {
             e.printStackTrace();
-            return next.handle(new JSONObject().put("active", false));
+            return next.handle(new JSONObject().put(HttpParameters.ACTIVE, false));
         }
     }
 
@@ -51,13 +52,13 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, J
 
             if (decodedToken.isActive()) {
                 tokenDataJson = new JSONObject(decodedToken);
-                tokenDataJson.put("client_id", optionalToken.get().getClientId());
-                tokenDataJson.put("active", true);
+                tokenDataJson.put(HttpParameters.CLIENT_ID, optionalToken.get().getClientId());
+                tokenDataJson.put(HttpParameters.ACTIVE, true);
                 return tokenDataJson;
             }
         }
 
-        tokenDataJson = new JSONObject().put("active", false);
+        tokenDataJson = new JSONObject().put(HttpParameters.ACTIVE, false);
         return tokenDataJson;
     }
 }

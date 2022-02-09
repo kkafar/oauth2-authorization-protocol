@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpRequestError;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
@@ -26,7 +27,7 @@ public class TokenRequestValidator extends BaseHandler<FullHttpRequest, HttpPost
     public FullHttpResponse handle(FullHttpRequest request) {
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
         if (!requestValid(request, decoder)) {
-            return director.constructJsonBadRequestErrorResponse(responseBuilder, "invalid_request", true);
+            return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
         }
 
         return next.handle(decoder);

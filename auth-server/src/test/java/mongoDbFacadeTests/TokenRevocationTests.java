@@ -55,7 +55,7 @@ public class TokenRevocationTests {
     Token refreshToken4 = new Token("8", "token8", "authcode2", "client2");
 
     private String generateToken() {
-        Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
+        Algorithm algorithm = Algorithm.HMAC256(TokenUtil.SECRET);
         return JWT.create()
                 .withClaim(DecodedToken.CustomClaims.AUTH_CODE, "authcode1")
                 .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, "Bearer")

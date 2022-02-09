@@ -9,9 +9,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.*;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
@@ -27,11 +25,6 @@ import java.util.Set;
  * Checks if refresh token and scope (if attached to the request) are valid so that the token request can be served
  */
 public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPostRequestDecoder, AuthCode> {
-
-    private static final String INVALID_GRANT = "invalid_grant";
-    private static final String INVALID_SCOPE = "invalid_scope";
-    private static final String SCOPE = "scope";
-    private static final String REFRESH_TOKEN = "refresh_token";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
@@ -49,11 +42,11 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
 
         try {
             if (!refreshTokenValid(bodyDecoder)) {
-                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_GRANT, true);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_GRANT, true);
             }
 
             if (!scopeValidIfAdded(bodyDecoder)) {
-                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_SCOPE, true);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_SCOPE, true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,7 +57,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
     }
 
     private boolean scopeValidIfAdded(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> scopeStringOptional = bodyDecoder.fetchAttribute(SCOPE);
+        Optional<String> scopeStringOptional = bodyDecoder.fetchAttribute(HttpParameters.SCOPE);
 
         if (scopeStringOptional.isPresent()) {
             String scopeString = scopeStringOptional.get();
@@ -94,7 +87,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
     }
 
     private boolean refreshTokenValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> refreshTokenOptional = bodyDecoder.fetchAttribute(REFRESH_TOKEN);
+        Optional<String> refreshTokenOptional = bodyDecoder.fetchAttribute(TokenHint.REFRESH_TOKEN.toString());
 
         if (refreshTokenOptional.isPresent()) {
             String refreshToken = refreshTokenOptional.get();

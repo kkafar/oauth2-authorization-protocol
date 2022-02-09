@@ -9,6 +9,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpRequestError;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
@@ -28,14 +30,6 @@ import java.util.Optional;
  */
 public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<HttpPostRequestDecoder, AuthCode> {
 
-    private static final String REDIRECT_URI = "redirect_uri";
-    private static final String CLIENT_ID = "client_id";
-    private static final String INVALID_GRANT = "invalid_grant";
-    private static final String INVALID_REQUEST = "invalid_request";
-    private static final String UNAUTHORIZED_CLIENT = "unauthorized_client";
-    private static final String CODE = "code";
-    private static final String CODE_VERIFIER = "code_verifier";
-
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
@@ -49,15 +43,15 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
 
         try {
             if (!authorizationCodeValid(bodyDecoder)) {
-                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_GRANT, true);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_GRANT, true);
             }
 
             if (!codeVerifierValid(bodyDecoder)) {
-                return director.constructJsonBadRequestErrorResponse(responseBuilder, UNAUTHORIZED_CLIENT, true);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.UNAUTHORIZED_CLIENT, true);
             }
 
             if (!redirectUriValid(bodyDecoder)) {
-                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_REQUEST, true);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
             }
 
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -69,7 +63,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
     }
 
     private boolean authorizationCodeValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> authorizationCodeOptional = bodyDecoder.fetchAttribute(CODE);
+        Optional<String> authorizationCodeOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE);
 
         if (authorizationCodeOptional.isPresent()) {
             String authorizationCodeString = authorizationCodeOptional.get();
@@ -86,7 +80,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
     }
 
     private boolean codeVerifierValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException, NoSuchAlgorithmException {
-        Optional<String> codeVerifierOptional = bodyDecoder.fetchAttribute(CODE_VERIFIER);
+        Optional<String> codeVerifierOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE_VERIFIER);
 
         if (codeVerifierOptional.isPresent()) {
             String codeVerifier = codeVerifierOptional.get();
@@ -108,8 +102,8 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
     }
 
     private boolean redirectUriValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> redirectUriOptional = bodyDecoder.fetchAttribute(REDIRECT_URI);
-        Optional<String> clientIdOptional = bodyDecoder.fetchAttribute(CLIENT_ID);
+        Optional<String> redirectUriOptional = bodyDecoder.fetchAttribute(HttpParameters.REDIRECT_URI);
+        Optional<String> clientIdOptional = bodyDecoder.fetchAttribute(HttpParameters.CLIENT_ID);
 
         if (redirectUriOptional.isPresent() && clientIdOptional.isPresent()) {
             Optional<Client> clientOptional = database.fetchClient(clientIdOptional.get());
