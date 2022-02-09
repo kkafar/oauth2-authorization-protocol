@@ -8,7 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.junit.jupiter.api.*;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;

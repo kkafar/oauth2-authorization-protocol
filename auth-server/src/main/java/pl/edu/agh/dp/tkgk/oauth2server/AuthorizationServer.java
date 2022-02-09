@@ -10,7 +10,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 public class AuthorizationServer {
 
     public void run(String host, int port){
-        System.out.println("Server is running on port " + port);
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try{
@@ -19,9 +18,11 @@ public class AuthorizationServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new MainChannelInitializer(AuthorizationServerUtil.getSSLContext()))
                     .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, false); // to reconsider
+                    .childOption(ChannelOption.SO_KEEPALIVE, false);
 
             ChannelFuture f = bootstrap.bind(port).sync();
+
+            System.out.println("Server is running on port " + port);
 
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {

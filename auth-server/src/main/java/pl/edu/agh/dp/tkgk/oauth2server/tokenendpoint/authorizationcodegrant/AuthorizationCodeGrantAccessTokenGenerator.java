@@ -2,13 +2,15 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
 import io.netty.handler.codec.http.FullHttpResponse;
-import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import org.json.JSONObject;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<AuthCode, JSONObject> {
 
@@ -23,8 +25,10 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
     private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
     private static final int EXPIRE_IN_DAYS_REFRESH_TOKEN = 7;
 
-    private final Database database = AuthorizationDatabaseProvider.getInstance();
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
+    private final Database database = AuthorizationDatabaseProvider.getInstance();
 
     @Override
     public FullHttpResponse handle(AuthCode authorizationCode) {
@@ -38,7 +42,7 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
             return next.handle(buildResponseBody(accessToken.getToken(), refreshToken.getToken(), authorizationCode));
         } catch (JWTCreationException e) {
             e.printStackTrace();
-            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
     }
 

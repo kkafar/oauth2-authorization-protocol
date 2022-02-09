@@ -1,15 +1,15 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.*;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,18 +23,27 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
 
     private static final String CLIENT_ID = "client_id";
     private static final String REDIRECTION_URI = "redirect_uri";
+    private static final String REDIRECTION_URI_ERROR = "Redirection uri error";
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
+        String message;
 
         if(!parameters.containsKey(CLIENT_ID)){
-            return buildErrorResponse("client_id is missing");
+            message = "client_id is missing";
+            return director.constructHtmlResponse(responseBuilder,
+                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
         String clientId = parameters.get(CLIENT_ID).get(0);
 
         if(!parameters.containsKey(REDIRECTION_URI)){
-            return buildErrorResponse("redirect_uri is missing");
+            message = "redirect_uri is missing";
+            return director.constructHtmlResponse(responseBuilder,
+                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
         String redirectionUri = parameters.get(REDIRECTION_URI).get(0);
 
@@ -42,22 +51,18 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){
-            return buildErrorResponse("Unknown client_id");
+            message = "Unknown client_id";
+            return director.constructHtmlResponse(responseBuilder,
+                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
 
         Client client = optionalClient.get();
         if(!client.getRedirectUri().equals(redirectionUri)){
-            return buildErrorResponse("Given redirect_id does not match client redirect_uri");
+            message = "Given redirect_id does not match client redirect_uri";
+            return director.constructHtmlResponse(responseBuilder,
+                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
         }
 
         return next.handle(request);
-    }
-
-    private FullHttpResponse buildErrorResponse(String msg){
-        ByteBuf content = Unpooled.copiedBuffer(AuthorizationServerUtil.buildSimpleHtml("Redirection uri error",msg), StandardCharsets.UTF_8);
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, content);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html");
-        response.headers().set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
-        return response;
     }
 }

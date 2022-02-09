@@ -1,10 +1,10 @@
 package pl.edu.agh.dp.tkgk.oauth2server.model;
 
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 
 import java.util.Objects;
 

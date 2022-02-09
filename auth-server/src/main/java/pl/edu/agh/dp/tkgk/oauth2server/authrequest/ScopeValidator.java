@@ -1,11 +1,13 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.UrlEncodedResponseBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,9 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
     private static final String SCOPE_NOT_PRESENT_URI = "scope_not_present";
     private static final String UNKNOWN_SCOPE_URI = "unknown_scope";
 
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new UrlEncodedResponseBuilder();
+
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
@@ -22,12 +27,12 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
         String state = parameters.get("state").get(0);
 
         if(!parameters.containsKey("scope")){
-            return AuthorizationServerUtil.buildErrorResponse("invalid_scope", SCOPE_NOT_PRESENT_URI, redirect_uri, state);
+            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_scope", SCOPE_NOT_PRESENT_URI, state);
         }
 
         Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get("scope").get(0), parameters.get("client_id").get(0));
         if(invalidScopeEntries.isPresent()){
-            return AuthorizationServerUtil.buildErrorResponse("invalid_scope", UNKNOWN_SCOPE_URI, redirect_uri, state);
+            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_scope", UNKNOWN_SCOPE_URI, state);
         }
 
         return next.handle(request);

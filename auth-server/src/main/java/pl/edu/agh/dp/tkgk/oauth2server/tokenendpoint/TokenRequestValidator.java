@@ -5,8 +5,11 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.validator.HttpRequestValidator;
 
 
@@ -16,11 +19,14 @@ import pl.edu.agh.dp.tkgk.oauth2server.validator.HttpRequestValidator;
  */
 public class TokenRequestValidator extends BaseHandler<FullHttpRequest, HttpPostRequestDecoder> {
 
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
+
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(request);
         if (!requestValid(request, decoder)) {
-            return AuthorizationServerUtil.badRequestHttpResponse(true);
+            return director.constructJsonBadRequestErrorResponse(responseBuilder, "invalid_request", true);
         }
 
         return next.handle(decoder);

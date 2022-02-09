@@ -2,9 +2,12 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -19,6 +22,9 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
     private static final String REFRESH_TOKEN = "refresh_token";
     private static final String AUTHORIZATION_CODE = "authorization_code";
     private static final String GRANT_TYPE = "grant_type";
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
@@ -40,10 +46,9 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
             }
         } catch (IOException e) {
             e.printStackTrace();
-            AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
-        return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                UNSUPPORTED_GRANT_TYPE);
+        return director.constructJsonBadRequestErrorResponse(responseBuilder, UNSUPPORTED_GRANT_TYPE, true);
     }
 }

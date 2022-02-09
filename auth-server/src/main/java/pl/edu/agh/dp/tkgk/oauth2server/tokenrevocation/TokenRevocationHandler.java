@@ -4,21 +4,25 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
 
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {
 
-    private static final String ACCESS_TOKEN = "access_token";
     private static final String INVALID_TOKEN = "invalid_token";
-    private static final String NO_TOKEN_HINT = "no_token_hint";
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
     private TokenHint tokenHint;
 
@@ -36,7 +40,7 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
             e.printStackTrace();
             // todo: should probably just send back HTTP 200 instead of the one with error referring to the 7009 RFC,
             // todo: will leave it for the debug now
-            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
         revokeToken();

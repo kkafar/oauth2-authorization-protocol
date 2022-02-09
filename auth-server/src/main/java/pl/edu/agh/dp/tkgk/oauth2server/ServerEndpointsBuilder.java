@@ -38,15 +38,20 @@ public class ServerEndpointsBuilder {
     }
 
     private void buildRevocationEndpoint() {
-        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenRevocationRequestValidator = new TokenRevocationRequestValidator();
+        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenRevocationRequestValidator =
+                new TokenRevocationRequestValidator();
+
         tokenRevocationRequestValidator.setNextAndGet(new TokenRevocationHandler());
 
         endpointHandlerMap.put("/revoke", tokenRevocationRequestValidator);
     }
 
     private void buildIntrospectionEndpoint() {
-        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenIntrospectionRequestValidator = new TokenIntrospectionRequestValidator();
-        tokenIntrospectionRequestValidator.setNextAndGet(new FetchTokenDataHandler())
+        Handler<FullHttpRequest, HttpPostRequestDecoder> tokenIntrospectionRequestValidator =
+                new TokenIntrospectionRequestValidator();
+
+        tokenIntrospectionRequestValidator
+                .setNextAndGet(new FetchTokenDataHandler())
                 .setNextAndGet(new TokenDataResponseBuilder());
 
         endpointHandlerMap.put("/introspect", tokenIntrospectionRequestValidator);
@@ -54,13 +59,17 @@ public class ServerEndpointsBuilder {
 
     private void buildTokenEndpoint() {
         Handler<FullHttpRequest, HttpPostRequestDecoder> tokenRequestValidator = new TokenRequestValidator();
+
         tokenRequestValidator.setNextAndGet(new TokenGrantTypeDispatcher());
+
         endpointHandlerMap.put("/token", tokenRequestValidator);
     }
 
     private void buildAuthorizationEndpoint() {
         Handler<FullHttpRequest, FullHttpRequest> authFirstHandler = new HttpHeadersValidator();
-        authFirstHandler.setNextAndGet(new RepeatingGetParametersChecker())
+
+        authFirstHandler
+                .setNextAndGet(new RepeatingGetParametersChecker())
                 .setNextAndGet(new FullHttpRequest2HttpRequestWithParameters())
                 .setNextAndGet(new RedirectionUriVerifier())
                 .setNextAndGet(new StateValidator())
@@ -71,6 +80,7 @@ public class ServerEndpointsBuilder {
                 .setNextAndGet(new IdentityVerifier())
                 .setNextAndGet(new ScopeAcceptedVerifier())
                 .setNextAndGet(new AuthorizationCodeResponder());
+
         endpointHandlerMap.put("/authorize", authFirstHandler);
     }
 
