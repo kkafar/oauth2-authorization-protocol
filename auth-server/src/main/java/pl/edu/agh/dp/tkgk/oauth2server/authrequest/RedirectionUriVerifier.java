@@ -1,17 +1,12 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 import java.util.List;
 import java.util.Map;
@@ -24,27 +19,24 @@ import java.util.Optional;
 
 public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> implements DatabaseInjectable {
 
-    private static final String REDIRECTION_URI_ERROR = "Redirection uri error";
+    private static final String CLIENT_ID_IS_MISSING_FRAGMENT = "client_id_is_missing";
+    public static final String REDIRECT_URI_IS_MISSING_FRAGMENT = "redirect_uri_is_missing";
+    public static final String UNKNOWN_CLIENT_ID_FRAGMENT = "unknown_client_id";
+    public static final String CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT = "client_id_redirect_uri_mismatch";
     private Database database;
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
+
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
-        String message;
 
         if(!parameters.containsKey(HttpParameters.CLIENT_ID)){
-            message = "client_id is missing";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(CLIENT_ID_IS_MISSING_FRAGMENT);
         }
         String clientId = parameters.get(HttpParameters.CLIENT_ID).get(0);
 
         if(!parameters.containsKey(HttpParameters.REDIRECT_URI)){
-            message = "redirect_uri is missing";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(REDIRECT_URI_IS_MISSING_FRAGMENT);
         }
         String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
@@ -52,16 +44,12 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){
-            message = "Unknown client_id";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(UNKNOWN_CLIENT_ID_FRAGMENT);
         }
 
         Client client = optionalClient.get();
         if(!client.getRedirectUri().equals(redirectionUri)){
-            message = "Given redirect_id does not match client redirect_uri";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT);
         }
 
         return next.handle(request);

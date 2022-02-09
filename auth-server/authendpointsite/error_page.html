@@ -20,6 +20,26 @@
     <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RepeatingGetParametersChecker.java">RepeatingGetParametersChecker</a></h4>
     Thrown when get parameter is repeated.
 </div>
+<div id="client_id_is_missing">
+    <h2>Missing client_id parameter</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RedirectionUriVerifier.java">RedirectionUriVerifier</a></h4>
+    Thrown when client_id parameter isn't present in URI.
+</div>
+<div id="redirect_uri_is_missing">
+    <h2>Missing redirect_uri parameter</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RedirectionUriVerifier.java">RedirectionUriVerifier</a></h4>
+    Thrown when redirect_uri parameter isn't present in URI.
+</div>
+<div id="unknown_client_id">
+    <h2>Unknown client_id</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RedirectionUriVerifier.java">RedirectionUriVerifier</a></h4>
+    Thrown when client_id is unknown to server database.
+</div>
+<div id="client_id_redirect_uri_mismatch">
+    <h2>client_id redirect_uri mismatch</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RedirectionUriVerifier.java">RedirectionUriVerifier</a></h4>
+    Thrown when given redirect_uri doesn't match redirect_uri of client with given client_id.
+</div>
 
 </body>
 </html>
