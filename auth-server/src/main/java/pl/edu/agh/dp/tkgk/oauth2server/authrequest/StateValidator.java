@@ -6,6 +6,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 public class StateValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> {
 
@@ -16,15 +17,15 @@ public class StateValidator extends BaseHandler<HttpRequestWithParameters, HttpR
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         if(!request.urlParameters.containsKey("state")){
             String message = "state not preset";
-            return director.constructHtmlResponse(responseBuilder, director.buildSimpleHtml("State error", message),
-                    HttpResponseStatus.OK);
+            return director.constructHtmlResponse(responseBuilder,
+                    new HtmlWithTitleAndContent("State error", message).getHtml(), HttpResponseStatus.OK);
         }
 
         String state = request.urlParameters.get("state").get(0);
         if(!isStateValid(state)){
             String message = "state format is invalid";
-            return director.constructHtmlResponse(responseBuilder, director.buildSimpleHtml("State error", message),
-                    HttpResponseStatus.OK);
+            return director.constructHtmlResponse(responseBuilder,
+                    new HtmlWithTitleAndContent("State error", message).getHtml(), HttpResponseStatus.OK);
         }
 
         return next.handle(request);

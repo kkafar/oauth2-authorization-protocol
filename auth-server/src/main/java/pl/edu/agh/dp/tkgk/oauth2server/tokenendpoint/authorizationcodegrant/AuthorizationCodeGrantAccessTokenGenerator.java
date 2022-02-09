@@ -2,6 +2,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
@@ -14,7 +15,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
-public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<AuthCode, JSONObject> {
+public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<AuthCode, Object> {
 
     private static final String BEARER = "Bearer";
 
@@ -36,7 +37,9 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
             Token refreshToken = database.getNewToken(EXPIRE_IN_DAYS_REFRESH_TOKEN, authorizationCode.getScope(),
                     authorizationCode.getCode(), false, BEARER, authorizationCode.getClientId());
 
-            return next.handle(buildResponseBody(accessToken.getToken(), refreshToken.getToken(), authorizationCode));
+            JSONObject responseBody = buildResponseBody(accessToken.getToken(), refreshToken.getToken(), authorizationCode);
+
+            return director.constructJsonResponse(responseBuilder, responseBody, HttpResponseStatus.OK, true);
         } catch (JWTCreationException e) {
             e.printStackTrace();
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());

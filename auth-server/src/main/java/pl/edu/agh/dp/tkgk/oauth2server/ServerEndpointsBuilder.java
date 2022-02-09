@@ -8,7 +8,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypeDispatcher;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenRequestValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.FetchTokenDataHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.TokenDataResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenintrospection.TokenIntrospectionRequestValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenrevocation.TokenRevocationRequestValidator;
@@ -51,8 +50,7 @@ public class ServerEndpointsBuilder {
                 new TokenIntrospectionRequestValidator();
 
         tokenIntrospectionRequestValidator
-                .setNextAndGet(new FetchTokenDataHandler())
-                .setNextAndGet(new TokenDataResponseBuilder());
+                .setNextAndGet(new FetchTokenDataHandler());
 
         endpointHandlerMap.put("/introspect", tokenIntrospectionRequestValidator);
     }

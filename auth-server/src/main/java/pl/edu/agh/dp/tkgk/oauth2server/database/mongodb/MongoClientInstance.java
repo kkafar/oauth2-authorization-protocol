@@ -11,7 +11,7 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-public class MongoClientInstance {
+public final class MongoClientInstance {
 
     private static class SingletonHelper {
 

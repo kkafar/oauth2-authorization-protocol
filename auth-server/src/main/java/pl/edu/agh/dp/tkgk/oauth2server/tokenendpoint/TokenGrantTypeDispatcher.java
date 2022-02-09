@@ -36,13 +36,14 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
             if (grantTypeString.isPresent()) {
 
                 if (grantTypeString.get().equals(TokenHint.REFRESH_TOKEN.toString())) {
-                    return TokenGrantTypesHandlerChainsBuilder.getRefreshTokenGrantTokenRequestHandler().handle(decoder);
+                    setNext(TokenGrantTypesHandlerChainsBuilder.getInstance().getRefreshTokenGrantHandler());
                 }
 
                 else if (grantTypeString.get().equals(AUTHORIZATION_CODE)) {
-                    return TokenGrantTypesHandlerChainsBuilder.getAuthorizationCodeGrantTokenRequestHandler().handle(decoder);
+                    setNext(TokenGrantTypesHandlerChainsBuilder.getInstance().getAuthorizationCodeGrantHandler());
                 }
 
+                return next.handle(decoder);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,4 +1,4 @@
-package mongoDbFacadeTests;
+package pl.edu.agh.dp.tkgk.oauth2server.authrequest.mongoDbFacadeTests;
 
 import static org.junit.jupiter.api.Assertions.*;
 

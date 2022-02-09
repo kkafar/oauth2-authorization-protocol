@@ -1,4 +1,4 @@
-package mongoDbFacadeTests;
+package pl.edu.agh.dp.tkgk.oauth2server.authrequest.mongoDbFacadeTests;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

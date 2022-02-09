@@ -8,6 +8,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
@@ -28,7 +29,7 @@ public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, 
         String message = "One or more parameters are repeated";
 
         return director.constructHtmlResponse(responseBuilder,
-                director.buildSimpleHtml("Error", message), HttpResponseStatus.OK);
+                new HtmlWithTitleAndContent("Error", message).getHtml(), HttpResponseStatus.OK);
     }
 
     private boolean areThereRepeatingParameters(String uri){
