@@ -11,15 +11,15 @@ import java.nio.charset.StandardCharsets;
 public class JsonResponseBuilder extends ResponseBuilder<JSONObject> {
 
     public JsonResponseBuilder() {
-        this.reset();
+        reset();
 
-        headers.put(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+        setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
     }
 
     @Override
     public void setMessage(JSONObject message) {
         content = Unpooled.copiedBuffer(message.toString(), StandardCharsets.UTF_8);
-        headers.put(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+        setHeader(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
     }
 
 }

@@ -3,7 +3,6 @@ package pl.edu.agh.dp.tkgk.oauth2server.responsebuilder;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,8 +28,8 @@ public abstract class ResponseBuilder<T> {
     }
 
     public void includeCacheAndPragmaControlHeaders() {
-        headers.put(HttpHeaderNames.CACHE_CONTROL, HttpHeaderValues.NO_STORE);
-        headers.put(HttpHeaderNames.PRAGMA, HttpHeaderValues.NO_CACHE);
+        setHeader(HttpHeaderNames.CACHE_CONTROL, HttpHeaderValues.NO_STORE);
+        setHeader(HttpHeaderNames.PRAGMA, HttpHeaderValues.NO_CACHE);
     }
 
     FullHttpResponse getResponse() {

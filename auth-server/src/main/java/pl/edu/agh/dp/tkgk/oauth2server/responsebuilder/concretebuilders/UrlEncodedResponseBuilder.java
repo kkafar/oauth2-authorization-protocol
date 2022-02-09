@@ -10,13 +10,13 @@ public class UrlEncodedResponseBuilder extends ResponseBuilder<String> {
     public UrlEncodedResponseBuilder() {
         this.reset();
 
-        headers.put(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-        headers.put(HttpHeaderNames.CONTENT_LENGTH, 0);
+        setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+        setHeader(HttpHeaderNames.CONTENT_LENGTH, 0);
     }
 
     @Override
     public void setMessage(String message) {
-        headers.put(HttpHeaderNames.LOCATION, message);
+        setHeader(HttpHeaderNames.LOCATION, message);
     }
 
 }

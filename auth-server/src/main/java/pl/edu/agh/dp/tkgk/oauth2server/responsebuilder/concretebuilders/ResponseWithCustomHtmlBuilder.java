@@ -12,13 +12,13 @@ public class ResponseWithCustomHtmlBuilder extends ResponseBuilder<String> {
     public ResponseWithCustomHtmlBuilder() {
         this.reset();
 
-        headers.put(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_HTML);
+        setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_HTML);
     }
 
     @Override
     public void setMessage(String message) {
         content = Unpooled.copiedBuffer(message, StandardCharsets.UTF_8);
-        headers.put(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
+        setHeader(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
     }
 
 }
