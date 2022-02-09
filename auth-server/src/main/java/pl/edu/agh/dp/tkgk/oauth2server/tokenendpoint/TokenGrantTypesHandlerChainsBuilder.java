@@ -11,7 +11,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant.RefreshTo
 
 import java.util.Objects;
 
-// TODO: Ask about static
 /**
  * Builds handler chains for each grant_type that this authorization server can handle and provides getters for every
  * chain's first handler

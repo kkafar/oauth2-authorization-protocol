@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.AsciiString;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
 public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecoder decoder) {
 
@@ -21,7 +22,7 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
     }
 
     public boolean hasTokenInRequestBody() {
-        InterfaceHttpData tokenData = decoder.getBodyHttpData("token");
+        InterfaceHttpData tokenData = decoder.getBodyHttpData(HttpParameters.TOKEN);
         return tokenData != null;
     }
 
@@ -32,7 +33,7 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
     }
     
     public boolean hasGrantTypeInRequestBody() {
-        InterfaceHttpData grantTypeData = decoder.getBodyHttpData("grant_type");
+        InterfaceHttpData grantTypeData = decoder.getBodyHttpData(HttpParameters.GRANT_TYPE);
         return grantTypeData != null;
     }
 }

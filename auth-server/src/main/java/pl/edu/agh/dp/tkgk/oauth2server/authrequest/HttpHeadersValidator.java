@@ -17,7 +17,6 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     private static final Set<AsciiString> ALLOWED_CONTENT_TYPES = Set.of(
             HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, HttpHeaderValues.TEXT_HTML
     );
-    private static final String INVALID_CONTENT_TYPE = "invalid_content_type";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();

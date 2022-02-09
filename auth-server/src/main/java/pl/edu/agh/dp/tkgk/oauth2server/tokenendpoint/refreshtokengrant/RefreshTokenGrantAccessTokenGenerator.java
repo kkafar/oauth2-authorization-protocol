@@ -8,6 +8,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
@@ -17,11 +19,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResp
  */
 public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<AuthCode, JSONObject> {
 
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String TOKEN_TYPE = "token_type";
     private static final String BEARER = "Bearer";
-    private static final String EXPIRES_IN = "expires_in";
-    private static final String SCOPE = "scope";
 
     private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
 
@@ -45,10 +43,10 @@ public class RefreshTokenGrantAccessTokenGenerator extends BaseHandler<AuthCode,
 
     private JSONObject buildResponseBody(String accessToken, String scopeItems) {
         JSONObject responseBody = new JSONObject();
-        responseBody.put(ACCESS_TOKEN, accessToken);
-        responseBody.put(TOKEN_TYPE, BEARER);
-        responseBody.put(EXPIRES_IN, EXPIRE_IN_SECONDS_ACCESS_TOKEN);
-        responseBody.put(SCOPE, scopeItems);
+        responseBody.put(TokenHint.ACCESS_TOKEN.toString(), accessToken);
+        responseBody.put(HttpParameters.TOKEN_TYPE, BEARER);
+        responseBody.put(HttpParameters.EXPIRES_IN, EXPIRE_IN_SECONDS_ACCESS_TOKEN);
+        responseBody.put(HttpParameters.SCOPE, scopeItems);
         return responseBody;
     }
 }

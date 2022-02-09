@@ -16,7 +16,6 @@ import java.util.Objects;
 
 public class AuthorizationServerUtil {
 
-    public static final String SECRET = "ultra-secret-key-that-is-at-least-32-bits-long-for-hs256-algorithm-top-secret";
     public static final String HTML_PAGE_404 = "html/page_not_found_404.html";
 
     private static SslContext serverSSLContext = null;
