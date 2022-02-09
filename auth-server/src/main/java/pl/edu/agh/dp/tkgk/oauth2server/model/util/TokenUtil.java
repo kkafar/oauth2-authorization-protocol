@@ -1,11 +1,11 @@
-package pl.edu.agh.dp.tkgk.oauth2server;
+package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
+import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -38,10 +38,10 @@ public class TokenUtil {
         Algorithm algorithm = Algorithm.HMAC256(AuthorizationServerUtil.SECRET);
 
         return JWT.create()
-                .withClaim(DecodedToken.CustomClaims.AUTH_CODE, scope)
+                .withClaim(DecodedToken.CustomClaims.AUTH_CODE, authorizationCode)
                 .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, tokenType)
                 .withClaim(DecodedToken.CustomClaims.IS_ACCESS_TOKEN, isAccessToken)
-                .withClaim(DecodedToken.CustomClaims.SCOPE, authorizationCode)
+                .withClaim(DecodedToken.CustomClaims.SCOPE, scope)
                 .withJWTId(tokenId)
                 .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(expiresIn)))
                 .withIssuedAt(Date.valueOf(LocalDate.now()))

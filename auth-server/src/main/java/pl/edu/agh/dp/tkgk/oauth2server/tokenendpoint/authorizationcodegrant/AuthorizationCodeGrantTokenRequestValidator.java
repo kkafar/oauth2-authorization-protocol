@@ -2,20 +2,23 @@ package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.authorizationcodegrant;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
+import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,6 +36,9 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
     private static final String CODE = "code";
     private static final String CODE_VERIFIER = "code_verifier";
 
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
+
     private AuthCode authorizationCode;
 
     private final Database database = AuthorizationDatabaseProvider.getInstance();
@@ -43,23 +49,20 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
 
         try {
             if (!authorizationCodeValid(bodyDecoder)) {
-                return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        INVALID_GRANT);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_GRANT, true);
             }
 
             if (!codeVerifierValid(bodyDecoder)) {
-                return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        UNAUTHORIZED_CLIENT);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, UNAUTHORIZED_CLIENT, true);
             }
 
             if (!redirectUriValid(bodyDecoder)) {
-                return AuthorizationServerUtil.badRequestHttpResponseWithCustomError(true,
-                        INVALID_REQUEST);
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, INVALID_REQUEST, true);
             }
 
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return AuthorizationServerUtil.serverErrorHttpResponse(e.getMessage());
+            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
         return next.handle(authorizationCode);
@@ -92,10 +95,10 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
             String codeChallenge = authorizationCode.getCodeChallenge();
 
             if (codeChallengeMethod.equals(CodeChallengeMethod.PLAIN)) {
-                return codeChallenge.equalsIgnoreCase(codeVerifier);
+                return codeChallenge.equals(codeVerifier);
             } else if (codeChallengeMethod.equals(CodeChallengeMethod.S256)) {
-                String codeVerifierHashed = hashSHA256(codeVerifier);
-                return codeChallenge.equalsIgnoreCase(codeVerifierHashed);
+                String codeVerifierHashed = hashSHA256InBase64Url(codeVerifier);
+                return codeChallenge.equals(codeVerifierHashed);
             }
 
             return true;
@@ -121,23 +124,9 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return false;
     }
 
-    public static String hashSHA256(String stringToHash) throws NoSuchAlgorithmException {
+    public static String hashSHA256InBase64Url(String stringToHash) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] encodedHash = digest.digest(
-                stringToHash.getBytes(StandardCharsets.UTF_8));
-        return toHexString(encodedHash);
-    }
-
-    public static String toHexString(byte[] hash)
-    {
-        BigInteger number = new BigInteger(1, hash);
-
-        StringBuilder hexString = new StringBuilder(number.toString(16));
-
-        while (hexString.length() < 32) {
-            hexString.insert(0, '0');
-        }
-
-        return hexString.toString();
+        byte[] hash = digest.digest(stringToHash.getBytes(StandardCharsets.UTF_8));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
     }
 }

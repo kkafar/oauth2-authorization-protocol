@@ -7,7 +7,6 @@ public abstract class BaseHandler<T, K> implements Handler<T, K> {
      * @param handler next handler in the pipeline
      * @return given handler
      */
-
     @Override
     public <S> Handler<K, S> setNextAndGet(Handler<K, S> handler) {
         setNext(handler);
@@ -17,7 +16,7 @@ public abstract class BaseHandler<T, K> implements Handler<T, K> {
     /**
      * @param handler next handler in the pipeline
      */
-
+    @Override
     public void setNext(Handler<K, ?> handler) {
         next = handler;
     }

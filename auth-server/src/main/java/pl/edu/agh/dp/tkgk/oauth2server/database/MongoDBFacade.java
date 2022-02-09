@@ -3,18 +3,18 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
+import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
+import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
-import pl.edu.agh.dp.tkgk.oauth2server.TokenUtil;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
-import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
-import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 
 import java.time.Instant;
 import java.util.*;
@@ -136,7 +136,7 @@ public class MongoDBFacade implements Database {
         String tokenId = getUniqueTokenId();
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
 
-        Token tokenObj = new Token(authorizationCode, token, tokenId, clientId);
+        Token tokenObj = new Token(tokenId, token, authorizationCode, clientId);
 
         String tokensCollection = isAccessToken ? MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString()
                 : MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString();

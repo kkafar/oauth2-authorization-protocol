@@ -6,6 +6,9 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.util.AsciiString;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
 import java.util.Set;
 
@@ -18,6 +21,9 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
             HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, HttpHeaderValues.TEXT_HTML
     );
     private static final String INVALID_CONTENT_TYPE = "invalid_content_type";
+
+    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
+    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
@@ -35,6 +41,12 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
-        return AuthEndpointUtil.buildRedirectResponseToErrorPage(INVALID_CONTENT_TYPE);
+// <<<<<<< authrequest_tests
+//         return AuthEndpointUtil.buildRedirectResponseToErrorPage(INVALID_CONTENT_TYPE);
+// =======
+        String pageContent = director.buildSimpleHtml("Invalid content type",
+                "Allowed content type: " + ALLOWED_CONTENT_TYPE);
+        return director.constructHtmlResponse(responseBuilder, pageContent, HttpResponseStatus.OK);
+//>>>>>>> master
     }
 }
