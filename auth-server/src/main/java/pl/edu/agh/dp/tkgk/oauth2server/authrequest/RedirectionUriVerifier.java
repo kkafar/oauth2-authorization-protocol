@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
@@ -21,10 +22,10 @@ import java.util.Optional;
  * and if given redirect_uri matches that of client redirect_uri
  */
 
-public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> {
+public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> implements DatabaseInjectable {
 
     private static final String REDIRECTION_URI_ERROR = "Redirection uri error";
-
+    private Database database;
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
 
@@ -47,7 +48,7 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         }
         String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
-        Database database = AuthorizationDatabaseProvider.getInstance();
+        database = AuthorizationDatabaseProvider.getInstance();
         Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){
@@ -64,5 +65,10 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         }
 
         return next.handle(request);
+    }
+
+    @Override
+    public void setDatabase(Database database) {
+        this.database = database;
     }
 }

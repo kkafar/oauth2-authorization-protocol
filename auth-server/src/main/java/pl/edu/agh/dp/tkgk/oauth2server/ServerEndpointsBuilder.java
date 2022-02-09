@@ -3,6 +3,8 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
+import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
+import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.errorsendpoint.ErrorsPageHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypeDispatcher;
@@ -78,6 +80,11 @@ public class ServerEndpointsBuilder {
                 .setNextAndGet(new IdentityVerifier())
                 .setNextAndGet(new ScopeAcceptedVerifier())
                 .setNextAndGet(new AuthorizationCodeResponder());
+
+        authFirstHandler.getChain().stream()
+                .filter(handler -> handler instanceof DatabaseInjectable)
+                .map(handler -> (DatabaseInjectable)handler)
+                .forEach(injectable -> injectable.setDatabase(AuthorizationDatabaseProvider.getInstance()));
 
         endpointHandlerMap.put("/authorize", authFirstHandler);
     }
