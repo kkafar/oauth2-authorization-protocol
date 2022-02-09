@@ -1,9 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
@@ -41,12 +38,8 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
-// <<<<<<< authrequest_tests
-//         return AuthEndpointUtil.buildRedirectResponseToErrorPage(INVALID_CONTENT_TYPE);
-// =======
         String pageContent = director.buildSimpleHtml("Invalid content type",
-                "Allowed content type: " + ALLOWED_CONTENT_TYPE);
+                "Allowed content type: " + ALLOWED_CONTENT_TYPES);
         return director.constructHtmlResponse(responseBuilder, pageContent, HttpResponseStatus.OK);
-//>>>>>>> master
     }
 }
