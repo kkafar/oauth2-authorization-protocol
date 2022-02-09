@@ -18,7 +18,15 @@ public class AuthEndpointUtil {
         String errorUri = URLEncoder.encode(AUTH_ENDPOINT_ERRORS_URL + "#" + fragmentIdentifierOfError, StandardCharsets.UTF_8);
         String fullRedirectUrl = redirectUrl + "?error=" + error + "&error_uri=" + errorUri;
         response.headers().set(HttpHeaderNames.LOCATION, fullRedirectUrl);
+        return response;
+    }
 
+    @Contract(pure = true)
+    public static @NotNull FullHttpResponse buildAuthErrorResponse(String error, String fragmentIdentifierOfError, String redirectUrl, String state){
+        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
+        String errorUri = URLEncoder.encode(AUTH_ENDPOINT_ERRORS_URL + "#" + fragmentIdentifierOfError, StandardCharsets.UTF_8);
+        String fullRedirectUrl = redirectUrl + "?error=" + error + "&error_uri=" + errorUri + "&state=" + state;
+        response.headers().set(HttpHeaderNames.LOCATION, fullRedirectUrl);
         return response;
     }
 

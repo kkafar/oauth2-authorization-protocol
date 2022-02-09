@@ -2,19 +2,12 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
-
+    public static final String REPEATING_GET_PARAMETERS_ERROR_FRAGMENT = "repeating_get_parameters_error";
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
@@ -26,14 +19,14 @@ public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, 
     }
 
     private FullHttpResponse buildRepeatingParametersResponse(){
-        String message = "One or more parameters are repeated";
-
-        return director.constructHtmlResponse(responseBuilder,
-                new HtmlWithTitleAndContent("Error", message).getHtml(), HttpResponseStatus.OK);
+        return AuthEndpointUtil.buildRedirectResponseToErrorPage(REPEATING_GET_PARAMETERS_ERROR_FRAGMENT);
     }
 
     private boolean areThereRepeatingParameters(String uri){
         QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
-        return queryStringDecoder.parameters().size() != uri.split("&").length;
+        int hookIndex = uri.lastIndexOf('?');
+        if(hookIndex == -1) return false;
+        String params = uri.substring(hookIndex);
+        return queryStringDecoder.parameters().size() != params.split("&").length;
     }
 }
