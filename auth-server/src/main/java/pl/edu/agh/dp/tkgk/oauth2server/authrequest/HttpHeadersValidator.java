@@ -1,15 +1,26 @@
 package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.util.AsciiString;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 
+import java.util.Set;
+
+/**
+Checks if needed http headers are present and valid
+ */
 public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
-    private static final AsciiString ALLOWED_CONTENT_TYPE = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED;
+    private static final Set<AsciiString> ALLOWED_CONTENT_TYPES = Set.of(
+            HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, HttpHeaderValues.TEXT_HTML
+    );
+    private static final String INVALID_CONTENT_TYPE = "invalid_content_type";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
@@ -23,12 +34,19 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private boolean isContentTypeValid(FullHttpRequest request){
-        return request.headers().contains(HttpHeaderNames.CONTENT_TYPE, ALLOWED_CONTENT_TYPE, true);
+        if(!request.headers().contains(HttpHeaderNames.CONTENT_TYPE)) return false;
+        final String contentType = request.headers()
+                .get(HttpHeaderNames.CONTENT_TYPE);
+        return ALLOWED_CONTENT_TYPES.stream().anyMatch(s -> s.contentEqualsIgnoreCase(contentType));
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
+// <<<<<<< authrequest_tests
+//         return AuthEndpointUtil.buildRedirectResponseToErrorPage(INVALID_CONTENT_TYPE);
+// =======
         String pageContent = director.buildSimpleHtml("Invalid content type",
                 "Allowed content type: " + ALLOWED_CONTENT_TYPE);
         return director.constructHtmlResponse(responseBuilder, pageContent, HttpResponseStatus.OK);
+//>>>>>>> master
     }
 }

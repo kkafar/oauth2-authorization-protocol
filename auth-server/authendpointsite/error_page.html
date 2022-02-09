@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Error page</title>
+    <script src="highlight.js"></script>
+    <script type="application/javascript">
+        window.onload = highlight;
+    </script>
+</head>
+<body>
+<h1>Authorization endpoint errors</h1>
+<div id="invalid_content_type">
+    <h2>Invalid content type</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/HttpHeadersValidator.java">HttpHeadersValidator</a></h4>
+    Thrown when Content-Type doesn't match either text/html or application/x-www-form-urlencoded.
+</div>
+<div id="repeating_get_parameters_error">
+    <h2>Repeating get parameters error</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RepeatingGetParametersChecker.java">RepeatingGetParametersChecker</a></h4>
+    Thrown when get parameter is repeated.
+</div>
+
+</body>
+</html>
