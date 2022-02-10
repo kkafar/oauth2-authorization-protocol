@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseTypeVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> {
-    private final static String WRONG_RESPONSE_TYPE_URI = "#wrong_response_type";
-    private final static String RESPONSE_TYPE_NOT_PRESENT_URI = "#response_type_not_present";
+    public final static String UNKNOWN_RESPONSE_TYPE_FRAGMENT = "unknown_response_type";
+    public final static String RESPONSE_TYPE_IS_MISSING_FRAGMENT = "response_type_is_missing";
 
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new UrlEncodedResponseBuilder();
+    public static final String INVALID_REQUEST = "invalid_request";
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
@@ -23,10 +22,10 @@ public class ResponseTypeVerifier extends BaseHandler<HttpRequestWithParameters,
         String state = parameters.get("state").get(0);
 
         if(!parameters.containsKey("response_type")){
-            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_request", RESPONSE_TYPE_NOT_PRESENT_URI, state);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, RESPONSE_TYPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
         if(!parameters.get("response_type").get(0).equals("code")){
-            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_request", WRONG_RESPONSE_TYPE_URI, state);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, UNKNOWN_RESPONSE_TYPE_FRAGMENT, redirect_uri, state);
         }
 
         return next.handle(request);
