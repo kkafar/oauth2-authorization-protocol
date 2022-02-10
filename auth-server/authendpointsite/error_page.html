@@ -40,6 +40,16 @@
     <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/RedirectionUriVerifier.java">RedirectionUriVerifier</a></h4>
     Thrown when given redirect_uri doesn't match redirect_uri of client with given client_id.
 </div>
+<div id="state_is_missing">
+    <h2>Missing state parameter</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/StateValidator.java">StateValidator</a></h4>
+    Thrown when state parameter isn't present in URI.
+</div>
+<div id="state_is_malformed">
+    <h2>Malformed state parameter</h2>
+    <h4>Source: <a href="https://github.com/kkafar/oauth2-authorization-protocol/blob/master/auth-server/src/main/java/pl/edu/agh/dp/tkgk/oauth2server/authrequest/StateValidator.java">StateValidator</a></h4>
+    Thrown when state parameter doesn't match [ -~]+ regex.
+</div>
 
 </body>
 </html>
