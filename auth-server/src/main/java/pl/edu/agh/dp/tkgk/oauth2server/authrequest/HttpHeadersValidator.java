@@ -6,6 +6,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 import java.util.Set;
 
@@ -37,8 +38,8 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
-        String pageContent = director.buildSimpleHtml("Invalid content type",
-                "Allowed content type: " + ALLOWED_CONTENT_TYPES);
+        String pageContent = new HtmlWithTitleAndContent("Invalid content type",
+                "Allowed content type: " + ALLOWED_CONTENT_TYPES).getHtml();
         return director.constructHtmlResponse(responseBuilder, pageContent, HttpResponseStatus.OK);
     }
 }
