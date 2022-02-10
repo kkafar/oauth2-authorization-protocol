@@ -1,6 +1,8 @@
 package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 public enum CodeChallengeMethod {
     S256,
@@ -14,7 +16,12 @@ public enum CodeChallengeMethod {
     }
 
     // can be used for optional code_challenge_method parameter handling
-    public static CodeChallengeMethod value(String value) {
-        return Objects.equals(value, "S256") ? S256 : PLAIN;
+    public static Optional<CodeChallengeMethod> value(String value) {
+        value = value.toUpperCase(Locale.ROOT);
+        try {
+            return Optional.of(valueOf(value));
+        }catch (IllegalArgumentException e){
+            return Optional.empty();
+        }
     }
 }

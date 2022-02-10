@@ -42,7 +42,7 @@ class ScopeValidatorTest {
     }
 
     @Test
-    public void whenScopeIsNotPresent_thenReturnRedirectResponseToCorrectFragment(){
+    public void whenScopeIsNotPresent_thenReturnRedirectResponseWithCorrectFragment(){
         HashMap<String, List<String>> parameters = new HashMap<>();
         parameters.put("redirect_uri", List.of("http"));
         parameters.put("state", List.of("sunny"));
@@ -57,7 +57,7 @@ class ScopeValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ala", "all ala", "all some 3er", "rrr some all", "me and cat", "aaaaaaaaaaaaaaaaaaaaaaaa", ""})
-    public void whenScopeEntryIsUnknown_thenShouldReturnRedirectResponseToCorrectFragment(String scope){
+    public void whenScopeEntryIsUnknown_thenShouldReturnRedirectResponseWithCorrectFragment(String scope){
         HttpRequestWithParameters request = getHttpRequestWithParametersMock(scope);
 
         FullHttpResponse response = scopeValidator.handle(request);

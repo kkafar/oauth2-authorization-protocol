@@ -30,7 +30,6 @@ public class HttpRequestWithParameters {
     public final Map<String, List<String>> urlParameters;
     public final Map<String, List<String>> bodyParameters;
     public final Map<String, String> cookies;
-    private CodeChallengeMethod codeChallengeMethod;
 
     public HttpRequestWithParameters(FullHttpRequest fullHttpRequest) {
         this.fullHttpRequest = fullHttpRequest;
@@ -61,11 +60,4 @@ public class HttpRequestWithParameters {
         return cookies;
     }
 
-    public CodeChallengeMethod getCodeChallengeMethod() {
-        return codeChallengeMethod;
-    }
-
-    public void setCodeChallengeMethod(CodeChallengeMethod codeChallengeMethod) {
-        this.codeChallengeMethod = codeChallengeMethod;
-    }
 }
