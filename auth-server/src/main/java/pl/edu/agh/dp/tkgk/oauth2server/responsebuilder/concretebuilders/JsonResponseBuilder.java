@@ -11,8 +11,12 @@ import java.nio.charset.StandardCharsets;
 public class JsonResponseBuilder extends ResponseBuilder<JSONObject> {
 
     public JsonResponseBuilder() {
-        reset();
+        this.reset();
+    }
 
+    @Override
+    public void reset() {
+        super.reset();
         setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
     }
 

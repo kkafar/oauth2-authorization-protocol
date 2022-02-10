@@ -9,7 +9,11 @@ public class UrlEncodedResponseBuilder extends ResponseBuilder<String> {
 
     public UrlEncodedResponseBuilder() {
         this.reset();
+    }
 
+    @Override
+    public void reset() {
+        super.reset();
         setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         setHeader(HttpHeaderNames.CONTENT_LENGTH, 0);
     }

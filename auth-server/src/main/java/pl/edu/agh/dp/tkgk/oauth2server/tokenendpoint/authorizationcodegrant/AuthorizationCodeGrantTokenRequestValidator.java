@@ -37,13 +37,25 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
 
     private final Database database = AuthorizationDatabaseProvider.getInstance();
 
+    private Optional<String> authorizationCodeOptional;
+    private Optional<String> codeVerifierOptional;
+
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
         HttpPostRequestBodyDecoder bodyDecoder = new HttpPostRequestBodyDecoder(decoder);
 
         try {
+
+            if (authorizationCodeMissing(bodyDecoder)) {
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
+            }
+
             if (!authorizationCodeValid(bodyDecoder)) {
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_GRANT, true);
+            }
+
+            if (codeVerifierMissing(bodyDecoder)) {
+                return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
             }
 
             if (!codeVerifierValid(bodyDecoder)) {
@@ -62,40 +74,37 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return next.handle(authorizationCode);
     }
 
+    private boolean authorizationCodeMissing(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
+        authorizationCodeOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE);
+        return authorizationCodeOptional.isEmpty();
+    }
+
+    private boolean codeVerifierMissing(HttpPostRequestBodyDecoder  bodyDecoder) throws IOException {
+        codeVerifierOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE_VERIFIER);
+        return codeVerifierOptional.isEmpty();
+    }
     private boolean authorizationCodeValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
-        Optional<String> authorizationCodeOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE);
+        String authorizationCodeString = authorizationCodeOptional.get();
+        Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(authorizationCodeString);
 
-        if (authorizationCodeOptional.isPresent()) {
-            String authorizationCodeString = authorizationCodeOptional.get();
-            Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(authorizationCodeString);
+        if (authCodeOptional.isEmpty()) return false;
 
-            if (authCodeOptional.isEmpty()) return false;
+        authorizationCode = authCodeOptional.get();
 
-            authorizationCode = authCodeOptional.get();
-
-            return authorizationCode.isActive() && !authorizationCode.isUsed();
-        }
-
-        return false;
+        return authorizationCode.isActive() && !authorizationCode.isUsed();
     }
 
     private boolean codeVerifierValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException, NoSuchAlgorithmException {
-        Optional<String> codeVerifierOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE_VERIFIER);
+        String codeVerifier = codeVerifierOptional.get();
 
-        if (codeVerifierOptional.isPresent()) {
-            String codeVerifier = codeVerifierOptional.get();
+        CodeChallengeMethod codeChallengeMethod = authorizationCode.getCodeChallengeMethod();
+        String codeChallenge = authorizationCode.getCodeChallenge();
 
-            CodeChallengeMethod codeChallengeMethod = authorizationCode.getCodeChallengeMethod();
-            String codeChallenge = authorizationCode.getCodeChallenge();
-
-            if (codeChallengeMethod.equals(CodeChallengeMethod.PLAIN)) {
-                return codeChallenge.equals(codeVerifier);
-            } else if (codeChallengeMethod.equals(CodeChallengeMethod.S256)) {
-                String codeVerifierHashed = hashSHA256InBase64Url(codeVerifier);
-                return codeChallenge.equals(codeVerifierHashed);
-            }
-
-            return true;
+        if (codeChallengeMethod.equals(CodeChallengeMethod.PLAIN)) {
+            return codeChallenge.equals(codeVerifier);
+        } else if (codeChallengeMethod.equals(CodeChallengeMethod.S256)) {
+            String codeVerifierHashed = hashSHA256InBase64Url(codeVerifier);
+            return codeChallenge.equals(codeVerifierHashed);
         }
 
         return false;
@@ -118,7 +127,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return false;
     }
 
-    public static String hashSHA256InBase64Url(String stringToHash) throws NoSuchAlgorithmException {
+    public String hashSHA256InBase64Url(String stringToHash) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(stringToHash.getBytes(StandardCharsets.UTF_8));
         return Base64.getUrlEncoder().withoutPadding().encodeToString(hash);

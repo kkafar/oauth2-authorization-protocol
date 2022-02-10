@@ -45,6 +45,7 @@ public class TokenRequestValidator extends BaseHandler<FullHttpRequest, HttpPost
         HttpRequestValidator validator = new HttpRequestValidator(request, decoder);
         return validator.validRequestMethod(HttpMethod.POST)
                 && validator.validContentType(HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED)
-                && validator.hasGrantTypeInRequestBody();
+                && validator.hasGrantTypeInRequestBody()
+                && !validator.hasDuplicateParameters();
     }
 }
