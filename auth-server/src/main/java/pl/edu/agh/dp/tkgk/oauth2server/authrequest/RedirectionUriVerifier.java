@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> implements DatabaseInjectable {
 
-    private static final String CLIENT_ID_IS_MISSING_FRAGMENT = "client_id_is_missing";
+    public static final String CLIENT_ID_IS_MISSING_FRAGMENT = "client_id_is_missing";
     public static final String REDIRECT_URI_IS_MISSING_FRAGMENT = "redirect_uri_is_missing";
     public static final String UNKNOWN_CLIENT_ID_FRAGMENT = "unknown_client_id";
     public static final String CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT = "client_id_redirect_uri_mismatch";
@@ -40,7 +40,6 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         }
         String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
-        database = AuthorizationDatabaseProvider.getInstance();
         Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){

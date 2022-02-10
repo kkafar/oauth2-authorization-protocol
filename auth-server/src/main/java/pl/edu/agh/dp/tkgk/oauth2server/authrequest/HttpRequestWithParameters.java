@@ -19,6 +19,13 @@ import java.util.Set;
 
 public class HttpRequestWithParameters {
 
+    public HttpRequestWithParameters(FullHttpRequest fullHttpRequest, Map<String, List<String>> urlParameters, Map<String, List<String>> bodyParameters, Map<String, String> cookies) {
+        this.fullHttpRequest = fullHttpRequest;
+        this.urlParameters = urlParameters;
+        this.bodyParameters = bodyParameters;
+        this.cookies = cookies;
+    }
+
     public final FullHttpRequest fullHttpRequest;
     public final Map<String, List<String>> urlParameters;
     public final Map<String, List<String>> bodyParameters;
@@ -32,6 +39,8 @@ public class HttpRequestWithParameters {
         this.cookies = getCookies(fullHttpRequest);
 
     }
+
+
 
     private Map<String, List<String>> getParameters(String parametersString, boolean hasPath) {
         final Map<String, List<String>> parameters;
