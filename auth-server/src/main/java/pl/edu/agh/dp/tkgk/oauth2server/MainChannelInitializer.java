@@ -26,6 +26,6 @@ public class MainChannelInitializer extends ChannelInitializer<Channel> {
 
         // to make sure that handler chains serving different grant types on token endpoint are built before
         // the server receives any requests from the clients
-        TokenGrantTypesHandlerChainsBuilder.buildChains();
+        TokenGrantTypesHandlerChainsBuilder.getInstance().buildChains();
     }
 }

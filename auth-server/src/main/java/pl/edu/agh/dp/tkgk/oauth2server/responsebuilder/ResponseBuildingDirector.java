@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.responsebuilder;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.json.JSONObject;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 public class ResponseBuildingDirector {
 
@@ -64,7 +65,7 @@ public class ResponseBuildingDirector {
 
     public FullHttpResponse constructHtmlServerErrorResponse(ResponseBuilder<String> builder, String errorMessage)
     {
-        String htmlContent = buildSimpleHtml("Error 500", errorMessage);
+        String htmlContent = new HtmlWithTitleAndContent("Error 500", errorMessage).getHtml();
 
         return constructHtmlResponse(builder, htmlContent, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     }
@@ -76,13 +77,5 @@ public class ResponseBuildingDirector {
         builder.setMessage(htmlContent);
 
         return builder.getResponse();
-    }
-
-    public String buildSimpleHtml(String title, String content){
-        return "<html><body><h1>" +
-                title +
-                "</h1>" +
-                content.replaceAll("\n", "</br>") +
-                "</body></html>";
     }
 }

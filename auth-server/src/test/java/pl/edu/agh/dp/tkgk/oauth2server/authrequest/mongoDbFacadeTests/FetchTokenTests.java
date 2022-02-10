@@ -1,4 +1,4 @@
-package mongoDbFacadeTests;
+package pl.edu.agh.dp.tkgk.oauth2server.authrequest.mongoDbFacadeTests;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;

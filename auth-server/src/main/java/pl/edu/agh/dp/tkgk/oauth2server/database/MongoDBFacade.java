@@ -19,7 +19,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 
-public class MongoDBFacade implements Database {
+public final class MongoDBFacade implements Database {
 
     private MongoDatabase database = MongoClientInstance.getDatabase();
 

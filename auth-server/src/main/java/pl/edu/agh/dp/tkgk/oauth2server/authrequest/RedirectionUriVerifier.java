@@ -10,6 +10,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndContent;
 
 import java.util.List;
 import java.util.Map;
@@ -35,14 +36,14 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         if(!parameters.containsKey(HttpParameters.CLIENT_ID)){
             message = "client_id is missing";
             return director.constructHtmlResponse(responseBuilder,
-                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
+                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
         }
         String clientId = parameters.get(HttpParameters.CLIENT_ID).get(0);
 
         if(!parameters.containsKey(HttpParameters.REDIRECT_URI)){
             message = "redirect_uri is missing";
             return director.constructHtmlResponse(responseBuilder,
-                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
+                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
         }
         String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
@@ -52,14 +53,14 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         if(optionalClient.isEmpty()){
             message = "Unknown client_id";
             return director.constructHtmlResponse(responseBuilder,
-                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
+                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
         }
 
         Client client = optionalClient.get();
         if(!client.getRedirectUri().equals(redirectionUri)){
             message = "Given redirect_id does not match client redirect_uri";
             return director.constructHtmlResponse(responseBuilder,
-                    director.buildSimpleHtml(REDIRECTION_URI_ERROR, message), HttpResponseStatus.OK);
+                    new HtmlWithTitleAndContent(REDIRECTION_URI_ERROR, message).getHtml(), HttpResponseStatus.OK);
         }
 
         return next.handle(request);
