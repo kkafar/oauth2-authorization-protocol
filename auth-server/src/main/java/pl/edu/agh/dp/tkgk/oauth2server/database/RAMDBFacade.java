@@ -117,9 +117,10 @@ public class RAMDBFacade implements Database{
         random.nextBytes(randomBytes);
         String code = new String(Base64.getUrlEncoder().encode(randomBytes));
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
+        //TODO: pass real scope
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        "client", false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
+                        request.clientId, false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
     }
