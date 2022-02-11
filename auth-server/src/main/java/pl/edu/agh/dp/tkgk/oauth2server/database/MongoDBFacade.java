@@ -3,8 +3,8 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.authrequest.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
@@ -31,7 +31,7 @@ public final class MongoDBFacade implements Database {
     private final Random random;
     private final static int SESSION_LIFE_TIME_IN_SECONDS = 1200;
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
-    private final Credentials validCredentials = new Credentials("ala", "1234");
+    private final Credentials validCredentials = new Credentials("ala", "makota");
     // mock area end
 
     private MongoDBFacade() {
