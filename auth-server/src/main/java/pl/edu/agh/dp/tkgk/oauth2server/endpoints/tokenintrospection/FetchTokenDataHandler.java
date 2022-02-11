@@ -39,7 +39,6 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, O
                     .orElseThrow(() -> new NoSuchAttributeException("No token found in the request body"));
             tokenHint = bodyDecoder.fetchTokenHint();
             decodedJWT = TokenUtil.decodeToken(tokenString);
-
             Database database = AuthorizationDatabaseProvider.getInstance();
             Optional<Token> optionalToken = database.fetchToken(decodedJWT.getId(), tokenHint);
 
