@@ -178,13 +178,19 @@ public final class MongoDBFacade implements Database {
     public boolean isSessionIdValid(String sessionId) {
         if(!sessionMap.containsKey(sessionId)) return false;
         Session session = sessionMap.get(sessionId);
-        return session.getExpireTimeInSeconds() > Instant.now().getEpochSecond();
+        if(session.isExpired()){
+            sessionMap.remove(sessionId);
+            return false;
+        }
+        return true;
     }
 
     @Override
-    public boolean areCredentialsValid(Credentials credentials) {
-
-        return false;
+    public boolean areCredentialsValid(@NotNull Credentials credentials) {
+        MongoCollection<Credentials> credentialsMongoCollection =
+                getCollection(Credentials.class, MongoDBInfo.Collections.CREDENTIALS_COLLECTION.toString());
+        Credentials storedCredentials = queries.getObjectFromCollection(credentialsMongoCollection, "_id", credentials.getLogin());
+        return credentials.equals(storedCredentials);
     }
 
     @Override
@@ -202,7 +208,7 @@ public final class MongoDBFacade implements Database {
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        "client", false, List.of("all"));
+                        request.clientId, false, request.scope.stream().toList());
 
         MongoCollection<AuthCode> authCodeMongoCollection =
                 getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
