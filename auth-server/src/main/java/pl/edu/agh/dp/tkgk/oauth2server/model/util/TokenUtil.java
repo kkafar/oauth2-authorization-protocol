@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 
 import java.sql.Date;
 import java.time.LocalDate;
