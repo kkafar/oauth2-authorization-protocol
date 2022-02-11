@@ -37,6 +37,22 @@ public class AuthorizationRequestMother {
         );
     }
 
+    public static AuthorizationRequest getRequestWithSessionAndNoCredentialsAndAcceptedScope(){
+        return new AuthorizationRequest(
+                "http",
+                "http2",
+                "super_app",
+                "code",
+                "sunny",
+                "challenge",
+                CodeChallengeMethod.PLAIN,
+                Set.of("all"),
+                null,
+                "session_ala",
+                true
+        );
+    }
+
     public static AuthorizationRequest getRequestWithSessionAndCredentials(){
         return new AuthorizationRequest(
                 "http",
