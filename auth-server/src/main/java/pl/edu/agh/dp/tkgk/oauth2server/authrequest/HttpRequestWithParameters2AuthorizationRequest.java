@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import org.jetbrains.annotations.Nullable;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 
 import java.util.List;
 import java.util.Set;
@@ -17,19 +18,18 @@ public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<
         Credentials credentials = getCredentials(request);
         String sessionIdOptional = request.cookies.get("session_id");
         int i = 0;
-        AuthorizationRequest authorizationRequest = null;
-            authorizationRequest = new AuthorizationRequest(
-                    request.fullHttpRequest.uri(),
-                    urlParametersValue[i++],
-                    urlParametersValue[i++],
-                    urlParametersValue[i++],
-                    urlParametersValue[i++],
-                    urlParametersValue[i],
-                    request.getCodeChallengeMethod(),
-                    scope,
-                    credentials,
-                    sessionIdOptional,
-                    isScopeAccepted);
+        AuthorizationRequest authorizationRequest = new AuthorizationRequest(
+                request.fullHttpRequest.uri(),
+                urlParametersValue[i++],
+                urlParametersValue[i++],
+                urlParametersValue[i++],
+                urlParametersValue[i++],
+                urlParametersValue[i++],
+                CodeChallengeMethod.value(urlParametersValue[i]).orElse(CodeChallengeMethod.PLAIN),
+                scope,
+                credentials,
+                sessionIdOptional,
+                isScopeAccepted);
         return next.handle(authorizationRequest);
     }
 

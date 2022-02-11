@@ -2,23 +2,20 @@ package pl.edu.agh.dp.tkgk.oauth2server.authrequest;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.UrlEncodedResponseBuilder;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> {
-    private static final String SCOPE_NOT_PRESENT_URI = "scope_not_present";
-    private static final String UNKNOWN_SCOPE_URI = "unknown_scope";
+public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> implements DatabaseInjectable {
+    public static final String SCOPE_IS_MISSING_FRAGMENT = "scope_is_missing";
+    public static final String UNKNOWN_SCOPE_FRAGMENT = "unknown_scope";
+    public static final String INVALID_SCOPE = "invalid_scope";
 
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new UrlEncodedResponseBuilder();
+    private Database database;
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
@@ -27,20 +24,19 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
         String state = parameters.get("state").get(0);
 
         if(!parameters.containsKey("scope")){
-            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_scope", SCOPE_NOT_PRESENT_URI, state);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, SCOPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
 
         Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get("scope").get(0), parameters.get("client_id").get(0));
         if(invalidScopeEntries.isPresent()){
-            return director.constructUrlEncodedErrorResponse(responseBuilder, redirect_uri, "invalid_scope", UNKNOWN_SCOPE_URI, state);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
         }
 
         return next.handle(request);
     }
 
     private Optional<String> getInvalidScopeEntries(String scope, String clientId){
-        String[] scopeEntries = scope.split(" ");
-        Database database = AuthorizationDatabaseProvider.getInstance();
+        String[] scopeEntries = scope.trim().split(" ");
         Client client = database.fetchClient(clientId).orElseThrow();
         StringBuilder invalidEntries = new StringBuilder();
         for(String s : scopeEntries){
@@ -54,5 +50,10 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
 
         invalidEntries.deleteCharAt(invalidEntries.length() - 1);
         return Optional.of(invalidEntries.toString());
+    }
+
+    @Override
+    public void setDatabase(Database database) {
+        this.database = database;
     }
 }

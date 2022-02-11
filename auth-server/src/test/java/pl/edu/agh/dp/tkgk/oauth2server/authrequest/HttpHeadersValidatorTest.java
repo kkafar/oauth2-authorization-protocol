@@ -6,9 +6,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
@@ -38,7 +35,7 @@ public class HttpHeadersValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"application/x-www-form-urlencoded", "text/html", "APPlication/x-www-form-urlencoded", "TEXT/htMl"})
-    public void whenGivenRequestWithRightContentType_callNextHandler(String contentType){
+    public void whenGivenRequestWithRightContentType_shouldCallNextHandler(String contentType){
         FullHttpRequest request = getFullHttpRequestMock(contentType);
         headersValidator.handle(request);
         Mockito.verify(nextHandlerMock).handle(request);
@@ -47,7 +44,7 @@ public class HttpHeadersValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"application", "text/css", "audio/als", "someRandomType"})
-    public void whenGivenRequestWithWrongContentType_dontCallNextHandler(String contentType){
+    public void whenGivenRequestWithWrongContentType_shouldNotCallNextHandler(String contentType){
         FullHttpRequest request = getFullHttpRequestMock(contentType);
         headersValidator.handle(request);
         Mockito.verifyNoInteractions(nextHandlerMock);

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import pl.edu.agh.dp.tkgk.oauth2server.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
@@ -13,12 +14,13 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.UrlEncod
 
 import java.io.FileNotFoundException;
 
-public class IdentityVerifier extends BaseHandler<AuthorizationRequest, AuthorizationRequest> {
-    private final Database database = AuthorizationDatabaseProvider.getInstance();
+public class IdentityVerifier extends BaseHandler<AuthorizationRequest, AuthorizationRequest> implements DatabaseInjectable {
+    public static final String INVALID_CREDENTIALS = "invalid credentials";
+    public static final String INVALID_CREDENTIALS_FRAGMENT = "invalid_credentials";
+    private Database database;
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<String> htmlResponseBuilder = new ResponseWithCustomHtmlBuilder();
-    private final ResponseBuilder<String> urlResponseBuilder = new UrlEncodedResponseBuilder();
 
     @Override
     public FullHttpResponse handle(AuthorizationRequest request) {
@@ -28,7 +30,6 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
                 return next.handle(request);
             }
         }
-
 
         if(request.getOptionalCredentials().isPresent()){
             Credentials credentials = request.getOptionalCredentials().get();
@@ -56,8 +57,8 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
     }
 
     private FullHttpResponse buildWrongCredentialsResponse(AuthorizationRequest request) {
-        return director.constructUrlEncodedErrorResponse(urlResponseBuilder, request.redirectUri,
-                "Invalid credentials", "#invalid_credentials", request.state);
+        return AuthEndpointUtil.buildAuthErrorResponse(INVALID_CREDENTIALS, INVALID_CREDENTIALS_FRAGMENT,
+                request.redirectUri, request.state);
     }
 
     private FullHttpResponse buildSetSessionIdResponse(AuthorizationRequest request, String sessionId) {
@@ -79,5 +80,10 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
 
     private boolean isSessionIdValid(String sessionId) {
         return database.isSessionIdValid(sessionId);
+    }
+
+    @Override
+    public void setDatabase(Database database) {
+        this.database = database;
     }
 }

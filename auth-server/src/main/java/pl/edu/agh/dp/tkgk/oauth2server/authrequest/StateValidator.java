@@ -10,22 +10,18 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.util.HtmlWithTitleAndCont
 
 public class StateValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> {
 
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
+    public static final String STATE_IS_MISSING_FRAGMENT = "state_is_missing";
+    public static final String STATE_IS_MALFORMED_FRAGMENT = "state_is_malformed";
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         if(!request.urlParameters.containsKey("state")){
-            String message = "state not preset";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent("State error", message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(STATE_IS_MISSING_FRAGMENT);
         }
 
         String state = request.urlParameters.get("state").get(0);
         if(!isStateValid(state)){
-            String message = "state format is invalid";
-            return director.constructHtmlResponse(responseBuilder,
-                    new HtmlWithTitleAndContent("State error", message).getHtml(), HttpResponseStatus.OK);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(STATE_IS_MALFORMED_FRAGMENT);
         }
 
         return next.handle(request);

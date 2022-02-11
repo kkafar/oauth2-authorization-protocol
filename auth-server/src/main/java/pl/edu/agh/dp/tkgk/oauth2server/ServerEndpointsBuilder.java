@@ -3,7 +3,8 @@ package pl.edu.agh.dp.tkgk.oauth2server;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.authrequest.*;
-import pl.edu.agh.dp.tkgk.oauth2server.errorsendpoint.ErrorsPageHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
+import pl.edu.agh.dp.tkgk.oauth2server.database.RAMDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenGrantTypeDispatcher;
 import pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.TokenRequestValidator;
@@ -33,7 +34,6 @@ public class ServerEndpointsBuilder {
         buildTokenEndpoint();
         buildPingEndpoint();
         buildAuthorizationEndpoint();
-        buildErrorsPageEndpoint();
     }
 
     private void buildRevocationEndpoint() {
@@ -79,12 +79,12 @@ public class ServerEndpointsBuilder {
                 .setNextAndGet(new ScopeAcceptedVerifier())
                 .setNextAndGet(new AuthorizationCodeResponder());
 
-        endpointHandlerMap.put("/authorize", authFirstHandler);
-    }
+        authFirstHandler.getChain().stream()
+                .filter(handler -> handler instanceof DatabaseInjectable)
+                .map(handler -> (DatabaseInjectable)handler)
+                .forEach(injectable -> injectable.setDatabase(RAMDBFacade.getInstance()));
 
-    private void buildErrorsPageEndpoint() {
-        Handler<FullHttpRequest, Void> errorsPageHandler = new ErrorsPageHandler();
-        endpointHandlerMap.put("/errors_page", errorsPageHandler);
+        endpointHandlerMap.put("/authorize", authFirstHandler);
     }
 
     private void buildPingEndpoint() {
