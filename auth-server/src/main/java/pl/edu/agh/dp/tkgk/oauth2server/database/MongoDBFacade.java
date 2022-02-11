@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.jetbrains.annotations.NotNull;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
@@ -18,25 +19,23 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public final class MongoDBFacade implements Database {
 
     private MongoDatabase database = MongoClientInstance.getDatabase();
 
     private final Queries queries = new Queries();
-
-    // mock area
-    private final HashMap<String, Session> sessionHashMap;
-    private final HashMap<String, AuthCode> authCodeHashMap;
     private final Random random;
-    private final static int SESSION_LIFE_TIME_IN_SECONDS = 1200;
+    private final Map<String, Session> sessionMap;
+
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
-    private final Credentials validCredentials = new Credentials("ala", "makota");
-    // mock area end
+    public final static long SESSION_LIFE_TIME_IN_SECONDS = 1200;
+
 
     private MongoDBFacade() {
-        sessionHashMap = new HashMap<>();
-        authCodeHashMap = new HashMap<>();
+        sessionMap = new ConcurrentHashMap<>();
         random = new Random();
     }
 
@@ -177,38 +176,46 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public boolean isSessionIdValid(String sessionId) {
-        if(!sessionHashMap.containsKey(sessionId)) return false;
-        Session session = sessionHashMap.get(sessionId);
+        if(!sessionMap.containsKey(sessionId)) return false;
+        Session session = sessionMap.get(sessionId);
         return session.getExpireTimeInSeconds() > Instant.now().getEpochSecond();
     }
 
     @Override
     public boolean areCredentialsValid(Credentials credentials) {
-        return validCredentials.equals(credentials);
+
+        return false;
     }
 
     @Override
     public String createNewSession(String login) {
-        byte[] randomBytes = new byte[128];
-        random.nextBytes(randomBytes);
-        String session_id = new String(Base64.getUrlEncoder().encode(randomBytes));
+        String session_id = getRandomString(128);
         long expireTime = Instant.now().getEpochSecond() + SESSION_LIFE_TIME_IN_SECONDS;
         Session session = new Session(session_id, login, expireTime);
-        sessionHashMap.put(session_id, session);
+        sessionMap.put(session_id, session);
         return session_id;
     }
 
     @Override
     public String generateCode(AuthorizationRequest request) {
-        byte[] randomBytes = new byte[64];
-        random.nextBytes(randomBytes);
-        String code = new String(Base64.getUrlEncoder().encode(randomBytes));
+        String code = getRandomString(64);
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        "client", false, List.of("all")); // AuthCode needs clientId and used parameters, so I added them here
-        authCodeHashMap.put(code, authCode);
+                        "client", false, List.of("all"));
+
+        MongoCollection<AuthCode> authCodeMongoCollection =
+                getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
+        queries.addObjectToCollection(authCode, authCodeMongoCollection);
+
         return code;
+    }
+
+    @NotNull
+    private String getRandomString(int x) {
+        byte[] randomBytes = new byte[x];
+        random.nextBytes(randomBytes);
+        return new String(Base64.getUrlEncoder().encode(randomBytes));
     }
 
     // for testing purposes now only
