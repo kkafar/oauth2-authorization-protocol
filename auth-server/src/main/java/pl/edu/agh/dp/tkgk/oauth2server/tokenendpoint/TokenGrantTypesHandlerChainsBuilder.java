@@ -36,7 +36,7 @@ public final class TokenGrantTypesHandlerChainsBuilder {
 
     public Handler<HttpPostRequestDecoder, ?> getRefreshTokenGrantHandler() {
         if (refreshTokenGrantTokenRequestValidator == null) {
-            buildAuthorizationCodeGrantHandlersChain();
+            buildRefreshTokenGrantHandlersChain();
         }
         return refreshTokenGrantTokenRequestValidator;
     }

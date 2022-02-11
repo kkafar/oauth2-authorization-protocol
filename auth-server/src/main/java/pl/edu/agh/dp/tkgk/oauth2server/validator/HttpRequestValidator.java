@@ -9,6 +9,9 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.AsciiString;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecoder decoder) {
 
     public boolean validRequestMethod(HttpMethod validHttpMethod) {
@@ -35,5 +38,9 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
     public boolean hasGrantTypeInRequestBody() {
         InterfaceHttpData grantTypeData = decoder.getBodyHttpData(HttpParameters.GRANT_TYPE);
         return grantTypeData != null;
+    }
+
+    public boolean hasDuplicateParameters() {
+        return decoder.getBodyHttpDatas().size() != new ArrayList<>(new HashSet<>(decoder.getBodyHttpDatas())).size();
     }
 }

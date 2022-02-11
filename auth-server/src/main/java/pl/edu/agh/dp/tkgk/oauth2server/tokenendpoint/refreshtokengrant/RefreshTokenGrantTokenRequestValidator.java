@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.tokenendpoint.refreshtokengrant;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -16,10 +17,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Checks if refresh token and scope (if attached to the request) are valid so that the token request can be served
@@ -64,7 +62,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
 
             List<String> scopeItems = Arrays.asList(scopeString.trim().split(" "));
 
-            if (Set.of(scopeItems).size() != scopeItems.size()) return false; // requested scope contains duplicates
+            if (new ArrayList<>(new HashSet<>(scopeItems)).size() != scopeItems.size()) return false; // requested scope contains duplicates
 
             Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(refreshTokenObj.getAuthCode());
 
@@ -92,7 +90,14 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
         if (refreshTokenOptional.isPresent()) {
             String refreshToken = refreshTokenOptional.get();
 
-            DecodedJWT decodedRefreshToken = TokenUtil.decodeToken(refreshToken);
+            DecodedJWT decodedRefreshToken;
+            try {
+                decodedRefreshToken = TokenUtil.decodeToken(refreshToken);
+            } catch (JWTVerificationException e) {
+                e.printStackTrace();
+                return false;
+            }
+
             Optional<Token> refreshTokenObjOptional = database.fetchToken(decodedRefreshToken.getId(), TokenHint.REFRESH_TOKEN);
 
             if (refreshTokenObjOptional.isEmpty()) return false;

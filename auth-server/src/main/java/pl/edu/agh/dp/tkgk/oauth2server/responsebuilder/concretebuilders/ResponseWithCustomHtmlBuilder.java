@@ -11,7 +11,11 @@ public class ResponseWithCustomHtmlBuilder extends ResponseBuilder<String> {
 
     public ResponseWithCustomHtmlBuilder() {
         this.reset();
+    }
 
+    @Override
+    public void reset() {
+        super.reset();
         setHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.TEXT_HTML);
     }
 

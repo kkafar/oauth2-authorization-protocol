@@ -45,6 +45,7 @@ public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequ
         return validator.validRequestMethod(HttpMethod.POST)
                 && validator.validContentType(HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED)
                 && validator.hasTokenInRequestBody()
-                && validator.hasAuthorizationHeader();
+                && validator.hasAuthorizationHeader()
+                && !validator.hasDuplicateParameters();
     }
 }

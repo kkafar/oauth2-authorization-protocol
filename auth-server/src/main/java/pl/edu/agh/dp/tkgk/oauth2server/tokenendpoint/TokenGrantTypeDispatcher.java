@@ -43,6 +43,10 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
                     setNext(TokenGrantTypesHandlerChainsBuilder.getInstance().getAuthorizationCodeGrantHandler());
                 }
 
+                else {
+                    return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.UNSUPPORTED_GRANT_TYPE, true);
+                }
+
                 return next.handle(decoder);
             }
         } catch (IOException e) {
@@ -50,6 +54,7 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
-        return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.UNSUPPORTED_GRANT_TYPE, true);
+        // only if grantTypeString is empty, but shouldn't be as we checked in TokenRequestValidator class
+        return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
     }
 }
