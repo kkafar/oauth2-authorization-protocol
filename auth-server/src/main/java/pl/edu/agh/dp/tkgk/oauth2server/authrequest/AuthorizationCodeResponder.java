@@ -8,11 +8,12 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.UrlEncodedResponseBuilder;
 
 public class AuthorizationCodeResponder extends BaseHandler<AuthorizationRequest, Void> implements DatabaseInjectable {
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<String> responseBuilder = new ResponseWithCustomHtmlBuilder();
+    private final ResponseBuilder<String> responseBuilder = new UrlEncodedResponseBuilder();
     private Database database;
 
     @Override
