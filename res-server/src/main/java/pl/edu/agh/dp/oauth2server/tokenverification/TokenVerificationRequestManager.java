@@ -9,33 +9,34 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
 import pl.edu.agh.dp.oauth2server.SSLContextManager;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class TokenVerificationRequestManager {
-    public static boolean isTokenValid(String token, String tokenTypeHint) {
+    private static final String RESOURCE_SERVER_AUTHENTICATION_TOKEN = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImludHJvc3BlY3Rpb24iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiZXhwIjoxNjc0Nzc0MDAwLCJpYXQiOjE2NDQwMTU2MDAsImlzX2FjY2Vzc190b2tlbiI6dHJ1ZSwianRpIjoiOG1UaGt1aGswYXVhMlpIRHpLNEdjN2k2RmVyYloxTVoiLCJhdXRoX2NvZGUiOiJhdXRoLXNlcnZlciJ9.VRe9jAk54zWrixC8K887NDlXCQhbbajhjcQ20S8QJYI";
+
+    private static JSONObject clientTokenData;
+
+    public static boolean isTokenValid(String token) {
+        String tokenTypeHint = "access_token";
         return introspectToken(token, tokenTypeHint);
+    }
+
+    public static JSONObject getClientTokenData() {
+        return clientTokenData;
     }
 
     private static boolean introspectToken(String token, String tokenTypeHint) {
         String host = "localhost";
         int port = 8008;
-        String url = "https://" + host + ":" + port + "/introspect?param1=value";
+        String url = "https://" + host + ":" + port + "/introspect";
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         IntrospectionHandler introspectionHandler = new IntrospectionHandler();
@@ -47,13 +48,12 @@ public class TokenVerificationRequestManager {
             bootstrap.group(workerGroup)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
-
                         @Override
-                        protected void initChannel(SocketChannel channel) throws Exception {
-                            SslContext sslContext = SSLContextManager.getSslContext();
+                        protected void initChannel(SocketChannel channel) {
+                            SslContext sslContext = SSLContextManager.getClientSslContext();
 
                             ChannelPipeline pipeline = channel.pipeline();
-                            pipeline.addLast(SslContextBuilder.forClient().build().newHandler(channel.alloc()));
+                            pipeline.addLast(sslContext.newHandler(channel.alloc()));
                             pipeline.addLast(new HttpClientCodec());
                             pipeline.addLast(new HttpObjectAggregator(1048576, false));
                             pipeline.addLast(introspectionHandler);
@@ -64,24 +64,29 @@ public class TokenVerificationRequestManager {
 
             JSONObject requestBody = new JSONObject().put("token", token).put("token_type_hint", tokenTypeHint);
             FullHttpRequest postRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.getRawPath(), Unpooled.copiedBuffer(requestBody.toString(), CharsetUtil.UTF_8));
+
             postRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
             postRequest.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
             postRequest.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-            postRequest.headers().set(HttpHeaderNames.AUTHORIZATION, "resource_server_bearer_token");
+            postRequest.headers().set(HttpHeaderNames.AUTHORIZATION, RESOURCE_SERVER_AUTHENTICATION_TOKEN);
+            postRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, postRequest.content().readableBytes());
 
-            System.out.println(postRequest + "\n");
+            HttpPostRequestEncoder httpPostRequestEncoder = new HttpPostRequestEncoder(postRequest, false);
+            httpPostRequestEncoder.addBodyAttribute("token", token);
+            httpPostRequestEncoder.addBodyAttribute("token_type_hint", tokenTypeHint);
+            HttpRequest request = httpPostRequestEncoder.finalizeRequest();
 
-            future.channel().writeAndFlush(postRequest);
+            future.channel().writeAndFlush(request).sync();
 
             future.channel().closeFuture().sync();
         }
-        catch (InterruptedException | URISyntaxException e) {
+        catch (InterruptedException | URISyntaxException | HttpPostRequestEncoder.ErrorDataEncoderException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             workerGroup.shutdownGracefully();
         }
 
+        clientTokenData = introspectionHandler.getIntrospectionResponseBody();
         return introspectionHandler.getIntrospectionResult();
     }
 }

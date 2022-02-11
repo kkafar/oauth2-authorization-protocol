@@ -6,6 +6,11 @@ notes.md
 
 # others
 .idea
+/.gradle/
+/gradle/
+/build.gradle
+/gradlew
+/gradlew.bat
 
 # python virtualenv
 .venv

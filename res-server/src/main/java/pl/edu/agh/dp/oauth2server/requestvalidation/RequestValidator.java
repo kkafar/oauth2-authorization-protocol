@@ -19,7 +19,6 @@ public class RequestValidator {
         else if (!request.headers().contains(HttpHeaderNames.AUTHORIZATION)) {
             return false;
         }
-        //possibly other stuff
         else return true;
     }
 }

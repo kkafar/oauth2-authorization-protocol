@@ -8,18 +8,21 @@ import org.json.JSONObject;
 
 public class IntrospectionHandler extends ChannelInboundHandlerAdapter {
     private boolean introspectionResult;
+    private JSONObject introspectionResponseBody;
 
     public IntrospectionHandler() {
         super();
         this.introspectionResult = false;
+        this.introspectionResponseBody = null;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         FullHttpResponse response = (FullHttpResponse) msg;
-        //System.out.println("response:\n" + response + "\n");
+
         JSONObject responseBody = new JSONObject(response.content().toString(CharsetUtil.UTF_8));
-        introspectionResult = responseBody.has("active") && responseBody.get("active").equals("true");
+        this.introspectionResponseBody = responseBody;
+        introspectionResult = responseBody.has("active") && responseBody.get("active").equals(true);
 
         ctx.close();
     }
@@ -32,5 +35,9 @@ public class IntrospectionHandler extends ChannelInboundHandlerAdapter {
 
     public synchronized boolean getIntrospectionResult() {
         return introspectionResult;
+    }
+
+    public synchronized JSONObject getIntrospectionResponseBody() {
+        return introspectionResponseBody;
     }
 }

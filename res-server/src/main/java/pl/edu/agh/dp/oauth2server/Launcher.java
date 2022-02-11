@@ -9,7 +9,7 @@ public class Launcher {
         System.out.println("HOST : " + HOST);
         System.out.println("PORT : " + PORT);
 
-        ResourceServer resourceServer = new ResourceServer(HOST, PORT);
+        ResourceServer resourceServer = new ResourceServer(PORT);
         resourceServer.run();
     }
 }

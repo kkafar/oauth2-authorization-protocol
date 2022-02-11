@@ -2,6 +2,7 @@ package pl.edu.agh.dp.oauth2server;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -9,11 +10,12 @@ import java.util.Objects;
 
 public class SSLContextManager {
     private static SslContext resourceServerSslContext = null;
+    private static SslContext clientSslContext = null;
 
-    public static SslContext getSslContext(){
+    public static SslContext getResourceServerSslContext(){
         if (resourceServerSslContext == null) {
             try {
-                createSslContext();
+                createResourceServerSslContext();
             } catch (SSLException e) {
                 e.printStackTrace();
             }
@@ -21,13 +23,28 @@ public class SSLContextManager {
         return resourceServerSslContext;
     }
 
-    private static void createSslContext() throws SSLException {
-        //String certPath = Objects.requireNonNull(SSLContextManager.class.getResource("D:\\Projects\\Design Patterns\\!Project\\oauth2-authorization-protocol\\res-server\\src\\main\\resources\\pl.edu.agh.dp.oauth2server\\cert.pem")).getPath();
-        File cert = new File("D:\\Projects\\Design Patterns\\!Project\\oauth2-authorization-protocol\\res-server\\src\\main\\resources\\pl.edu.agh.dp.oauth2server\\cert.pem");
+    public static SslContext getClientSslContext(){
+        if (clientSslContext == null) {
+            try {
+                createClientSslContext();
+            } catch (SSLException e) {
+                e.printStackTrace();
+            }
+        }
+        return clientSslContext;
+    }
 
-        //String keyPath = Objects.requireNonNull(SSLContextManager.class.getResource("D:\\Projects\\Design Patterns\\!Project\\oauth2-authorization-protocol\\res-server\\src\\main\\resources\\pl.edu.agh.dp.oauth2server\\key.pem")).getPath();
-        File key = new File("D:\\Projects\\Design Patterns\\!Project\\oauth2-authorization-protocol\\res-server\\src\\main\\resources\\pl.edu.agh.dp.oauth2server\\key.pem");
+    private static void createResourceServerSslContext() throws SSLException {
+        String certPath = Objects.requireNonNull(SSLContextManager.class.getResource("cert.pem")).getPath().replaceAll("%20", " ");
+        File cert = new File(certPath);
+
+        String keyPath = Objects.requireNonNull(SSLContextManager.class.getResource("key.pem")).getPath().replaceAll("%20", " ");
+        File key = new File(keyPath);
 
         resourceServerSslContext = SslContextBuilder.forServer(cert, key).build();
+    }
+
+    private static void createClientSslContext() throws SSLException {
+        clientSslContext =  SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
     }
 }

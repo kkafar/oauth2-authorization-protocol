@@ -19,7 +19,7 @@ public class RequestValidationHandler extends ChannelInboundHandlerAdapter {
     private FullHttpRequest request;
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         request = (FullHttpRequest) msg;
 
         if (RequestValidator.isRequestCorrect(request)) {

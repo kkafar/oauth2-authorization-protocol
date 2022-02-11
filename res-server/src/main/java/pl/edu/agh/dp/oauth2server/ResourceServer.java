@@ -12,15 +12,16 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
+import pl.edu.agh.dp.oauth2server.datafetch.DataFetchHandler;
 import pl.edu.agh.dp.oauth2server.requestvalidation.RequestValidationHandler;
+import pl.edu.agh.dp.oauth2server.response.ResponseHandler;
+import pl.edu.agh.dp.oauth2server.tokenscopeverification.TokenScopeVerificationHandler;
 import pl.edu.agh.dp.oauth2server.tokenverification.TokenVerificationHandler;
 
 public class ResourceServer {
-    private final String host; //host is likely not necessary in server
     private final int port;
 
-    public ResourceServer(String host, int port) {
-        this.host = host;
+    public ResourceServer(int port) {
         this.port = port;
     }
 
@@ -35,7 +36,7 @@ public class ResourceServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel channel) {
-                            SslContext sslContext = SSLContextManager.getSslContext();
+                            SslContext sslContext = SSLContextManager.getResourceServerSslContext();
 
                             ChannelPipeline pipeline = channel.pipeline();
                             pipeline.addLast(sslContext.newHandler(channel.alloc()));
@@ -43,6 +44,9 @@ public class ResourceServer {
                             pipeline.addLast(new HttpObjectAggregator(1048576, false));
                             pipeline.addLast(new RequestValidationHandler());
                             pipeline.addLast(new TokenVerificationHandler());
+                            pipeline.addLast(new TokenScopeVerificationHandler());
+                            pipeline.addLast(new DataFetchHandler());
+                            pipeline.addLast(new ResponseHandler());
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
