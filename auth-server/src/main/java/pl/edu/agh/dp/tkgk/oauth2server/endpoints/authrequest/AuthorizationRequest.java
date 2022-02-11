@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
 
+import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 
 import java.util.Optional;

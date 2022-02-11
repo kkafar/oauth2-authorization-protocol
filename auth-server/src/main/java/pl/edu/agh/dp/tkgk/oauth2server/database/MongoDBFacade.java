@@ -5,7 +5,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.jetbrains.annotations.NotNull;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;

@@ -8,7 +8,8 @@ public class MongoDBInfo {
         REFRESH_TOKENS_COLLECTION,
         AUTH_CODES_COLLECTION,
         CLIENTS_COLLECTION,
-        SESSIONS_COLLECTION;
+        SESSIONS_COLLECTION,
+        CREDENTIALS_COLLECTION;
 
         @Override
         public String toString() {
@@ -18,6 +19,7 @@ public class MongoDBInfo {
                 case AUTH_CODES_COLLECTION -> "auth-codes";
                 case CLIENTS_COLLECTION -> "clients";
                 case SESSIONS_COLLECTION -> "sessions";
+                case CREDENTIALS_COLLECTION -> "credentials";
             };
         }
     }
