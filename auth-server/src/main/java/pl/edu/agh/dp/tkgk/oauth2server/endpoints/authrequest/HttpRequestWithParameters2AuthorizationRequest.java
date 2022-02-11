@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import org.jetbrains.annotations.Nullable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 
 import java.util.List;

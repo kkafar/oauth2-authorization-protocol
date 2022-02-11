@@ -2,23 +2,27 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public class RAMDBFacade implements Database{
 
     private final Map<String, Session> sessionHashMap;
     private final Map<String, AuthCode> authCodeHashMap;
     private final Map<String, Client> clientId2ClientMap;
+    private final Map<String, Token> accessTokens;
+    private final Map<String, Token> refreshTokens;
     private final Random random;
     private final static int SESSION_LIFE_TIME_IN_SECONDS = 1200;
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
@@ -30,6 +34,8 @@ public class RAMDBFacade implements Database{
         random = new Random();
         clientId2ClientMap = new HashMap<>();
         insertTestData();
+        refreshTokens = new ConcurrentHashMap<>();
+        accessTokens = new ConcurrentHashMap<>();
     }
 
     private void insertTestData() {
@@ -47,12 +53,18 @@ public class RAMDBFacade implements Database{
 
     @Override
     public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
-
+        String authCode = decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
+        List<Token> tokens = new LinkedList<>(accessTokens.values());
+        tokens.addAll(refreshTokens.values());
+        tokens.stream()
+                .filter(t -> t.getAuthCode().equals(authCode))
+                .forEach(t -> {accessTokens.remove(t.getToken()); refreshTokens.remove(t.getToken());});
     }
 
     @Override
     public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
-        return Optional.empty();
+        if(accessTokens.containsKey(tokenId)) return Optional.of(accessTokens.get(tokenId));
+        return Optional.ofNullable(refreshTokens.get(tokenId));
     }
 
     @Override
@@ -69,12 +81,17 @@ public class RAMDBFacade implements Database{
 
     @Override
     public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType) {
-        return null;
+        Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
+                isAccessToken, tokenType, authorizationCode.getClientId());
+        authCodeHashMap.get(authorizationCode.getCode()).setUsed(true);
+        return token;
     }
 
     @Override
     public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId) {
-        return null;
+        String tokenId = getUniqueTokenId();
+        String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
+        return new Token(tokenId, token, authorizationCode, clientId);
     }
 
     private String getUniqueTokenId() {

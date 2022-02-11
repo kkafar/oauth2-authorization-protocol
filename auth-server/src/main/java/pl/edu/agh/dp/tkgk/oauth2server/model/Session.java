@@ -4,6 +4,7 @@ import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import java.time.Instant;
 import java.util.Objects;
 
 public record Session(@BsonId() String sessionId, String login,
@@ -19,6 +20,7 @@ public record Session(@BsonId() String sessionId, String login,
         this.expireTimeInSeconds = expireTimeInSeconds;
     }
 
+
     public String getSessionId() {
         return sessionId;
     }
@@ -29,6 +31,10 @@ public record Session(@BsonId() String sessionId, String login,
 
     public long getExpireTimeInSeconds() {
         return expireTimeInSeconds;
+    }
+
+    public boolean isExpired(){
+        return  Instant.now().getEpochSecond() > expireTimeInSeconds;
     }
 
     @Override
