@@ -5,8 +5,12 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.*;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
+
+import java.time.Instant;
+import java.util.Optional;
 
 public record ResourceServerAuthenticator(FullHttpRequest request) {
 
@@ -20,10 +24,14 @@ public record ResourceServerAuthenticator(FullHttpRequest request) {
 
         String tokenString = authorizationString.split(" ")[1];
 
-        DecodedJWT decodedToken = TokenUtil.decodeToken(tokenString);
+        DecodedJWT decodedToken;
+        try {
+            decodedToken = TokenUtil.decodeToken(tokenString); // checks if token is malformed or has already expired
+        } catch (JWTVerificationException e) {
+            return false;
+        }
 
         Database database = AuthorizationDatabaseProvider.getInstance();
-
         return database.fetchToken(decodedToken.getId(), TokenHint.NO_TOKEN_HINT).isPresent();
     }
 
