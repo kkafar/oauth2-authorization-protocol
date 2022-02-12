@@ -3,11 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.database;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.model.*;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
@@ -15,7 +11,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 public class RAMDBFacade implements Database{
 

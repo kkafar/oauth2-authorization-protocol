@@ -5,7 +5,6 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.Handler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
-import pl.edu.agh.dp.tkgk.oauth2server.database.RAMDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.*;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenendpoint.TokenGrantTypeDispatcher;
