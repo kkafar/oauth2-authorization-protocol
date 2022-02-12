@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Set;
 
 public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<HttpRequestWithParameters, AuthorizationRequest> {
-    String[] urlParameters = new String[]{HttpParameters.REDIRECT_URI, HttpParameters.CLIENT_ID, "response_type", "state", "code_challenge", "code_challenge_method"};
+    String[] urlParameters = new String[]{HttpParameters.REDIRECT_URI, HttpParameters.CLIENT_ID, HttpParameters.RESPONSE_TYPE, HttpParameters.STATE, HttpParameters.CODE_CHALLENGE, HttpParameters.CODE_CHALLENGE_METHOD};
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         String[] urlParametersValue = getUrlParametersValue(request);
-        Set<String> scope = Set.copyOf(request.urlParameters.get("scope"));
+        Set<String> scope = Set.copyOf(request.urlParameters.get(HttpParameters.SCOPE));
         boolean isScopeAccepted = Boolean.parseBoolean(request.bodyParameters.getOrDefault("scope_accepted", List.of("false")).get(0));
         Credentials credentials = getCredentials(request);
-        String sessionIdOptional = request.cookies.get("session_id");
+        String sessionIdOptional = request.cookies.get(HttpParameters.SESSION_ID);
         int i = 0;
         AuthorizationRequest authorizationRequest = new AuthorizationRequest(
                 request.fullHttpRequest.uri(),

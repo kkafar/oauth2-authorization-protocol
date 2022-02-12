@@ -24,13 +24,13 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
         String redirect_uri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
-        String state = parameters.get("state").get(0);
+        String state = parameters.get(HttpParameters.STATE).get(0);
 
-        if(!parameters.containsKey("scope")){
+        if(!parameters.containsKey(HttpParameters.SCOPE)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, SCOPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
 
-        Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get("scope").get(0), parameters.get(HttpParameters.CLIENT_ID).get(0));
+        Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get(HttpParameters.SCOPE).get(0), parameters.get(HttpParameters.CLIENT_ID).get(0));
         if(invalidScopeEntries.isPresent()){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
         }

@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
 public class StateValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> {
 
@@ -12,11 +13,11 @@ public class StateValidator extends BaseHandler<HttpRequestWithParameters, HttpR
 
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
-        if(!request.urlParameters.containsKey("state")){
+        if(!request.urlParameters.containsKey(HttpParameters.STATE)){
             return AuthEndpointUtil.buildRedirectResponseToErrorPage(STATE_IS_MISSING_FRAGMENT);
         }
 
-        String state = request.urlParameters.get("state").get(0);
+        String state = request.urlParameters.get(HttpParameters.STATE).get(0);
         if(!isStateValid(state)){
             return AuthEndpointUtil.buildRedirectResponseToErrorPage(STATE_IS_MALFORMED_FRAGMENT);
         }

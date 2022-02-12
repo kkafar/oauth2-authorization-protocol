@@ -19,12 +19,12 @@ public class ResponseTypeVerifier extends BaseHandler<HttpRequestWithParameters,
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
         String redirect_uri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
-        String state = parameters.get("state").get(0);
+        String state = parameters.get(HttpParameters.STATE).get(0);
 
-        if(!parameters.containsKey("response_type")){
+        if(!parameters.containsKey(HttpParameters.RESPONSE_TYPE)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, RESPONSE_TYPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
-        if(!parameters.get("response_type").get(0).equals("code")){
+        if(!parameters.get(HttpParameters.RESPONSE_TYPE).get(0).equals(HttpParameters.CODE)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, UNKNOWN_RESPONSE_TYPE_FRAGMENT, redirect_uri, state);
         }
 

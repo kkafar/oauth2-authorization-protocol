@@ -21,16 +21,16 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
         String redirect_uri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
-        String state = parameters.get("state").get(0);
+        String state = parameters.get(HttpParameters.STATE).get(0);
 
-        if(!parameters.containsKey("code_challenge")){
+        if(!parameters.containsKey(HttpParameters.CODE_CHALLENGE)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, CODE_CHALLENGE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
-        if(!isCodeChallengeValid(parameters.get("code_challenge").get(0))){
+        if(!isCodeChallengeValid(parameters.get(HttpParameters.CODE_CHALLENGE).get(0))){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, INVALID_CODE_CHALLENGE_FRAGMENT, redirect_uri, state);
         }
 
-        String codeChallengeMethod = parameters.getOrDefault("code_challenge_method", List.of("plain")).get(0);
+        String codeChallengeMethod = parameters.getOrDefault(HttpParameters.CODE_CHALLENGE_METHOD, List.of("plain")).get(0);
         if(!isCodeChallengeMethodValid(codeChallengeMethod)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, UNKNOWN_CODE_CHALLENGE_METHOD_FRAGMENT, redirect_uri, state);
         }

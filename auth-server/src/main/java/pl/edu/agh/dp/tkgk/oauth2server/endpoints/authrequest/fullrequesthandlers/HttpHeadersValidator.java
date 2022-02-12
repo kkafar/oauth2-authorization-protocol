@@ -16,7 +16,8 @@ Checks if needed http headers are present and valid
 public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 
     private static final Set<AsciiString> ALLOWED_CONTENT_TYPES = Set.of(
-            HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, HttpHeaderValues.TEXT_HTML
+            HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED,
+            HttpHeaderValues.TEXT_HTML
     );
     public static final String INVALID_CONTENT_TYPE_FRAGMENT = "invalid_content_type";
 
