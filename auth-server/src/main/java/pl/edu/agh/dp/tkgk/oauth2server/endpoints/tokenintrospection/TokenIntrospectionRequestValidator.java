@@ -14,10 +14,14 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.validator.HttpRequestValidator;
 
+import java.util.logging.Logger;
+
 public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequest, HttpPostRequestDecoder> {
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
+
+    private final Logger logger = Logger.getGlobal();
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
@@ -33,7 +37,7 @@ public class TokenIntrospectionRequestValidator extends BaseHandler<FullHttpRequ
                 return authenticator.failedBearerTokenAuthenticationResponse();
             }
         } catch (JWTVerificationException e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
             return authenticator.failedBearerTokenAuthenticationResponse();
         }
 

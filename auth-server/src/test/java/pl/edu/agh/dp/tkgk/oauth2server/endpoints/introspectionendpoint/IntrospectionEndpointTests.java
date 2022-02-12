@@ -20,6 +20,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.ExampleTokens;
 import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
@@ -55,11 +56,13 @@ public class IntrospectionEndpointTests {
 
     Client registeredClient = new Client("client1", "redirect_uri1", List.of("introspect"));
 
-    Token activeAccessTokenObj;
-    Token activeRefreshTokenObj;
-    Token expiredAccessTokenObj;
-    Token expiredRefreshTokenObj;
-    Token notInDbTokenObj;
+    ExampleTokens exampleTokens = new ExampleTokens();
+
+    Token activeAccessTokenObj = exampleTokens.getActiveAccessToken();
+    Token activeRefreshTokenObj = exampleTokens.getActiveRefreshToken();
+    Token expiredAccessTokenObj = exampleTokens.getExpiredAccessToken();
+    Token expiredRefreshTokenObj = exampleTokens.getExpiredRefreshToken();
+    Token notInDbTokenObj = exampleTokens.getNotInDbToken();
 
     @BeforeAll
     public void beforeAll() {
@@ -67,31 +70,6 @@ public class IntrospectionEndpointTests {
 
         ServerEndpointsBuilder serverEndpointsBuilder = new ServerEndpointsBuilder();
         tokenIntrospectionRequestValidator = serverEndpointsBuilder.getEndpointHandlerMap().get("/introspect");
-
-        String notInDbTokenId = TokenUtil.generateTokenId();
-        String notInDbToken = TokenUtil.generateToken(5, List.of("something"), "some_code",
-                true, "Bearer", notInDbTokenId);
-        notInDbTokenObj = new Token(notInDbTokenId, notInDbToken, "some_code", "some_client");
-
-        String activeRefreshTokenId = TokenUtil.generateTokenId();
-        String activeRefreshToken = TokenUtil.generateToken(7, List.of("some_scope"), "some_code",
-                false, "Bearer", activeRefreshTokenId);
-        activeRefreshTokenObj = new Token(activeRefreshTokenId, activeRefreshToken, "some_code", "client1");
-
-        String expiredRefreshTokenId = TokenUtil.generateTokenId();
-        String expiredRefreshToken = TokenUtil.generateToken(0, List.of("some_scope"), "some_code",
-                false, "Bearer", expiredRefreshTokenId);
-        expiredRefreshTokenObj = new Token(expiredRefreshTokenId, expiredRefreshToken, "some_code", "client1");
-
-        String activeAccessTokenId = TokenUtil.generateTokenId();
-        String activeAccessToken = TokenUtil.generateToken(7, List.of("some_scope"), "some_code",
-                true, "Bearer", activeAccessTokenId);
-        activeAccessTokenObj = new Token(activeAccessTokenId, activeAccessToken, "some_code", "client1");
-
-        String expiredAccessTokenId = TokenUtil.generateTokenId();
-        String expiredAccessToken = TokenUtil.generateToken(0, List.of("some_scope"), "some_code",
-                true, "Bearer", expiredAccessTokenId);
-        expiredAccessTokenObj = new Token(expiredAccessTokenId, expiredAccessToken, "some_code", "client1");
 
         accessTokens = db.getCollection(MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString(), Token.class);
         refreshTokens = db.getCollection(MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString(), Token.class);
@@ -112,7 +90,7 @@ public class IntrospectionEndpointTests {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getInvalidRequests")
-    public void invalidTokenRequestTest(String requestDescription, FullHttpRequest request) {
+    public void invalidIntrospectionRequestTest(String requestDescription, FullHttpRequest request) {
         // when
         FullHttpResponse response = tokenIntrospectionRequestValidator.handle(request);
         Map<String, Object> responseBody = new JSONObject(response.content().toString(StandardCharsets.UTF_8)).toMap();
@@ -131,16 +109,18 @@ public class IntrospectionEndpointTests {
                 HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, HttpMethod.GET, activeAccessTokenObj.getToken());
 
         FullHttpRequest invalidContentTypeRequest = getRequestToIntrospectionEndpoint(validParams,
-                HttpHeaderValues.APPLICATION_JSON, HttpMethod.GET, activeAccessTokenObj.getToken());
+                HttpHeaderValues.APPLICATION_JSON, HttpMethod.POST, activeAccessTokenObj.getToken());
 
         FullHttpRequest withoutAuthorizationHeaderRequest = getRequestToIntrospectionEndpoint(validParams,
-                HttpHeaderValues.APPLICATION_JSON, HttpMethod.GET, "none");
+                HttpHeaderValues.APPLICATION_JSON, HttpMethod.POST, "none");
 
         return Stream.of(
                 Arguments.of("no token in request", getUrlEncodedPostRequestToIntrospectionEndpoint(noTokenParams)),
                 Arguments.of("GET method instead of POST", getRequest),
                 Arguments.of("content type != url encoded", invalidContentTypeRequest),
-                Arguments.of("no authorization header", withoutAuthorizationHeaderRequest)
+                Arguments.of("no authorization header", withoutAuthorizationHeaderRequest),
+                Arguments.of("duplicated parameter",
+                        getUrlEncodedPostRequestToIntrospectionEndpoint(validParams + "&token_type_hint=access_token"))
         );
     }
 

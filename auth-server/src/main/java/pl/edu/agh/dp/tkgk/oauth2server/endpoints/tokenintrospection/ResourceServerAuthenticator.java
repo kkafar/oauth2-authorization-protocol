@@ -11,10 +11,13 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public record ResourceServerAuthenticator(FullHttpRequest request) {
 
     private static final String WWW_AUTHENTICATE_STRING = "Bearer realm=\"auth_server\", error=\"invalid_token\"";
+
+    private final static Logger logger = Logger.getGlobal();
 
     public boolean authenticate() throws JWTVerificationException {
         HttpHeaders headers = request.headers();
@@ -28,6 +31,7 @@ public record ResourceServerAuthenticator(FullHttpRequest request) {
         try {
             decodedToken = TokenUtil.decodeToken(tokenString); // checks if token is malformed or has already expired
         } catch (JWTVerificationException e) {
+            logger.info(e.getMessage());
             return false;
         }
 

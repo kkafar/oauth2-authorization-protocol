@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -130,7 +131,7 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
-                             boolean isAccessToken, String tokenType, String clientId)
+                             boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException
     {
         String tokenId = getUniqueTokenId();
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
@@ -148,7 +149,7 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode,
-                             boolean isAccessToken, String tokenType)
+                             boolean isAccessToken, String tokenType) throws JWTCreationException
     {
         Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
                 isAccessToken, tokenType, authorizationCode.getClientId());

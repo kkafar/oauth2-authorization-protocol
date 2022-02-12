@@ -15,6 +15,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
+import java.util.logging.Logger;
+
 public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<AuthCode, Object> {
 
     private static final String BEARER = "Bearer";
@@ -27,6 +29,8 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
 
     private final Database database = AuthorizationDatabaseProvider.getInstance();
+
+    private final Logger logger = Logger.getGlobal();
 
     @Override
     public FullHttpResponse handle(AuthCode authorizationCode) {
@@ -41,7 +45,7 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
 
             return director.constructJsonResponse(responseBuilder, responseBody, HttpResponseStatus.OK, true);
         } catch (JWTCreationException e) {
-            e.printStackTrace();
+            logger.warning(e.getMessage());
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
     }

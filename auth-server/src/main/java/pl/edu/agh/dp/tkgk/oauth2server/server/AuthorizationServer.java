@@ -8,7 +8,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 
+import java.util.logging.Logger;
+
 public class AuthorizationServer {
+
+    private final Logger logger = Logger.getGlobal();
 
     public void run(String host, int port){
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -23,7 +27,7 @@ public class AuthorizationServer {
 
             ChannelFuture f = bootstrap.bind(port).sync();
 
-            System.out.println("Server is running on port " + port);
+            logger.info("Server is running on port " + port);
 
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {

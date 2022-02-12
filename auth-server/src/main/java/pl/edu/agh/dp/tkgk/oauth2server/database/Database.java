@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
@@ -45,7 +46,8 @@ public interface Database {
      * @param tokenType e.g. "Bearer"
      * @return generated token
      */
-    Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType);
+    Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode,
+                                  boolean isAccessToken, String tokenType) throws JWTCreationException;
 
     /**
      * Generates new token with given parameters and unique token id, adds token to database
@@ -55,7 +57,8 @@ public interface Database {
      * @param tokenType e.g. "Bearer"
      * @return generated token
      */
-    Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId);
+    Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
+                      boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException;
 
     boolean isSessionIdValid(String sessionId);
 

@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
@@ -80,7 +81,8 @@ public class RAMDBFacade implements Database{
     }
 
     @Override
-    public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode, boolean isAccessToken, String tokenType) {
+    public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode,
+                                         boolean isAccessToken, String tokenType) throws JWTCreationException {
         Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
                 isAccessToken, tokenType, authorizationCode.getClientId());
         authCodeHashMap.get(authorizationCode.getCode()).setUsed(true);
@@ -88,7 +90,8 @@ public class RAMDBFacade implements Database{
     }
 
     @Override
-    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, boolean isAccessToken, String tokenType, String clientId) {
+    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
+                             boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException {
         String tokenId = getUniqueTokenId();
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
         return new Token(tokenId, token, authorizationCode, clientId);

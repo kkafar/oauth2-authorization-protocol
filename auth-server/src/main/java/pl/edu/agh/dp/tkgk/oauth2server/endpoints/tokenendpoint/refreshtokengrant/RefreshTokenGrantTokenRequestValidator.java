@@ -18,6 +18,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResp
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Checks if refresh token and scope (if attached to the request) are valid so that the token request can be served
@@ -33,6 +34,8 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
 
     private AuthCode authCodeObj;
 
+    private final Logger logger = Logger.getGlobal();
+
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
 
@@ -47,7 +50,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_SCOPE, true);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning(e.getMessage());
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 
@@ -94,7 +97,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
             try {
                 decodedRefreshToken = TokenUtil.decodeToken(refreshToken);
             } catch (JWTVerificationException e) {
-                e.printStackTrace();
+                logger.info(e.getMessage());
                 return false;
             }
 

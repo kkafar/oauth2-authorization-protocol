@@ -5,6 +5,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.logging.LogLevel;
 import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
@@ -22,11 +23,15 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResp
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, Object> {
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
+
+    private final Logger logger = Logger.getGlobal();
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
@@ -46,7 +51,7 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, O
                     HttpResponseStatus.OK, false);
 
         } catch (IOException | JWTVerificationException | NoSuchAttributeException e) {
-            e.printStackTrace();
+            logger.info("Returning active=false response, cause: " + e);
             return director.constructJsonResponse(responseBuilder, new JSONObject().put(HttpParameters.ACTIVE, false),
                     HttpResponseStatus.OK, false);
         }
