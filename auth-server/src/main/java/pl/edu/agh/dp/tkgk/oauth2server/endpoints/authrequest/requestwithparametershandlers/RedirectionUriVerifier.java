@@ -1,9 +1,12 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthErrorFragments;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
@@ -18,10 +21,6 @@ import java.util.Optional;
 
 public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameters,HttpRequestWithParameters> implements DatabaseInjectable {
 
-    public static final String CLIENT_ID_IS_MISSING_FRAGMENT = "client_id_is_missing";
-    public static final String REDIRECT_URI_IS_MISSING_FRAGMENT = "redirect_uri_is_missing";
-    public static final String UNKNOWN_CLIENT_ID_FRAGMENT = "unknown_client_id";
-    public static final String CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT = "client_id_redirect_uri_mismatch";
     private Database database;
 
 
@@ -30,24 +29,24 @@ public class RedirectionUriVerifier extends BaseHandler<HttpRequestWithParameter
         Map<String, List<String>> parameters = request.urlParameters;
 
         if(!parameters.containsKey(HttpParameters.CLIENT_ID)){
-            return AuthEndpointUtil.buildRedirectResponseToErrorPage(CLIENT_ID_IS_MISSING_FRAGMENT);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.CLIENT_ID_IS_MISSING_FRAGMENT);
         }
         String clientId = parameters.get(HttpParameters.CLIENT_ID).get(0);
 
         if(!parameters.containsKey(HttpParameters.REDIRECT_URI)){
-            return AuthEndpointUtil.buildRedirectResponseToErrorPage(REDIRECT_URI_IS_MISSING_FRAGMENT);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.REDIRECT_URI_IS_MISSING_FRAGMENT);
         }
         String redirectionUri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
 
         Optional<Client> optionalClient = database.fetchClient(clientId);
 
         if(optionalClient.isEmpty()){
-            return AuthEndpointUtil.buildRedirectResponseToErrorPage(UNKNOWN_CLIENT_ID_FRAGMENT);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.UNKNOWN_CLIENT_ID_FRAGMENT);
         }
 
         Client client = optionalClient.get();
         if(!client.getRedirectUri().equals(redirectionUri)){
-            return AuthEndpointUtil.buildRedirectResponseToErrorPage(CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT);
+            return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT);
         }
 
         return next.handle(request);

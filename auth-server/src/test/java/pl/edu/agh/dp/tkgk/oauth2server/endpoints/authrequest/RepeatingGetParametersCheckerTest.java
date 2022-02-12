@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.RepeatingGetParametersChecker;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers.RepeatingGetParametersChecker;
 
 class RepeatingGetParametersCheckerTest {
 

@@ -18,7 +18,7 @@ public final class AuthorizationRequest {
 
     public final Credentials credentials;
     public final String sessionId;
-    final boolean isScopeAccepted;
+    public final boolean isScopeAccepted;
 
     public AuthorizationRequest(String uri, String redirectUri, String clientId, String responseType, String state, String codeChallenge,
                                 CodeChallengeMethod codeChallengeMethod, Set<String> scope, Credentials credentials, String sessionId, boolean isScopeAccepted)
