@@ -12,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.CodeChallengeValidator;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.CodeChallengeValidator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +49,7 @@ class CodeChallengeValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(CodeChallengeValidator.CODE_CHALLENGE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.CODE_CHALLENGE_IS_MISSING_FRAGMENT));
     }
 
     @ParameterizedTest
@@ -66,7 +65,7 @@ class CodeChallengeValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(CodeChallengeValidator.INVALID_CODE_CHALLENGE_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.INVALID_CODE_CHALLENGE_FRAGMENT));
     }
 
     @ParameterizedTest
@@ -83,7 +82,7 @@ class CodeChallengeValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(CodeChallengeValidator.UNKNOWN_CODE_CHALLENGE_METHOD_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.UNKNOWN_CODE_CHALLENGE_METHOD_FRAGMENT));
     }
 
     @ParameterizedTest

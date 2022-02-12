@@ -1,12 +1,13 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 
 import java.io.FileNotFoundException;
 

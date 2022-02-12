@@ -1,22 +1,26 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers;
 
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
-import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthErrorFragments;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
+import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 
 import java.io.FileNotFoundException;
 
 public class IdentityVerifier extends BaseHandler<AuthorizationRequest, AuthorizationRequest> implements DatabaseInjectable {
-    public static final String INVALID_CREDENTIALS = "invalid credentials";
-    public static final String INVALID_CREDENTIALS_FRAGMENT = "invalid_credentials";
     private Database database;
+
+    public static final String INVALID_CREDENTIALS = "invalid credentials";
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<String> htmlResponseBuilder = new ResponseWithCustomHtmlBuilder();
@@ -56,7 +60,8 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
     }
 
     private FullHttpResponse buildWrongCredentialsResponse(AuthorizationRequest request) {
-        return AuthEndpointUtil.buildAuthErrorResponse(INVALID_CREDENTIALS, INVALID_CREDENTIALS_FRAGMENT,
+        return AuthEndpointUtil.buildAuthErrorResponse(
+                INVALID_CREDENTIALS, AuthErrorFragments.INVALID_CREDENTIALS_FRAGMENT,
                 request.redirectUri, request.state);
     }
 
@@ -64,7 +69,7 @@ public class IdentityVerifier extends BaseHandler<AuthorizationRequest, Authoriz
         FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-        response.headers().set(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode("session_id", sessionId));
+        response.headers().set(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode(HttpParameters.SESSION_ID, sessionId));
         response.headers().set(HttpHeaderNames.LOCATION, request.uri);
         return response;
     }
