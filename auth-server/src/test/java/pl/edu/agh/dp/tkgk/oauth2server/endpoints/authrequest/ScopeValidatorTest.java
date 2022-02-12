@@ -53,7 +53,7 @@ class ScopeValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ScopeValidator.SCOPE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.SCOPE_IS_MISSING_FRAGMENT));
     }
 
     @ParameterizedTest
@@ -65,7 +65,7 @@ class ScopeValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ScopeValidator.UNKNOWN_SCOPE_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.UNKNOWN_SCOPE_FRAGMENT));
     }
 
     @ParameterizedTest

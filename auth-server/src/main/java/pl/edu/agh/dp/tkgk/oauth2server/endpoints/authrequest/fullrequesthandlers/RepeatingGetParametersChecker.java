@@ -5,10 +5,9 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthErrorFragments;
 
 public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, FullHttpRequest> {
-
-    public static final String REPEATING_GET_PARAMETERS_ERROR_FRAGMENT = "repeating_get_parameters_error";
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
@@ -20,7 +19,7 @@ public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, 
     }
 
     private FullHttpResponse buildRepeatingParametersResponse(){
-        return AuthEndpointUtil.buildRedirectResponseToErrorPage(REPEATING_GET_PARAMETERS_ERROR_FRAGMENT);
+        return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.REPEATING_GET_PARAMETERS_ERROR_FRAGMENT);
     }
 
     private boolean areThereRepeatingParameters(String uri){

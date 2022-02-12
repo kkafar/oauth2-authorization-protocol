@@ -5,6 +5,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthErrorFragments;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
@@ -14,8 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpRequestWithParameters> implements DatabaseInjectable {
-    public static final String SCOPE_IS_MISSING_FRAGMENT = "scope_is_missing";
-    public static final String UNKNOWN_SCOPE_FRAGMENT = "unknown_scope";
     public static final String INVALID_SCOPE = "invalid_scope";
 
     private Database database;
@@ -27,12 +26,12 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
         String state = parameters.get(HttpParameters.STATE).get(0);
 
         if(!parameters.containsKey(HttpParameters.SCOPE)){
-            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, SCOPE_IS_MISSING_FRAGMENT, redirect_uri, state);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, AuthErrorFragments.SCOPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
 
         Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get(HttpParameters.SCOPE).get(0), parameters.get(HttpParameters.CLIENT_ID).get(0));
         if(invalidScopeEntries.isPresent()){
-            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, AuthErrorFragments.UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
         }
 
         return next.handle(request);

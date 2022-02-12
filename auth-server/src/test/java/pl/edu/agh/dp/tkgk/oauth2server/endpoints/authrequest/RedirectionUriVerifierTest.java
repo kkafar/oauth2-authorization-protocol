@@ -49,7 +49,7 @@ class RedirectionUriVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(RedirectionUriVerifier.REDIRECT_URI_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.REDIRECT_URI_IS_MISSING_FRAGMENT));
 
     }
 
@@ -63,7 +63,7 @@ class RedirectionUriVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(RedirectionUriVerifier.CLIENT_ID_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.CLIENT_ID_IS_MISSING_FRAGMENT));
 
     }
 
@@ -81,7 +81,7 @@ class RedirectionUriVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(RedirectionUriVerifier.UNKNOWN_CLIENT_ID_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.UNKNOWN_CLIENT_ID_FRAGMENT));
 
     }
 
@@ -102,7 +102,7 @@ class RedirectionUriVerifierTest {
         assertNotNull(response);
         Mockito.verify(database).fetchClient("super_app");
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(RedirectionUriVerifier.CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.CLIENT_ID_REDIRECT_URI_MISMATCH_FRAGMENT));
 
     }
 

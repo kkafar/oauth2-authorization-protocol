@@ -73,7 +73,7 @@ class IdentityVerifierTest {
 
         String redirectUri = response.headers().get(HttpHeaderNames.LOCATION);
         assertNotNull(redirectUri);
-        assertTrue(redirectUri.contains(IdentityVerifier.INVALID_CREDENTIALS_FRAGMENT));
+        assertTrue(redirectUri.contains(AuthErrorFragments.INVALID_CREDENTIALS_FRAGMENT));
     }
 
     @Test

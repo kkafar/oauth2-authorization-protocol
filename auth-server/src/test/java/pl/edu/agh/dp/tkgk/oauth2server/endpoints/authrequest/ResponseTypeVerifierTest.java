@@ -49,7 +49,7 @@ class ResponseTypeVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ResponseTypeVerifier.RESPONSE_TYPE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.RESPONSE_TYPE_IS_MISSING_FRAGMENT));
     }
 
     @ParameterizedTest
@@ -65,7 +65,7 @@ class ResponseTypeVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ResponseTypeVerifier.UNKNOWN_RESPONSE_TYPE_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.UNKNOWN_RESPONSE_TYPE_FRAGMENT));
     }
 
     @ParameterizedTest

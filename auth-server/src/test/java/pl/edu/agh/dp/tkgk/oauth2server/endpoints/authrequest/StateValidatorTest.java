@@ -47,7 +47,7 @@ class StateValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(StateValidator.STATE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.STATE_IS_MISSING_FRAGMENT));
     }
 
     @Test
@@ -60,7 +60,7 @@ class StateValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(StateValidator.STATE_IS_MALFORMED_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.STATE_IS_MALFORMED_FRAGMENT));
     }
 
     @ParameterizedTest

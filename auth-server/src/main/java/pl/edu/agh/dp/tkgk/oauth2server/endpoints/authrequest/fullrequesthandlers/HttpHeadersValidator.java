@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.util.AsciiString;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthErrorFragments;
 
 import java.util.Set;
 
@@ -19,7 +20,6 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
             HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED,
             HttpHeaderValues.TEXT_HTML
     );
-    public static final String INVALID_CONTENT_TYPE_FRAGMENT = "invalid_content_type";
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
@@ -37,6 +37,6 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private FullHttpResponse buildInvalidContentTypeResponse(){
-        return AuthEndpointUtil.buildRedirectResponseToErrorPage(INVALID_CONTENT_TYPE_FRAGMENT);
+        return AuthEndpointUtil.buildRedirectResponseToErrorPage(AuthErrorFragments.INVALID_CONTENT_TYPE_FRAGMENT);
     }
 }
