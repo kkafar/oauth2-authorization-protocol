@@ -1,16 +1,19 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.converters;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import org.jetbrains.annotations.Nullable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
 import java.util.List;
 import java.util.Set;
 
 public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<HttpRequestWithParameters, AuthorizationRequest> {
-    String[] urlParameters = new String[]{"redirect_uri", "client_id", "response_type", "state", "code_challenge", "code_challenge_method"};
+    String[] urlParameters = new String[]{HttpParameters.REDIRECT_URI, HttpParameters.CLIENT_ID, "response_type", "state", "code_challenge", "code_challenge_method"};
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         String[] urlParametersValue = getUrlParametersValue(request);

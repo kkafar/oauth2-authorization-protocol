@@ -1,7 +1,9 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers;
 
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;

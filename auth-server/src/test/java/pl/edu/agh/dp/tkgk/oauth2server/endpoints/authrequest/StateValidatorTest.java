@@ -12,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.StateValidator;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.StateValidator;
 
 import java.util.HashMap;
 import java.util.List;

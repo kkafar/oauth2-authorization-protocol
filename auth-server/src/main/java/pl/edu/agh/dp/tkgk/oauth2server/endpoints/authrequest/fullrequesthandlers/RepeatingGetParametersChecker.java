@@ -1,9 +1,10 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
 
 public class RepeatingGetParametersChecker extends BaseHandler<FullHttpRequest, FullHttpRequest> {
 

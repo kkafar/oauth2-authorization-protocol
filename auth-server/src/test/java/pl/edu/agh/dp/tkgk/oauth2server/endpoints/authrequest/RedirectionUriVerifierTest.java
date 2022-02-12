@@ -11,8 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.RedirectionUriVerifier;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.RedirectionUriVerifier;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
 
 import java.util.HashMap;

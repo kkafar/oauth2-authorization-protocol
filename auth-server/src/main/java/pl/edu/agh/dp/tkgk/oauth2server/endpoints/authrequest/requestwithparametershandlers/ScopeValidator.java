@@ -1,10 +1,13 @@
-package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest;
+package pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthEndpointUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
+import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
 import java.util.List;
 import java.util.Map;
@@ -20,14 +23,14 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
     @Override
     public FullHttpResponse handle(HttpRequestWithParameters request) {
         Map<String, List<String>> parameters = request.urlParameters;
-        String redirect_uri = parameters.get("redirect_uri").get(0);
+        String redirect_uri = parameters.get(HttpParameters.REDIRECT_URI).get(0);
         String state = parameters.get("state").get(0);
 
         if(!parameters.containsKey("scope")){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, SCOPE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
 
-        Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get("scope").get(0), parameters.get("client_id").get(0));
+        Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get("scope").get(0), parameters.get(HttpParameters.CLIENT_ID).get(0));
         if(invalidScopeEntries.isPresent()){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
         }
