@@ -19,7 +19,6 @@ dependencies {
     implementation 'org.json:json:20211205'
     implementation 'org.mongodb:mongo-java-driver:3.12.10'
     implementation 'org.mockito:mockito-core:4.3.1'
-    implementation 'io.projectreactor.netty:reactor-netty:1.0.15'
 }
 
 application {
