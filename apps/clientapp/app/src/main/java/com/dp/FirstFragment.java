@@ -53,7 +53,7 @@ public class FirstFragment extends Fragment {
 
     binding.httpRequestButton.setOnClickListener((_view) -> {
       CustomTabsIntent intent = ctiBuilder.build();
-      intent.launchUrl(requireContext(), Uri.parse("http://2305-89-70-9-88.ngrok.io"));
+      intent.launchUrl(requireContext(), Uri.parse("http://3714-89-70-9-88.ngrok.io"));
     });
   }
 }
