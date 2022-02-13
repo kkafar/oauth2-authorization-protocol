@@ -19,6 +19,6 @@ public class CodeVerifierProvider {
   }
 
   private static int getLength() {
-    return MAX_LENGTH;
+    return MIN_LENGTH;
   }
 }
