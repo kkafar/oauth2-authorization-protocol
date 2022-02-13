@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Checks if there is a valid authorization code, code_verifier (that is compared to code_challenge sent during authorization)
@@ -39,6 +40,8 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
 
     private Optional<String> authorizationCodeOptional;
     private Optional<String> codeVerifierOptional;
+
+    private final Logger logger = Logger.getGlobal();
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
@@ -67,7 +70,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
             }
 
         } catch (IOException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.warning(e.getMessage());
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 

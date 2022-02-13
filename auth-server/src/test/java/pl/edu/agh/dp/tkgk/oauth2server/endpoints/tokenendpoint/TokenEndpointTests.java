@@ -13,7 +13,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.edu.agh.dp.tkgk.oauth2server.common.Handler;
-import pl.edu.agh.dp.tkgk.oauth2server.server.util.ServerEndpointsBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.database.MongoDBFacade;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
@@ -24,6 +23,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpRequestError;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
+import pl.edu.agh.dp.tkgk.oauth2server.server.util.ServerEndpointsBuilder;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +33,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TokenEndpointTests {

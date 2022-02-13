@@ -2,6 +2,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
@@ -33,7 +34,7 @@ public class TokenUtil {
     }
 
     public static String generateToken(int expiresIn, List<String> scope, String authorizationCode,
-                                       boolean isAccessToken, String tokenType, String tokenId) {
+                                       boolean isAccessToken, String tokenType, String tokenId) throws JWTCreationException {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
         return JWT.create()

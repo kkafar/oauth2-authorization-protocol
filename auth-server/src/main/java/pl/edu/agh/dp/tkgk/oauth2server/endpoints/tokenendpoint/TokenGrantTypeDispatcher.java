@@ -14,6 +14,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResp
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Checks whether token is being requested using authorization code grant or refresh token and sends the request
@@ -22,6 +23,8 @@ import java.util.Optional;
 public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder, HttpPostRequestDecoder> {
 
     public static final String AUTHORIZATION_CODE = "authorization_code";
+
+    private final Logger logger = Logger.getGlobal();
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
@@ -50,7 +53,7 @@ public class TokenGrantTypeDispatcher extends BaseHandler<HttpPostRequestDecoder
                 return next.handle(decoder);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning(e.getMessage());
             return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
         }
 

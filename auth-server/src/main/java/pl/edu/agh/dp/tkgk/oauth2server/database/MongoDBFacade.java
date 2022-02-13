@@ -1,18 +1,15 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.jetbrains.annotations.NotNull;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoClientInstance;
 import pl.edu.agh.dp.tkgk.oauth2server.database.mongodb.MongoDBInfo;
 import pl.edu.agh.dp.tkgk.oauth2server.database.queries.Queries;
-import pl.edu.agh.dp.tkgk.oauth2server.model.AuthCode;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Client;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Session;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationRequest;
+import pl.edu.agh.dp.tkgk.oauth2server.model.*;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.DecodedToken;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
@@ -130,7 +127,7 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
-                             boolean isAccessToken, String tokenType, String clientId)
+                             boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException
     {
         String tokenId = getUniqueTokenId();
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
@@ -148,7 +145,7 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Token getNewTokenFromAuthCode(int expiresIn, AuthCode authorizationCode,
-                             boolean isAccessToken, String tokenType)
+                             boolean isAccessToken, String tokenType) throws JWTCreationException
     {
         Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
                 isAccessToken, tokenType, authorizationCode.getClientId());

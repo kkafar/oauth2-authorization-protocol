@@ -4,29 +4,25 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
-import org.json.JSONObject;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import pl.edu.agh.dp.tkgk.oauth2server.requestbodydecoder.HttpPostRequestBodyDecoder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.ResponseBuildingDirector;
-import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.JsonResponseBuilder;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, FullHttpRequest> {
 
     private static final String INVALID_TOKEN = "invalid_token";
 
-    private final ResponseBuildingDirector director = new ResponseBuildingDirector();
-    private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
-
     private TokenHint tokenHint;
 
     private DecodedJWT decodedToken;
+
+    private final Logger logger = Logger.getGlobal();
 
     @Override
     public FullHttpResponse handle(HttpPostRequestDecoder decoder) {
@@ -36,11 +32,12 @@ public class TokenRevocationHandler extends BaseHandler<HttpPostRequestDecoder, 
             String token = bodyDecoder.fetchToken().orElse(INVALID_TOKEN);
             tokenHint = bodyDecoder.fetchTokenHint();
             decodedToken = TokenUtil.decodeToken(token);
-        } catch (IOException | JWTVerificationException e) {
-            e.printStackTrace();
-            // todo: should probably just send back HTTP 200 instead of the one with error referring to the 7009 RFC,
-            // todo: will leave it for the debug now
-            return director.constructJsonServerErrorResponse(responseBuilder, e.getMessage());
+        } catch (IOException e) {
+            logger.warning(e.getMessage());
+            return responseWith200StatusCode();
+        } catch (JWTVerificationException e) {
+            logger.info(e.getMessage());
+            return responseWith200StatusCode();
         }
 
         revokeToken();
