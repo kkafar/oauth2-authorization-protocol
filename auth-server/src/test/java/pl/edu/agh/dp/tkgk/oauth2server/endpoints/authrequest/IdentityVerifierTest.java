@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.IdentityVerifier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,7 +73,7 @@ class IdentityVerifierTest {
 
         String redirectUri = response.headers().get(HttpHeaderNames.LOCATION);
         assertNotNull(redirectUri);
-        assertTrue(redirectUri.contains(IdentityVerifier.INVALID_CREDENTIALS_FRAGMENT));
+        assertTrue(redirectUri.contains(AuthErrorFragments.INVALID_CREDENTIALS_FRAGMENT));
     }
 
     @Test

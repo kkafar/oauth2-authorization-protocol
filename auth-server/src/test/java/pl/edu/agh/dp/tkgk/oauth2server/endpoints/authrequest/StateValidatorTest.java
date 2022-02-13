@@ -12,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.StateValidator;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.StateValidator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +47,7 @@ class StateValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(StateValidator.STATE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.STATE_IS_MISSING_FRAGMENT));
     }
 
     @Test
@@ -61,7 +60,7 @@ class StateValidatorTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(StateValidator.STATE_IS_MALFORMED_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.STATE_IS_MALFORMED_FRAGMENT));
     }
 
     @ParameterizedTest

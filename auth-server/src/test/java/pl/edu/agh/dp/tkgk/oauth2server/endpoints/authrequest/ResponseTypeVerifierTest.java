@@ -12,8 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
-import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.ResponseTypeVerifier;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.ResponseTypeVerifier;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +49,7 @@ class ResponseTypeVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ResponseTypeVerifier.RESPONSE_TYPE_IS_MISSING_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.RESPONSE_TYPE_IS_MISSING_FRAGMENT));
     }
 
     @ParameterizedTest
@@ -66,7 +65,7 @@ class ResponseTypeVerifierTest {
 
         assertNotNull(response);
         String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(ResponseTypeVerifier.UNKNOWN_RESPONSE_TYPE_FRAGMENT));
+        assertTrue(errorUri.contains(AuthErrorFragments.UNKNOWN_RESPONSE_TYPE_FRAGMENT));
     }
 
     @ParameterizedTest

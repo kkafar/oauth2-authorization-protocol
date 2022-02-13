@@ -14,4 +14,9 @@ public final class HttpParameters {
     public static final String CODE_VERIFIER = "code_verifier";
     public static final String ACTIVE = "active";
     public static final String TOKEN = "token";
+    public static final String SESSION_ID = "session_id";
+    public static final String RESPONSE_TYPE = "response_type";
+    public static final String STATE = "state";
+    public static final String CODE_CHALLENGE = "code_challenge";
+    public static final String CODE_CHALLENGE_METHOD = "code_challenge_method";
 }
