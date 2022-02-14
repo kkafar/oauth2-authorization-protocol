@@ -8,6 +8,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithPara
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +26,6 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
         if(!parameters.containsKey(HttpParameters.CODE_CHALLENGE)){
             return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, AuthErrorFragments.CODE_CHALLENGE_IS_MISSING_FRAGMENT, redirect_uri, state);
         }
-        if(!isCodeChallengeValid(parameters.get(HttpParameters.CODE_CHALLENGE).get(0))){
-            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_REQUEST, AuthErrorFragments.INVALID_CODE_CHALLENGE_FRAGMENT, redirect_uri, state);
-        }
 
         String codeChallengeMethod = parameters.getOrDefault(HttpParameters.CODE_CHALLENGE_METHOD, List.of("plain")).get(0);
         if(!isCodeChallengeMethodValid(codeChallengeMethod)){
@@ -36,9 +35,6 @@ public class CodeChallengeValidator extends BaseHandler<HttpRequestWithParameter
         return next.handle(request);
     }
 
-    private boolean isCodeChallengeValid(String codeChallenge) {
-        return codeChallenge.matches("[a-zA-Z0-9_\\-.~]+");
-    }
 
     private boolean isCodeChallengeMethodValid(String codeChallengeMethod) {
         return CodeChallengeMethod.value(codeChallengeMethod).isPresent();

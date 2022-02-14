@@ -30,7 +30,7 @@ public class HttpHeadersValidator extends BaseHandler<FullHttpRequest, FullHttpR
     }
 
     private boolean isContentTypeValid(FullHttpRequest request){
-        if(!request.headers().contains(HttpHeaderNames.CONTENT_TYPE)) return false;
+        if(!request.headers().contains(HttpHeaderNames.CONTENT_TYPE)) return true;
         final String contentType = request.headers()
                 .get(HttpHeaderNames.CONTENT_TYPE);
         return ALLOWED_CONTENT_TYPES.stream().anyMatch(s -> s.contentEqualsIgnoreCase(contentType));
