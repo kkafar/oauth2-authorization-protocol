@@ -22,4 +22,8 @@
                 android:id="@+id/action_userDataFragment2_to_loginFragment"
                 app:destination="@id/loginFragment" />
     </fragment>
+    <activity
+            android:id="@+id/authorizationActivity2"
+            android:name="com.dp.AuthorizationActivity"
+            android:label="AuthorizationActivity" />
 </navigation>

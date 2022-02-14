@@ -16,21 +16,21 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
-  private AppBarConfiguration appBarConfiguration;
-  private ActivityMainBinding binding;
+  private AppBarConfiguration mAppBarConfiguration;
+  private ActivityMainBinding mBinding;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    binding = ActivityMainBinding.inflate(getLayoutInflater());
-    setContentView(binding.getRoot());
+    mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+    setContentView(mBinding.getRoot());
 
-    setSupportActionBar(binding.toolbar);
+    setSupportActionBar(mBinding.toolbar);
 
     NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-    appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+    mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+    NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
   }
 
   @Override
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
   @Override
   public boolean onSupportNavigateUp() {
     NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-    return NavigationUI.navigateUp(navController, appBarConfiguration)
+    return NavigationUI.navigateUp(navController, mAppBarConfiguration)
         || super.onSupportNavigateUp();
   }
 }
