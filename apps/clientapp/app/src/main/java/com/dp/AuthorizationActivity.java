@@ -26,7 +26,7 @@ public class AuthorizationActivity extends AppCompatActivity {
     mAuthViewModel = new ViewModelProvider(
       this, new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-    Uri authenticationUri = mAuthViewModel.getAuthorizationEndpointUri();
+    Uri authenticationUri = mAuthViewModel.getAuthorizationUri();
 
     CustomTabsIntent.Builder CTIBuilder = new CustomTabsIntent.Builder();
     CustomTabsIntent intent = CTIBuilder.build();

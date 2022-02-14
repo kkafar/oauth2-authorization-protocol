@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
+import com.dp.data.repositories.AuthorizationFlowRepository;
 import com.dp.data.repositories.AuthorizationServerRepository;
 
 import java.security.NoSuchAlgorithmException;
@@ -16,9 +17,14 @@ public class AuthorizationViewModel extends ViewModel {
   public final String TAG = "AuthenticationViewModel";
 
   private AuthorizationServerRepository mAuthServerRepository;
+  private AuthorizationFlowRepository mAuthFlowRepository;
 
-  public AuthorizationViewModel(AuthorizationServerRepository repository) {
-    mAuthServerRepository = repository;
+  public AuthorizationViewModel(
+      AuthorizationServerRepository authorizationServerRepository,
+      AuthorizationFlowRepository authorizationFlowRepository
+  ) {
+    mAuthServerRepository = authorizationServerRepository;
+    mAuthFlowRepository = authorizationFlowRepository;
   }
 
 
@@ -27,7 +33,7 @@ public class AuthorizationViewModel extends ViewModel {
   }
 
 
-  public Uri getAuthorizationEndpointUri() {
+  public Uri getAuthorizationUri() {
     CodeChallengeProvider codeChallengeProvider = new CodeChallengeProvider();
     CodeVerifierProvider codeVerifierProvider = new CodeVerifierProvider();
 
