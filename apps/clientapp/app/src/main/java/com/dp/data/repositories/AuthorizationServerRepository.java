@@ -19,12 +19,12 @@ public class AuthorizationServerRepository {
     return instance;
   }
 
-  public String getAuthorizationEndpoint() {
-    return mDataSource.getAuthorizationServerAddress() + "/authorize";
-  }
-
   public String getAuthServerAddress() {
     return mDataSource.getAuthorizationServerAddress();
+  }
+
+  public String getAuthServerAuthority() {
+    return mDataSource.getAuthority();
   }
 
   public String getAuthority() {

@@ -3,16 +3,20 @@ package com.dp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.dp.data.model.AuthorizationRequest;
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityAuthorizationBinding;
 
 public class AuthorizationActivity extends AppCompatActivity {
+  public final String TAG = "AuthorizationActivity";
+
   private AuthorizationViewModel mAuthViewModel;
   private ActivityAuthorizationBinding mBinding;
 
@@ -26,11 +30,13 @@ public class AuthorizationActivity extends AppCompatActivity {
     mAuthViewModel = new ViewModelProvider(
       this, new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-    Uri authenticationUri = mAuthViewModel.getAuthorizationUri();
+    AuthorizationRequest authorizationRequest = mAuthViewModel.getAuthorizationRequest(getString(R.string.client_id));
+
+    Log.d(TAG, "Authorization request:" + authorizationRequest.toUri().toString());
 
     CustomTabsIntent.Builder CTIBuilder = new CustomTabsIntent.Builder();
     CustomTabsIntent intent = CTIBuilder.build();
-    intent.launchUrl(this, authenticationUri);
+    intent.launchUrl(this, authorizationRequest.toUri());
   }
 
   @Override
