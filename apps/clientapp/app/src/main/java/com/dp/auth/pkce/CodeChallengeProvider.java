@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.Base64;
 
-@RequiresApi(api = Build.VERSION_CODES.R)
 public class CodeChallengeProvider {
   public static final String TAG = "CodeChallengeProvider";
 
@@ -25,14 +24,15 @@ public class CodeChallengeProvider {
       @NonNull CodeChallengeMethod method,
       @NonNull String codeVerifier) throws NoSuchAlgorithmException {
 
-    return method == CodeChallengeMethod.S256 ? sha256Generator(codeVerifier) : plainGenerator(codeVerifier);
+    return method == CodeChallengeMethod.S256 ?
+        sha256Generator(codeVerifier) : plainGenerator(codeVerifier);
   }
 
-  private String plainGenerator(String codeVerifier) {
+  private String plainGenerator(@NonNull String codeVerifier) {
     return codeVerifier;
   }
 
-  private String sha256Generator(String codeVerifier) throws NoSuchAlgorithmException {
+  private String sha256Generator(@NonNull String codeVerifier) throws NoSuchAlgorithmException {
     byte[] bytes = codeVerifier.getBytes();
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
     messageDigest.update(bytes, 0, bytes.length);

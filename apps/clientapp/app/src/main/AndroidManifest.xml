@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".AuthenticationActivity"
+                android:name=".AuthorizationActivity"
                 android:launchMode="singleTop"
                 android:exported="true">
             <intent-filter>
