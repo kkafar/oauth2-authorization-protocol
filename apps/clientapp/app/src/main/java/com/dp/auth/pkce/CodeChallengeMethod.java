@@ -5,7 +5,7 @@ package com.dp.auth.pkce;
  */
 public enum CodeChallengeMethod {
   PLAIN("plain"),
-  S256("S256");
+  S256("s256");
 
   private final String asString;
 
