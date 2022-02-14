@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="client_id">MOCK_CLIENT_ID</string>
+    <string name="client_id">kafaraapp</string>
 </resources>

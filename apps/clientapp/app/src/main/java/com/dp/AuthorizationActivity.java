@@ -3,6 +3,7 @@ package com.dp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Browser;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +37,9 @@ public class AuthorizationActivity extends AppCompatActivity {
 
     CustomTabsIntent.Builder CTIBuilder = new CustomTabsIntent.Builder();
     CustomTabsIntent intent = CTIBuilder.build();
+    Bundle headers = new Bundle();
+    headers.putString("content-type", "application/x-www-form-urlencoded");
+    intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
     intent.launchUrl(this, authorizationRequest.toUri());
   }
 

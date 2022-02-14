@@ -37,7 +37,7 @@ public class AuthorizationRequest {
     mState = state;
     mScopesSet = scopesSet;
     mCodeChallenge = codeChallenge;
-    mCodeChallengeMethod = codeChallengeMethod == null ? CodeChallengeMethod.PLAIN.toString() : codeChallenge.toString();
+    mCodeChallengeMethod = codeChallengeMethod == null ? CodeChallengeMethod.PLAIN.toString() : codeChallengeMethod.toString();
   };
 
   public Uri toUri() {
