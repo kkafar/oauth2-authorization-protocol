@@ -1,5 +1,6 @@
 package com.dp.ui.init;
 
+
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -7,12 +8,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dp.R;
 import com.dp.data.viewmodels.UserViewModel;
 import com.dp.data.viewmodels.UserViewModelFactory;
 import com.dp.databinding.FragmentInitBinding;
@@ -46,7 +49,11 @@ public class InitFragment extends Fragment {
 
 
     mBinding.nextButton.setOnClickListener(_view -> {
-
+      if (mViewModel.isUserLoggedIn()) {
+        Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_userDataFragment);
+      } else {
+        Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_loginFragment);
+      }
     });
   }
 }
