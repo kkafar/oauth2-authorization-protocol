@@ -3,14 +3,14 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/nav_graph"
-        app:startDestination="@id/loginFragment">
+        app:startDestination="@id/initFragment">
     <fragment
             android:id="@+id/loginFragment"
             android:name="com.dp.LoginFragment"
             android:label="fragment_login"
             tools:layout="@layout/fragment_login" >
         <action
-                android:id="@+id/action_loginFragment_to_userDataFragment2"
+                android:id="@+id/action_loginFragment_to_userDataFragment"
                 app:destination="@id/userDataFragment" />
     </fragment>
     <fragment
@@ -19,11 +19,19 @@
             android:label="fragment_user_data"
             tools:layout="@layout/fragment_user_data" >
         <action
-                android:id="@+id/action_userDataFragment2_to_loginFragment"
+                android:id="@+id/action_userDataFragment_to_loginFragment"
                 app:destination="@id/loginFragment" />
     </fragment>
-    <activity
-            android:id="@+id/authorizationActivity2"
-            android:name="com.dp.AuthorizationActivity"
-            android:label="AuthorizationActivity" />
+    <fragment
+            android:id="@+id/initFragment"
+            android:name="com.dp.ui.init.InitFragment"
+            android:label="fragment_init"
+            tools:layout="@layout/fragment_init" >
+        <action
+                android:id="@+id/action_initFragment_to_loginFragment"
+                app:destination="@id/loginFragment" />
+        <action
+                android:id="@+id/action_initFragment_to_userDataFragment"
+                app:destination="@id/userDataFragment" />
+    </fragment>
 </navigation>

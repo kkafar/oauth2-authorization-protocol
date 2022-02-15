@@ -1,36 +1,51 @@
 package com.dp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.dp.data.viewmodels.AuthorizationViewModel;
+import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityMainBinding;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+  public final String TAG = "MainActivity";
 
   private AppBarConfiguration mAppBarConfiguration;
   private ActivityMainBinding mBinding;
+  private AuthorizationViewModel mAuthorizationViewModel;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.d(TAG, "onCreate");
 
     mBinding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(mBinding.getRoot());
 
     setSupportActionBar(mBinding.toolbar);
 
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+    NavController navController = getNavController();
     mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
     NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+
+    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
+        .get(AuthorizationViewModel.class);
+
   }
 
   @Override
@@ -57,8 +72,22 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public boolean onSupportNavigateUp() {
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+    NavController navController = getNavController();
     return NavigationUI.navigateUp(navController, mAppBarConfiguration)
         || super.onSupportNavigateUp();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    Log.d(TAG, "onNewIntent");
+  }
+
+  private NavController getNavController() {
+    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+    if (!(fragment instanceof NavHostFragment)) {
+      throw new IllegalStateException("Activity " + this + " does not have a NavHostFragment");
+    }
+    return ((NavHostFragment) fragment).getNavController();
   }
 }

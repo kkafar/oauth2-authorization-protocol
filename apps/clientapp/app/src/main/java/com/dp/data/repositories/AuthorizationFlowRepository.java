@@ -1,6 +1,5 @@
 package com.dp.data.repositories;
 
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -8,7 +7,7 @@ import androidx.annotation.NonNull;
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
-import com.dp.data.model.AuthorizationRequest;
+import com.dp.auth.AuthorizationRequest;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;

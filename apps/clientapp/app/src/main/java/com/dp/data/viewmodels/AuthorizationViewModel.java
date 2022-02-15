@@ -3,8 +3,7 @@ package com.dp.data.viewmodels;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import com.dp.R;
-import com.dp.data.model.AuthorizationRequest;
+import com.dp.auth.AuthorizationRequest;
 import com.dp.data.repositories.AuthorizationFlowRepository;
 import com.dp.data.repositories.AuthorizationServerRepository;
 

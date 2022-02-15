@@ -20,11 +20,14 @@
                 android:name=".MainActivity"
                 android:exported="true"
                 android:label="@string/app_name"
+                android:launchMode="singleTop"
                 android:theme="@style/Theme.App.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:host="callback" android:scheme="auth" />
             </intent-filter>
         </activity>
         <activity
@@ -35,10 +38,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="callback" android:scheme="auth" />
+                <data android:host="callback2" android:scheme="auth" />
             </intent-filter>
-
         </activity>
     </application>
-
 </manifest>

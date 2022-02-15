@@ -1,12 +1,10 @@
-package com.dp.data.model;
+package com.dp.auth;
 
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.dp.auth.OAuthHttpsQueryParameter;
 import com.dp.auth.pkce.CodeChallengeMethod;
-import com.dp.auth.AuthorizationServerEndpointName;
 
 import java.util.Set;
 
