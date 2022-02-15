@@ -10,12 +10,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.databinding.FragmentLoginBinding;
 
 public class LoginFragment extends Fragment {
   public static final String TAG = "LoginFragment";
 
   private FragmentLoginBinding mBinding;
+  private AuthorizationViewModel mAuthViewModel;
 
 
   @Override
@@ -33,6 +35,7 @@ public class LoginFragment extends Fragment {
     mBinding.loginButton.setOnClickListener(_view -> {
       Log.d(TAG, "Log in button pressed");
       Intent intent = new Intent(getActivity(), AuthorizationActivity.class);
+      Log.d(TAG, "Launching intent from activity " + getActivity());
       startActivity(intent);
     });
   }

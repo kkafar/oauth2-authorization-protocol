@@ -1,6 +1,7 @@
 package com.dp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
+import com.dp.data.viewmodels.UserViewModel;
+import com.dp.data.viewmodels.UserViewModelFactory;
 import com.dp.databinding.ActivityMainBinding;
 
 import android.util.Log;
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
   private AppBarConfiguration mAppBarConfiguration;
   private ActivityMainBinding mBinding;
   private AuthorizationViewModel mAuthorizationViewModel;
+  private UserViewModel mUserViewModel;
 
 
   @Override
@@ -46,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
         .get(AuthorizationViewModel.class);
 
+    mUserViewModel = new ViewModelProvider(this, new UserViewModelFactory())
+        .get(UserViewModel.class);
   }
 
   @Override
@@ -80,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    Log.d(TAG, "onNewIntent");
   }
 
   private NavController getNavController() {

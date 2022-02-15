@@ -1,14 +1,16 @@
-package com.dp.auth;
+package com.dp.auth.model;
 
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import com.dp.auth.AuthorizationServerEndpointName;
+import com.dp.auth.OAuthHttpsQueryParameter;
 import com.dp.auth.pkce.CodeChallengeMethod;
 
 import java.util.Set;
 
-public class AuthorizationRequest {
+public final class AuthorizationRequest {
   public final String mAuthServerAuthority;
   public final String mRedirectUri;
   public final String mClientId;

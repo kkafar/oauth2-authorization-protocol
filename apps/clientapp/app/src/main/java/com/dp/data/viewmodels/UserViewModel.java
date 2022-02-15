@@ -26,6 +26,6 @@ public class UserViewModel extends ViewModel {
   public boolean isUserLoggedIn() {
     // MOCK IMPL
 //    return mUserState.getValue().isLoggedIn();
-    return true;
+    return false;
   }
 }

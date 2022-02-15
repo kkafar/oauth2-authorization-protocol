@@ -44,14 +44,16 @@ public class InitFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
     Log.d(TAG, "onViewCreated");
 
-    mViewModel = new ViewModelProvider(this, new UserViewModelFactory())
+    mViewModel = new ViewModelProvider(requireActivity(), new UserViewModelFactory())
         .get(UserViewModel.class);
 
 
     mBinding.nextButton.setOnClickListener(_view -> {
       if (mViewModel.isUserLoggedIn()) {
+        Log.d(TAG, "User has valid access token. Navigating to data screen.");
         Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_userDataFragment);
       } else {
+        Log.d(TAG, "User does NOT have valid access token. Navigating to login screen.");
         Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_loginFragment);
       }
     });

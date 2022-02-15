@@ -3,11 +3,13 @@ package com.dp.data.repositories;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
-import com.dp.auth.AuthorizationRequest;
+import com.dp.auth.model.AuthorizationRequest;
+import com.dp.auth.pkce.StateProvider;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
@@ -16,6 +18,9 @@ public class AuthorizationFlowRepository {
   private final String TAG = "AuthorizationFlowRepository";
 
   private static volatile AuthorizationFlowRepository instance;
+
+  @Nullable
+  private AuthorizationRequest mAuthorizationRequest = null;
 
   private AuthorizationFlowRepository() {}
 
@@ -26,7 +31,19 @@ public class AuthorizationFlowRepository {
     return instance;
   }
 
-  public AuthorizationRequest getAuthorizationRequest (
+  @Nullable
+  public AuthorizationRequest getLatestAuthorizationRequest() {
+    return mAuthorizationRequest;
+  }
+
+  @Nullable
+  public AuthorizationRequest consumeAuthorizationRequest() {
+    AuthorizationRequest request = mAuthorizationRequest;
+    mAuthorizationRequest = null;
+    return request;
+  }
+
+  public AuthorizationRequest createNewAuthorizationRequest(
       @NonNull String authServerAuthority,
       @NonNull String clientId,
       String redirectUri,
@@ -60,10 +77,9 @@ public class AuthorizationFlowRepository {
 
     assert codeChallenge != null;
 
-    String state = "MOCK_STATE";
+    String state = new StateProvider().generate();
 
-    // TODO: Return AuthorizationRequest
-    return new AuthorizationRequest(
+    mAuthorizationRequest = new AuthorizationRequest(
         authServerAuthority,
         clientId,
         responseType,
@@ -73,5 +89,7 @@ public class AuthorizationFlowRepository {
         state,
         scopes
     );
+
+    return mAuthorizationRequest;
   }
 }

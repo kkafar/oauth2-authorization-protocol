@@ -5,7 +5,6 @@ import java.security.SecureRandom;
 
 
 public class CodeVerifierProvider {
-  private static final char[] ALPHABET = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm0123456789-._~".toCharArray();
   private static final int MAX_LENGTH = 128;
   private static final int MIN_LENGTH = 43;
 
