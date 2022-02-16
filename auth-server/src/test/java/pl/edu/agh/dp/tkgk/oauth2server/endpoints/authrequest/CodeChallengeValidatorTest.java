@@ -70,7 +70,7 @@ class CodeChallengeValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"plain", "s256"})
+    @ValueSource(strings = {"plain", "S256", "s256"})
     public void whenEverythingIsRight_thenShouldCallNextHandler(String codeMethod){
         HashMap<String, List<String>> parameters = new HashMap<>();
         parameters.put("redirect_uri", List.of("http"));
