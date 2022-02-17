@@ -53,7 +53,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
             }
 
-            if (!authorizationCodeValid(bodyDecoder)) {
+            if (!authorizationCodeValid()) {
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_GRANT, true);
             }
 
@@ -61,7 +61,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.INVALID_REQUEST, true);
             }
 
-            if (!codeVerifierValid(bodyDecoder)) {
+            if (!codeVerifierValid()) {
                 return director.constructJsonBadRequestErrorResponse(responseBuilder, HttpRequestError.UNAUTHORIZED_CLIENT, true);
             }
 
@@ -86,7 +86,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         codeVerifierOptional = bodyDecoder.fetchAttribute(HttpParameters.CODE_VERIFIER);
         return codeVerifierOptional.isEmpty();
     }
-    private boolean authorizationCodeValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException {
+    private boolean authorizationCodeValid() throws IOException {
         String authorizationCodeString = authorizationCodeOptional.get();
         Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(authorizationCodeString);
 
@@ -97,7 +97,7 @@ public class AuthorizationCodeGrantTokenRequestValidator extends BaseHandler<Htt
         return authorizationCode.isActive() && !authorizationCode.isUsed();
     }
 
-    private boolean codeVerifierValid(HttpPostRequestBodyDecoder bodyDecoder) throws IOException, NoSuchAlgorithmException {
+    private boolean codeVerifierValid() throws IOException, NoSuchAlgorithmException {
         String codeVerifier = codeVerifierOptional.get();
 
         CodeChallengeMethod codeChallengeMethod = authorizationCode.getCodeChallengeMethod();

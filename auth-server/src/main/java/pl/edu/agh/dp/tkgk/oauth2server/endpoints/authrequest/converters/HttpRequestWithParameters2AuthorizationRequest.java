@@ -7,10 +7,11 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.AuthorizationReques
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithParameters;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
-import static pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters.*;
 
 import java.util.List;
 import java.util.Set;
+
+import static pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters.*;
 
 public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<HttpRequestWithParameters, AuthorizationRequest> {
     public static final String LOGIN = "login";

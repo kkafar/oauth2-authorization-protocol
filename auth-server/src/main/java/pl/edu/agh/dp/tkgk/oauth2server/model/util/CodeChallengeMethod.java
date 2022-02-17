@@ -1,7 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 
 public enum CodeChallengeMethod {

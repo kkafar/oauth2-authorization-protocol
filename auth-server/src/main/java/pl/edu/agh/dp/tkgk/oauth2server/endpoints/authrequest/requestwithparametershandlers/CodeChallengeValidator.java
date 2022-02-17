@@ -8,8 +8,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.HttpRequestWithPara
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.CodeChallengeMethod;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.HttpParameters;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 

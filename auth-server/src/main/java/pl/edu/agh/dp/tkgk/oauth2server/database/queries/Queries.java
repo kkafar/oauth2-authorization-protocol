@@ -24,12 +24,12 @@ public class Queries {
         genericQueries.addObjectsToCollection(newObjects, objects);
     }
 
-    public <T, K> boolean deleteObjectsFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
+    public <T> boolean deleteObjectsFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
         Bson filter = eq(fieldName, fieldValue);
         return genericQueries.deleteObjectsFromCollection(objects, filter);
     }
 
-    public <T, K> boolean deleteObjectFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
+    public <T> boolean deleteObjectFromCollection(MongoCollection<T> objects, String fieldName, String fieldValue) {
         Bson filter = eq(fieldName, fieldValue);
         return genericQueries.deleteObjectFromCollection(objects, filter);
     }
