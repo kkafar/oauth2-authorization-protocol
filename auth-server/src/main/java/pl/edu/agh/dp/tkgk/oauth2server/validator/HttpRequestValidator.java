@@ -21,7 +21,8 @@ public record HttpRequestValidator(FullHttpRequest request, HttpPostRequestDecod
 
     public boolean validContentType(AsciiString validContentType) {
         HttpHeaders headers = request.headers();
-        return headers.contains(HttpHeaderNames.CONTENT_TYPE, validContentType, true);
+        String contentTypeValue = headers.get(HttpHeaderNames.CONTENT_TYPE);
+        return contentTypeValue.contains(validContentType);
     }
 
     public boolean hasTokenInRequestBody() {
