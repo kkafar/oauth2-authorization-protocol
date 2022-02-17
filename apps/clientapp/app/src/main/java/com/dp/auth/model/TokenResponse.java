@@ -40,8 +40,11 @@ public final class TokenResponse {
     return intent;
   }
 
-  public TokenResponse fromIntent(@NonNull Intent intent) {
-    Bundle data = intent.getExtras();
+  public static TokenResponse fromIntent(@NonNull Intent intent) {
+    return fromBundle(intent.getExtras());
+  }
+
+  public static TokenResponse fromBundle(@NonNull Bundle data) {
     return new TokenResponse(
         data.getString("access_token"),
         data.getString("token_type"),

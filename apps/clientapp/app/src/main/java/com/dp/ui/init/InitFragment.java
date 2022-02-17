@@ -16,14 +16,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dp.R;
-import com.dp.data.viewmodels.UserViewModel;
-import com.dp.data.viewmodels.UserViewModelFactory;
+import com.dp.data.viewmodels.UserAuthViewModel;
+import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.databinding.FragmentInitBinding;
 
 public class InitFragment extends Fragment {
   public static final String TAG = "WelcomeFragment";
 
-  private UserViewModel mViewModel;
+  private UserAuthViewModel mViewModel;
   private FragmentInitBinding mBinding;
 
   public static InitFragment newInstance() {
@@ -44,12 +44,12 @@ public class InitFragment extends Fragment {
     super.onViewCreated(view, savedInstanceState);
     Log.d(TAG, "onViewCreated");
 
-    mViewModel = new ViewModelProvider(requireActivity(), new UserViewModelFactory())
-        .get(UserViewModel.class);
+    mViewModel = new ViewModelProvider(requireActivity(), new UserAuthViewModelFactory())
+        .get(UserAuthViewModel.class);
 
 
     mBinding.nextButton.setOnClickListener(_view -> {
-      if (mViewModel.isUserLoggedIn()) {
+      if (mViewModel.getUserAuthState().getValue().isLoggedIn()) {
         Log.d(TAG, "User has valid access token. Navigating to data screen.");
         Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_userDataFragment);
       } else {

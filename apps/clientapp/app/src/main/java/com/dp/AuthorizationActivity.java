@@ -77,11 +77,7 @@ public class AuthorizationActivity extends AppCompatActivity {
     Log.d(TAG, "Authorization code grant granted by server: " + response.mCode);
 
     TokenResponse tokenResponse = mAuthViewModel.sendTokenRequest(response);
-
-    Intent resultIntent = new Intent();
-    resultIntent.putExtra("token", tokenResponse.getAccessToken());
-    resultIntent.putExtra("token_type", tokenResponse.getTokenType());
-    resultIntent.putExtra("expires_in", tokenResponse.getExpireTime());
+    Intent resultIntent = tokenResponse.toIntent();
     setResult(RESULT_OK, resultIntent);
     finish();
 

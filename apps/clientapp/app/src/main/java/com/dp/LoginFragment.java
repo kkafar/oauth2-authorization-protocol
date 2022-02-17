@@ -11,9 +11,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
+import com.dp.auth.model.TokenResponse;
 import com.dp.data.viewmodels.AuthorizationViewModel;
+import com.dp.data.viewmodels.UserAuthViewModel;
+import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.databinding.FragmentLoginBinding;
+import com.dp.ui.UserAuthState;
 
 public class LoginFragment extends Fragment {
   public final String TAG = "LoginFragment";
@@ -21,7 +27,7 @@ public class LoginFragment extends Fragment {
   private final int LOGIN_REQUEST_CODE = 0;
 
   private FragmentLoginBinding mBinding;
-  private AuthorizationViewModel mAuthViewModel;
+  private UserAuthViewModel mUserAuthViewModel;
 
 
   @Override
@@ -42,6 +48,9 @@ public class LoginFragment extends Fragment {
       Log.d(TAG, "Launching intent from activity " + getActivity());
       startActivityForResult(intent, LOGIN_REQUEST_CODE);
     });
+
+    mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
+        .get(UserAuthViewModel.class);
   }
 
   @Override
@@ -62,9 +71,13 @@ public class LoginFragment extends Fragment {
 
   private void handleLoginActivityResult(int resultCode, @Nullable Intent data) {
     if (resultCode == Activity.RESULT_OK) {
-
+      Log.d(TAG, "Login activity resulted in success");
+      assert data != null;
+      mUserAuthViewModel.changeUserAuthState(new UserAuthState(true, TokenResponse.fromIntent(data)));
+      Log.d(TAG, "Navigating to user data fragment");
+      Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_userDataFragment);
     } else if (resultCode == Activity.RESULT_CANCELED) { // login did not succeed
-
+      Log.d(TAG, "Login activity resulted in failure");
     }
   }
 }

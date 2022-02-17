@@ -1,7 +1,6 @@
 package com.dp;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,15 +8,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
-import com.dp.data.viewmodels.UserViewModel;
-import com.dp.data.viewmodels.UserViewModelFactory;
+import com.dp.data.viewmodels.UserAuthViewModel;
+import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.databinding.ActivityMainBinding;
 
 import android.util.Log;
@@ -29,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
   private AppBarConfiguration mAppBarConfiguration;
   private ActivityMainBinding mBinding;
-  private AuthorizationViewModel mAuthorizationViewModel;
-  private UserViewModel mUserViewModel;
+//  private AuthorizationViewModel mAuthorizationViewModel;
+  private UserAuthViewModel mUserAuthViewModel;
 
 
   @Override
@@ -47,11 +45,11 @@ public class MainActivity extends AppCompatActivity {
     mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
     NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
 
-    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
-        .get(AuthorizationViewModel.class);
+//    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
+//        .get(AuthorizationViewModel.class);
 
-    mUserViewModel = new ViewModelProvider(this, new UserViewModelFactory())
-        .get(UserViewModel.class);
+    mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
+        .get(UserAuthViewModel.class);
   }
 
   @Override
@@ -81,11 +79,6 @@ public class MainActivity extends AppCompatActivity {
     NavController navController = getNavController();
     return NavigationUI.navigateUp(navController, mAppBarConfiguration)
         || super.onSupportNavigateUp();
-  }
-
-  @Override
-  protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
   }
 
   private NavController getNavController() {

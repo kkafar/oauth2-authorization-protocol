@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dp.data.datasources.AuthorizationServerDataSource;
-import com.dp.data.repositories.AuthorizationFlowRepository;
+import com.dp.data.repositories.AuthorizationManager;
 import com.dp.data.repositories.AuthorizationServerRepository;
 
 public class AuthorizationViewModelFactory implements ViewModelProvider.Factory {
@@ -16,7 +16,7 @@ public class AuthorizationViewModelFactory implements ViewModelProvider.Factory 
     if (modelClass.isAssignableFrom(AuthorizationViewModel.class)) {
       return (T) new AuthorizationViewModel(
           AuthorizationServerRepository.getInstance(new AuthorizationServerDataSource()),
-          AuthorizationFlowRepository.getInstance());
+          AuthorizationManager.getInstance());
     } else {
       throw new IllegalArgumentException("Unknown ViewModel class");
     }

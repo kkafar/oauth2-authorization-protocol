@@ -15,10 +15,10 @@ import com.dp.auth.pkce.StateProvider;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
-public class AuthorizationFlowRepository {
+public final class AuthorizationManager {
   private final String TAG = "AuthorizationFlowRepository";
 
-  private static volatile AuthorizationFlowRepository instance;
+  private static volatile AuthorizationManager instance;
 
   @Nullable
   private AuthorizationRequest mAuthorizationRequest = null;
@@ -29,11 +29,11 @@ public class AuthorizationFlowRepository {
   @Nullable
   private String mCodeVerifier = null;
 
-  private AuthorizationFlowRepository() {}
+  private AuthorizationManager() {}
 
-  public static AuthorizationFlowRepository getInstance() {
+  public static AuthorizationManager getInstance() {
     if (instance == null) {
-      instance = new AuthorizationFlowRepository();
+      instance = new AuthorizationManager();
     }
     return instance;
   }

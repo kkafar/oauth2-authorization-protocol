@@ -1,10 +1,10 @@
 package com.dp.data.viewmodels;
 
-import android.text.TextPaint;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.dp.auth.AuthorizationResponseError;
@@ -14,8 +14,9 @@ import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.AuthorizationResponse;
 import com.dp.auth.model.TokenRequest;
 import com.dp.auth.model.TokenResponse;
-import com.dp.data.repositories.AuthorizationFlowRepository;
+import com.dp.data.repositories.AuthorizationManager;
 import com.dp.data.repositories.AuthorizationServerRepository;
+import com.dp.ui.UserAuthState;
 import com.google.gson.Gson;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -23,12 +24,10 @@ import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,16 +39,18 @@ import java.util.Set;
 public class AuthorizationViewModel extends ViewModel {
   public final String TAG = "AuthenticationViewModel";
 
+  private MutableLiveData<UserAuthState> mUserState = new MutableLiveData<>();
+
   private final AuthorizationServerRepository mAuthServerRepository;
-  private final AuthorizationFlowRepository mAuthFlowRepository;
+  private final AuthorizationManager mAuthFlowRepository;
   private final Gson gson;
 
   public AuthorizationViewModel(
       AuthorizationServerRepository authorizationServerRepository,
-      AuthorizationFlowRepository authorizationFlowRepository
+      AuthorizationManager authorizationManager
   ) {
     mAuthServerRepository = authorizationServerRepository;
-    mAuthFlowRepository = authorizationFlowRepository;
+    mAuthFlowRepository = authorizationManager;
     gson = new Gson();
   }
 
