@@ -11,7 +11,7 @@ public class TokenScopeVerifier {
     public static boolean isScopeSufficient(FullHttpRequest clientRequest, JSONObject clientTokenData) {
         List<String> requestedScope = getScopeAsList(clientRequest);
         List<String> accessibleScope = getScopeAsList(clientTokenData);
-        return accessibleScope.containsAll(requestedScope);
+        return accessibleScope.containsAll(requestedScope) || accessibleScope.contains("all");
     }
 
     private static List<String> getScopeAsList(FullHttpRequest request) {

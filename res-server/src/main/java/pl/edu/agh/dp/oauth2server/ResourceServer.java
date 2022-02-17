@@ -11,6 +11,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import pl.edu.agh.dp.oauth2server.datafetch.DataFetchHandler;
 import pl.edu.agh.dp.oauth2server.requestvalidation.RequestValidationHandler;
@@ -42,6 +44,7 @@ public class ResourceServer {
                             pipeline.addLast(sslContext.newHandler(channel.alloc()));
                             pipeline.addLast(new HttpServerCodec());
                             pipeline.addLast(new HttpObjectAggregator(1048576, false));
+                            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                             pipeline.addLast(new RequestValidationHandler());
                             pipeline.addLast(new TokenVerificationHandler());
                             pipeline.addLast(new TokenScopeVerificationHandler());
