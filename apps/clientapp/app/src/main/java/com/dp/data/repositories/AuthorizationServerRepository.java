@@ -1,5 +1,8 @@
 package com.dp.data.repositories;
 
+import androidx.annotation.NonNull;
+
+import com.dp.auth.AuthorizationServerEndpointName;
 import com.dp.data.datasources.AuthorizationServerDataSource;
 
 public class AuthorizationServerRepository {
@@ -20,7 +23,7 @@ public class AuthorizationServerRepository {
   }
 
   public String getAuthServerAddress() {
-    return mDataSource.getAuthorizationServerAddress();
+    return mDataSource.getAddress();
   }
 
   public String getAuthServerAuthority() {
@@ -28,7 +31,11 @@ public class AuthorizationServerRepository {
   }
 
   public String getAuthority() {
-    return mDataSource.getAuthorizationServerAddress()
-        .substring(mDataSource.getAuthorizationServerAddress().lastIndexOf('/') + 1);
+    return mDataSource.getAddress()
+        .substring(mDataSource.getAddress().lastIndexOf('/') + 1);
+  }
+
+  public String getAddressForEndpoint(@NonNull AuthorizationServerEndpointName endpointName) {
+    return mDataSource.getAddressForEndpoint(endpointName);
   }
 }

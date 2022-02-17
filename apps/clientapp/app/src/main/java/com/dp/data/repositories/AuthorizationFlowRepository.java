@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.dp.auth.model.TokenResponse;
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
@@ -22,6 +23,12 @@ public class AuthorizationFlowRepository {
   @Nullable
   private AuthorizationRequest mAuthorizationRequest = null;
 
+  @Nullable
+  private TokenResponse mTokenResponse = null;
+
+  @Nullable
+  private String mCodeVerifier = null;
+
   private AuthorizationFlowRepository() {}
 
   public static AuthorizationFlowRepository getInstance() {
@@ -37,9 +44,15 @@ public class AuthorizationFlowRepository {
   }
 
   @Nullable
+  public String getLatestCodeVerifier() {
+    return mCodeVerifier;
+  }
+
+  @Nullable
   public AuthorizationRequest consumeAuthorizationRequest() {
     AuthorizationRequest request = mAuthorizationRequest;
     mAuthorizationRequest = null;
+    mCodeVerifier = null;
     return request;
   }
 
@@ -89,7 +102,17 @@ public class AuthorizationFlowRepository {
         state,
         scopes
     );
+    mCodeVerifier = codeVerifier;
 
     return mAuthorizationRequest;
+  }
+
+  public void setTokenResponse(TokenResponse tokenResponse) {
+    mTokenResponse = tokenResponse;
+  }
+
+  @Nullable
+  public TokenResponse getLatestTokenResponse() {
+    return mTokenResponse;
   }
 }

@@ -27,20 +27,4 @@ public class UserLoginRepository {
     }
     return instance;
   }
-
-  @Nullable
-  public AuthorizationRequest getAuthorizationRequest() {
-    return mAuthorizationRequest;
-  }
-
-  private void setAuthorizationRequest(AuthorizationRequest request) {
-    mAuthorizationRequest = request;
-  }
-
-  @Nullable
-  public AuthorizationRequest consumeAuthorizationRequest() {
-    AuthorizationRequest request = mAuthorizationRequest;
-    mAuthorizationRequest = null;
-    return request;
-  }
 }

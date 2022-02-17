@@ -13,9 +13,17 @@ import androidx.lifecycle.ViewModelProvider;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.AuthorizationResponse;
+import com.dp.auth.model.TokenRequest;
+import com.dp.auth.model.TokenResponse;
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityAuthorizationBinding;
+
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+
+import java.io.IOException;
 
 public class AuthorizationActivity extends AppCompatActivity {
   public final String TAG = "AuthorizationActivity";
@@ -44,13 +52,7 @@ public class AuthorizationActivity extends AppCompatActivity {
 
     Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
 
-    CustomTabsIntent.Builder customTabsIntentBuilder = new CustomTabsIntent.Builder();
-    CustomTabsIntent intent = customTabsIntentBuilder.build();
-    Bundle headers = new Bundle();
-    headers.putString("content-type", "application/x-www-form-urlencoded");
-    intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
-    Log.d(TAG, "Launching custom tabs");
-    intent.launchUrl(this, authorizationRequestUri);
+    delegateAuthorizationRequestToCustomTabs(authorizationRequestUri);
   }
 
   @Override
@@ -67,9 +69,31 @@ public class AuthorizationActivity extends AppCompatActivity {
     } catch (InvalidAuthorizationResponseException exception) {
       Log.e(TAG, exception.getMessage());
       exception.printStackTrace();
+      setResult(RESULT_CANCELED, null);
+      finish();
     }
 
     Log.d(TAG, "Whole server response: " + intentData);
     Log.d(TAG, "Authorization code grant granted by server: " + response.mCode);
+
+    TokenResponse tokenResponse = mAuthViewModel.sendTokenRequest(response);
+
+    Intent resultIntent = new Intent();
+    resultIntent.putExtra("token", tokenResponse.getAccessToken());
+    resultIntent.putExtra("token_type", tokenResponse.getTokenType());
+    resultIntent.putExtra("expires_in", tokenResponse.getExpireTime());
+    setResult(RESULT_OK, resultIntent);
+    finish();
+
+  }
+
+  private void delegateAuthorizationRequestToCustomTabs(Uri request) {
+    CustomTabsIntent.Builder customTabsIntentBuilder = new CustomTabsIntent.Builder();
+    CustomTabsIntent intent = customTabsIntentBuilder.build();
+    Bundle headers = new Bundle();
+    headers.putString("content-type", "application/x-www-form-urlencoded");
+    intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
+    Log.d(TAG, "Launching custom tabs");
+    intent.launchUrl(this, request);
   }
 }

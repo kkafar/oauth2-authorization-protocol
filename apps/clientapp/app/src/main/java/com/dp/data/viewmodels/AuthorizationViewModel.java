@@ -1,25 +1,48 @@
 package com.dp.data.viewmodels;
 
+import android.text.TextPaint;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModel;
 
 import com.dp.auth.AuthorizationResponseError;
+import com.dp.auth.AuthorizationServerEndpointName;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.AuthorizationResponse;
+import com.dp.auth.model.TokenRequest;
+import com.dp.auth.model.TokenResponse;
 import com.dp.data.repositories.AuthorizationFlowRepository;
 import com.dp.data.repositories.AuthorizationServerRepository;
+import com.google.gson.Gson;
 
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HeaderElement;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AuthorizationViewModel extends ViewModel {
   public final String TAG = "AuthenticationViewModel";
 
-  private AuthorizationServerRepository mAuthServerRepository;
-  private AuthorizationFlowRepository mAuthFlowRepository;
+  private final AuthorizationServerRepository mAuthServerRepository;
+  private final AuthorizationFlowRepository mAuthFlowRepository;
+  private final Gson gson;
 
   public AuthorizationViewModel(
       AuthorizationServerRepository authorizationServerRepository,
@@ -27,6 +50,7 @@ public class AuthorizationViewModel extends ViewModel {
   ) {
     mAuthServerRepository = authorizationServerRepository;
     mAuthFlowRepository = authorizationFlowRepository;
+    gson = new Gson();
   }
 
 
@@ -46,9 +70,29 @@ public class AuthorizationViewModel extends ViewModel {
     );
   }
 
+  public TokenRequest createNewTokenRequest(AuthorizationResponse serverResponse) {
+    AuthorizationRequest baseAuthorizationRequest = getLatestAuthorizationRequest();
+    if (baseAuthorizationRequest == null) {
+      throw new IllegalStateException("TODO");
+    }
+
+    return new TokenRequest(
+        "authorization_code",
+        serverResponse.mCode,
+        baseAuthorizationRequest.mRedirectUri,
+        baseAuthorizationRequest.mClientId,
+        getLatestCodeVerifier()
+    );
+  }
+
   @Nullable
   public AuthorizationRequest getLatestAuthorizationRequest() {
     return mAuthFlowRepository.getLatestAuthorizationRequest();
+  }
+
+  @Nullable
+  public String getLatestCodeVerifier() {
+    return mAuthFlowRepository.getLatestCodeVerifier();
   }
 
   public void validateAuthorizationResponse(AuthorizationResponse authorizationResponse)
@@ -83,5 +127,52 @@ public class AuthorizationViewModel extends ViewModel {
     if (invalid) {
       throw new InvalidAuthorizationResponseException(errorMessageBuilder.toString());
     }
+  }
+
+  public TokenResponse sendTokenRequest(AuthorizationResponse response) {
+    Log.d(TAG, "Sending Token request");
+    Thread connectionExecutor = new Thread(() -> {
+      try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        HttpPost httpPostRequest = new HttpPost(mAuthServerRepository
+            .getAddressForEndpoint(AuthorizationServerEndpointName.TOKEN));
+
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("grant_type", "authorization_code"));
+        parameters.add(new BasicNameValuePair("code", response.mCode));
+        parameters.add(new BasicNameValuePair("redirect_uri", mAuthFlowRepository.getLatestAuthorizationRequest().mRedirectUri));
+        parameters.add(new BasicNameValuePair("client_id", mAuthFlowRepository.getLatestAuthorizationRequest().mClientId));
+        parameters.add(new BasicNameValuePair("code_verifier", mAuthFlowRepository.getLatestCodeVerifier()));
+
+        httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
+        try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
+          Log.d(TAG, "AUTH SERVER RESPONSE FOR TOKEN REQUEST");
+          Log.d(TAG, httpResponse.toString());
+          Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
+          Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
+          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
+          httpResponse.getEntity().getContent().read(bytes);
+          Log.d(TAG, new String(bytes));
+          TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
+          mAuthFlowRepository.setTokenResponse(tokenResponse);
+        } catch (Exception exception) {
+          if (exception.getMessage() != null) {
+            Log.e(TAG, exception.getMessage());
+          }
+          exception.printStackTrace();
+        }
+      } catch (IOException exception) {
+        if (exception.getMessage() != null) {
+          Log.e(TAG, exception.getMessage());
+        }
+        exception.printStackTrace();
+      }
+    });
+
+    connectionExecutor.start();
+    try {
+      connectionExecutor.join(5000);
+    } catch (InterruptedException ignore) {
+    }
+    return mAuthFlowRepository.getLatestTokenResponse();
   }
 }
