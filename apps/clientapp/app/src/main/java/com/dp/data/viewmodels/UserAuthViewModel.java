@@ -14,8 +14,10 @@ public class UserAuthViewModel extends ViewModel {
   public final String TAG = "UserAuthViewModel";
   private MutableLiveData<UserAuthState> mUserState = new MutableLiveData<>(new UserAuthState(false));
   private UserAuthRepository mUserAuthRepository;
+  private AuthorizationManager mAuthorizationManager;
 
   UserAuthViewModel(UserAuthRepository userAuthRepository, AuthorizationManager authorizationManager) {
+    mAuthorizationManager = authorizationManager;
     mUserAuthRepository = userAuthRepository;
   }
 
@@ -37,5 +39,6 @@ public class UserAuthViewModel extends ViewModel {
   }
 
   public void revokeToken() {
+    mAuthorizationManager.revokeToken();
   }
 }

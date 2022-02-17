@@ -11,14 +11,33 @@ import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.pkce.StateProvider;
+import com.dp.data.datasources.AuthorizationServerDataSource;
+import com.dp.ui.userdata.UserDataState;
+import com.google.gson.Gson;
 
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 public final class AuthorizationManager {
   private final String TAG = "AuthorizationFlowRepository";
 
   private static volatile AuthorizationManager instance;
+  private AuthorizationServerDataSource mAuthorizationServerDataSource;
 
   @Nullable
   private AuthorizationRequest mAuthorizationRequest = null;
@@ -29,8 +48,12 @@ public final class AuthorizationManager {
   @Nullable
   private String mCodeVerifier = null;
 
+  private Gson gson;
+
   private AuthorizationManager() {
     Log.d(TAG, "CTOR");
+    mAuthorizationServerDataSource = new AuthorizationServerDataSource();
+    gson = new Gson();
   }
 
   public static AuthorizationManager getInstance() {
@@ -122,5 +145,50 @@ public final class AuthorizationManager {
 
   public String getLatestToken() {
     return mTokenResponse.getAccessToken();
+  }
+
+  public void revokeToken() {
+    String token = getLatestToken();
+    if (token == null) {
+      return;
+    }
+    Thread connectionExecutor = new Thread(() -> {
+      try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        HttpPost httpPostRequest = new HttpPost(mAuthorizationServerDataSource.getAddressOfRevocationEndpoint());
+        httpPostRequest.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("token", token));
+
+        httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
+        try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
+          Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
+          Log.d(TAG, httpResponse.toString());
+          Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
+          Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
+          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
+          httpResponse.getEntity().getContent().read(bytes);
+          Log.d(TAG, new String(bytes));
+//           = gson.fromJson(new String(bytes), UserDataState.class);
+        } catch (Exception exception) {
+          if (exception.getMessage() != null) {
+            Log.e(TAG, exception.getMessage());
+          }
+          exception.printStackTrace();
+        }
+      } catch (IOException exception) {
+        if (exception.getMessage() != null) {
+          Log.e(TAG, exception.getMessage());
+        }
+        exception.printStackTrace();
+      }
+    });
+  connectionExecutor.start();
+
+  try {
+    connectionExecutor.join(5000);
+  } catch (Exception ignore) {
+
+  }
   }
 }
