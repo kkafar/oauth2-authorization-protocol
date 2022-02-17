@@ -3,7 +3,6 @@ package com.dp.data.viewmodels;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.provider.Browser;
 import android.util.Log;
 
@@ -190,7 +189,7 @@ public class AuthorizationViewModel extends ViewModel {
   public AuthStatus authorize(Context appContext) {
     Log.d(TAG, "authorize");
     // check if there is something in database
-    UserAuthInfoDao dao = mDatabase.userAuthInfo();
+    UserAuthInfoDao dao = mDatabase.userAuthInfoDao();
     UserAuthInfo userAuthInfo = dao.findById(0);
 
 
@@ -237,14 +236,7 @@ public class AuthorizationViewModel extends ViewModel {
     long currentTime = System.currentTimeMillis() / 1000;
     long expireTime = userAuthInfo.tokenExpiresIn;
 
-    if (acquireTime + expireTime > currentTime){
-      Log.d(TAG, Long.toString(acquireTime) + " + " + expireTime + " > " + currentTime);
-      Log.d(TAG, "userHasValidToken returns true");
-      return true;
-    }
-    Log.d(TAG, Long.toString(acquireTime) + " + " + expireTime + " <= " + currentTime);
-    Log.d(TAG, "userHasValid token returns false");
-    return false;
+    return acquireTime + expireTime > currentTime;
   }
 
   private boolean userHasRefreshToken(UserAuthInfo userAuthInfo) {

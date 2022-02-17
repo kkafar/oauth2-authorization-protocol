@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
+
 
 public final class AuthorizationManager {
   private final String TAG = "AuthorizationFlowRepository";
@@ -137,7 +137,7 @@ public final class AuthorizationManager {
     );
 
     Thread executor = new Thread(() -> {
-      UserAuthInfoDao dao = mDatabase.userAuthInfo();
+      UserAuthInfoDao dao = mDatabase.userAuthInfoDao();
       dao.insertUserAuthInfo(userAuthInfo);
     });
     executor.start();
@@ -162,7 +162,7 @@ public final class AuthorizationManager {
 
   public void setTokenResponse(TokenResponse tokenResponse) {
     mTokenResponse = tokenResponse;
-    UserAuthInfoDao dao = mDatabase.userAuthInfo();
+    UserAuthInfoDao dao = mDatabase.userAuthInfoDao();
     UserAuthInfo oldUserAuthInfo = dao.findById(0);
     dao.insertUserAuthInfo(new UserAuthInfo(
         0,
@@ -182,7 +182,10 @@ public final class AuthorizationManager {
   }
 
   public String getLatestToken() {
-    return mTokenResponse.getAccessToken();
+    if (mTokenResponse != null){
+      return mTokenResponse.getAccessToken();
+    }
+    return null;
   }
 
   public void revokeToken() {
@@ -212,7 +215,7 @@ public final class AuthorizationManager {
             Log.d(TAG, new String(bytes));
           }
 
-          UserAuthInfoDao dao = mDatabase.userAuthInfo();
+          UserAuthInfoDao dao = mDatabase.userAuthInfoDao();
           UserAuthInfo old = dao.findById(0);
           Log.d(TAG, "BEFORE REMOVAL");
           Log.d(TAG, old.toString());
@@ -270,8 +273,8 @@ public final class AuthorizationManager {
           byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
           httpResponse.getEntity().getContent().read(bytes);
           TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
-          UserAuthInfo old = mDatabase.userAuthInfo().findById(0);
-          mDatabase.userAuthInfo().insertUserAuthInfo(new UserAuthInfo(
+          UserAuthInfo old = mDatabase.userAuthInfoDao().findById(0);
+          mDatabase.userAuthInfoDao().insertUserAuthInfo(new UserAuthInfo(
               old.uid,
               old.authCode,
               old.codeVerifier,
