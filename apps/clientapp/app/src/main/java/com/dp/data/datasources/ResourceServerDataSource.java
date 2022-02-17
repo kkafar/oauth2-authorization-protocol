@@ -6,7 +6,7 @@ public class ResourceServerDataSource {
 
   public ResourceServerDataSource() {
 //    mAuthority = "ad01-31-182-161-222.ngrok.io";
-    mAuthority = "3293-91-123-181-221.ngrok.io";
+    mAuthority = "cc92-188-146-229-162.ngrok.io";
     mHttpsAddress = "https://" + mAuthority;
   }
 

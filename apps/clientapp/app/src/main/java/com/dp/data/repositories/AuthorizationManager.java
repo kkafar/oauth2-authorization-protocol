@@ -1,30 +1,24 @@
 package com.dp.data.repositories;
 
-import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.dp.R;
+import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.OperationStatus;
 import com.dp.auth.model.TokenResponse;
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
 import com.dp.auth.pkce.CodeVerifierProvider;
-import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.pkce.StateProvider;
 import com.dp.data.datasources.AuthorizationServerDataSource;
 import com.dp.database.AppDatabase;
 import com.dp.database.DatabaseProvider;
 import com.dp.database.dao.UserAuthInfoDao;
 import com.dp.database.entity.UserAuthInfo;
-import com.dp.ui.UserAuthState;
-import com.dp.ui.userdata.UserDataState;
 import com.google.gson.Gson;
 
-import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
