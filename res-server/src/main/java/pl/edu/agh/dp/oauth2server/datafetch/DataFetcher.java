@@ -18,7 +18,7 @@ public class DataFetcher {
             switch (dataType) {
                 case "username" -> data.put(dataType, MongoDatabaseFacade.getUsersUsername(userID));
                 case "mail" -> data.put(dataType, MongoDatabaseFacade.getUsersMail(userID));
-                case "post" -> data.put(dataType, MongoDatabaseFacade.getUsersPosts(userID));
+                case "nick" -> data.put(dataType, MongoDatabaseFacade.getUsersNick(userID));
             }
         }
 

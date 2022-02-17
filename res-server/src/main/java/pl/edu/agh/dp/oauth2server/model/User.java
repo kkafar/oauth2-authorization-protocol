@@ -16,19 +16,19 @@ public class User {
     private String userID;
     private String username;
     private String mail;
-    private List<String> posts;
+    private String nick;
 
     @BsonCreator
     public User(@BsonProperty(value = "_id") ObjectId id,
                 @BsonProperty("user_id") String userID,
                 @BsonProperty("username") String username,
                 @BsonProperty("mail") String mail,
-                @BsonProperty("posts") List<String> posts) {
+                @BsonProperty("posts") String nick) {
         this.id = id;
         this.userID = userID;
         this.username = username;
         this.mail = mail;
-        this.posts = posts;
+        this.nick = nick;
     }
 
     @Override
@@ -40,17 +40,17 @@ public class User {
                Objects.equals(userID, user.userID) &&
                Objects.equals(username, user.username) &&
                Objects.equals(mail, user.mail) &&
-               Objects.equals(posts, user.posts);
+               Objects.equals(nick, user.nick);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userID, username, mail, posts);
+        return Objects.hash(id, userID, username, mail, nick);
     }
 
     @Override
     public String toString() {
-        return "{ userID: " + userID + ", username: " + username + ", mail: " + mail + ", posts: " + posts.toString() + "}";
+        return "{ userID: " + userID + ", username: " + username + ", mail: " + mail + ", posts: " + nick + "}";
     }
 
     public ObjectId getId() {
@@ -85,11 +85,11 @@ public class User {
         this.mail = mail;
     }
 
-    public List<String> getPosts() {
-        return posts;
+    public String getNick() {
+        return nick;
     }
 
-    public void setPosts(List<String> posts) {
-        this.posts = posts;
+    public void setPosts(String nick) {
+        this.nick = nick;
     }
 }

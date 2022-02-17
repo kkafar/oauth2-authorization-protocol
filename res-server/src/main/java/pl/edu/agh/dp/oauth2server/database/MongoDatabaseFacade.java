@@ -22,9 +22,9 @@ public class MongoDatabaseFacade {
         return user.getMail();
     }
 
-    public static List<String> getUsersPosts (String userID) {
+    public static String getUsersNick (String userID) {
         User user = getUser(userID);
-        return user.getPosts();
+        return user.getNick();
     }
 
     private static User getUser(String userID) {

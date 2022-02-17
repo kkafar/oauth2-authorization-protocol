@@ -11,6 +11,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.CharsetUtil;
 import org.json.JSONObject;
@@ -34,8 +36,8 @@ public class TokenVerificationRequestManager {
     }
 
     private static boolean introspectToken(String token, String tokenTypeHint) {
-        String host = "localhost";
-        int port = 8008;
+        String host = "5ce7-185-233-24-186.ngrok.io";
+        int port = 443;
         String url = "https://" + host + ":" + port + "/introspect";
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -56,6 +58,7 @@ public class TokenVerificationRequestManager {
                             pipeline.addLast(sslContext.newHandler(channel.alloc()));
                             pipeline.addLast(new HttpClientCodec());
                             pipeline.addLast(new HttpObjectAggregator(1048576, false));
+                            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                             pipeline.addLast(introspectionHandler);
                         }
                     });
