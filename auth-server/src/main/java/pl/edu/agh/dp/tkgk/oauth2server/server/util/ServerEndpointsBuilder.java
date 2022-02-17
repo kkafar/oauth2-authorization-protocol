@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.Handler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.autherrorpage.ErrorPageResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.AuthorizationCodeResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.IdentityVerifier;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.ScopeAcceptedVerifier;
@@ -42,6 +43,12 @@ public class ServerEndpointsBuilder {
         buildTokenEndpoint();
         buildPingEndpoint();
         buildAuthorizationEndpoint();
+        buildAuthErrorPageEndpoint();
+    }
+
+    private void buildAuthErrorPageEndpoint() {
+        Handler<FullHttpRequest, ?> firstHandler = new ErrorPageResponder();
+        endpointHandlerMap.put("/auth_error", firstHandler);
     }
 
     private void buildRevocationEndpoint() {
