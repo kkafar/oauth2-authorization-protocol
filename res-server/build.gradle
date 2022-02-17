@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    implementation 'io.netty:netty-all:4.1.72.Final'
+    implementation 'com.auth0:java-jwt:3.18.2'
+    implementation 'org.json:json:20211205'
+    implementation 'org.mongodb:mongo-java-driver:3.12.10'
+}
+
+application {
+    mainClass = 'pl.edu.agh.dp.oauth2server.Launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
