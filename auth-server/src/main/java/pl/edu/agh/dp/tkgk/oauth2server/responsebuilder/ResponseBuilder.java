@@ -32,7 +32,7 @@ public abstract class ResponseBuilder<T> {
         setHeader(HttpHeaderNames.PRAGMA, HttpHeaderValues.NO_CACHE);
     }
 
-    FullHttpResponse getResponse() {
+    public FullHttpResponse getResponse() {
         FullHttpResponse response;
 
         if (content != null) {
