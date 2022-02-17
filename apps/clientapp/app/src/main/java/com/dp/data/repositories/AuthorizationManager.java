@@ -1,10 +1,14 @@
 package com.dp.data.repositories;
 
+import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.dp.R;
+import com.dp.auth.model.OperationStatus;
 import com.dp.auth.model.TokenResponse;
 import com.dp.auth.pkce.CodeChallengeMethod;
 import com.dp.auth.pkce.CodeChallengeProvider;
@@ -12,6 +16,11 @@ import com.dp.auth.pkce.CodeVerifierProvider;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.pkce.StateProvider;
 import com.dp.data.datasources.AuthorizationServerDataSource;
+import com.dp.database.AppDatabase;
+import com.dp.database.DatabaseProvider;
+import com.dp.database.dao.UserAuthInfoDao;
+import com.dp.database.entity.UserAuthInfo;
+import com.dp.ui.UserAuthState;
 import com.dp.ui.userdata.UserDataState;
 import com.google.gson.Gson;
 
@@ -38,6 +47,7 @@ public final class AuthorizationManager {
 
   private static volatile AuthorizationManager instance;
   private AuthorizationServerDataSource mAuthorizationServerDataSource;
+  private AppDatabase mDatabase;
 
   @Nullable
   private AuthorizationRequest mAuthorizationRequest = null;
@@ -54,6 +64,7 @@ public final class AuthorizationManager {
     Log.d(TAG, "CTOR");
     mAuthorizationServerDataSource = new AuthorizationServerDataSource();
     gson = new Gson();
+    mDatabase = DatabaseProvider.getInstance(null);
   }
 
   public static AuthorizationManager getInstance() {
@@ -119,6 +130,26 @@ public final class AuthorizationManager {
 
     String state = new StateProvider().generate();
 
+    UserAuthInfo userAuthInfo = new UserAuthInfo(
+        0,
+        null,
+        codeVerifier,
+        null,
+        null,
+        null,
+        -1,
+        -1
+    );
+
+    Thread executor = new Thread(() -> {
+      UserAuthInfoDao dao = mDatabase.userAuthInfo();
+      dao.insertUserAuthInfo(userAuthInfo);
+    });
+    executor.start();
+    try {
+      executor.join();
+    } catch (Exception ignore) {}
+
     mAuthorizationRequest = new AuthorizationRequest(
         authServerAuthority,
         clientId,
@@ -136,6 +167,18 @@ public final class AuthorizationManager {
 
   public void setTokenResponse(TokenResponse tokenResponse) {
     mTokenResponse = tokenResponse;
+    UserAuthInfoDao dao = mDatabase.userAuthInfo();
+    UserAuthInfo oldUserAuthInfo = dao.findById(0);
+    dao.insertUserAuthInfo(new UserAuthInfo(
+        0,
+        oldUserAuthInfo.authCode,
+        oldUserAuthInfo.codeVerifier,
+        tokenResponse.getAccessToken(),
+        tokenResponse.getRefreshToken(),
+        tokenResponse.getTokenType(),
+        tokenResponse.getExpireTime(),
+        System.currentTimeMillis() / 1000
+    ));
   }
 
   @Nullable
@@ -162,14 +205,18 @@ public final class AuthorizationManager {
 
         httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
         try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
-          Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
+          Log.d(TAG, "AUTH SERVER REVOKE TOKEN");
           Log.d(TAG, httpResponse.toString());
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
           Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
           byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
           httpResponse.getEntity().getContent().read(bytes);
           Log.d(TAG, new String(bytes));
-//           = gson.fromJson(new String(bytes), UserDataState.class);
+          UserAuthInfoDao dao = mDatabase.userAuthInfo();
+          dao.deleteUserAuthInfo(dao.findById(0));
+          mAuthorizationRequest = null;
+          mCodeVerifier = null;
+          mTokenResponse = null;
         } catch (Exception exception) {
           if (exception.getMessage() != null) {
             Log.e(TAG, exception.getMessage());
@@ -191,4 +238,75 @@ public final class AuthorizationManager {
 
   }
   }
+
+  public OperationStatus tryRefreshTokenRequest(String refreshToken) {
+    Thread connectionExecutor = new Thread(() -> {
+      try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        HttpPost httpPostRequest = new HttpPost(mAuthorizationServerDataSource.getAddressOfTokenEndpoint());
+        httpPostRequest.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+
+        List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("grant_type", "refresh_token"));
+        parameters.add(new BasicNameValuePair("refresh_token", refreshToken));
+
+        httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
+
+        try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
+          Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
+          Log.d(TAG, httpResponse.toString());
+          Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
+          Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
+          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
+          httpResponse.getEntity().getContent().read(bytes);
+          TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
+          UserAuthInfo old = mDatabase.userAuthInfo().findById(0);
+          mDatabase.userAuthInfo().insertUserAuthInfo(new UserAuthInfo(
+              old.uid,
+              old.authCode,
+              old.codeVerifier,
+              tokenResponse.getRefreshToken(),
+              old.refreshToken,
+              old.tokenType,
+              tokenResponse.getExpireTime(),
+              System.currentTimeMillis() / 1000
+          ));
+          Log.d(TAG, new String(bytes));
+        } catch (Exception exception) {
+          if (exception.getMessage() != null) {
+            Log.e(TAG, exception.getMessage());
+          }
+          exception.printStackTrace();
+        }
+      } catch (IOException exception) {
+        if (exception.getMessage() != null) {
+          Log.e(TAG, exception.getMessage());
+        }
+        exception.printStackTrace();
+      }
+    });
+
+    connectionExecutor.start();
+
+    try {
+      connectionExecutor.join(8000);
+    } catch (Exception ignore) {}
+
+    return new OperationStatus(true, null);
+  }
+
+//  public OperationStatus tryAcquireAuthorizationCode(Context appContext, AuthorizationRequest authorizationRequest) {
+//    AuthorizationRequest authorizationRequest =
+//        createNewAuthorizationRequest(appContext.getString(R.string.client_id),
+//            appContext.getResources().getStringArray(R.array.auth_required_scopes));
+//
+//    AuthorizationRequest authorizationRequest1 = createNewAuthorizationRequest(
+//
+//    )
+//
+//    Uri authorizationRequestUri = authorizationRequest.toUri();
+//
+//    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
+//
+//    delegateAuthorizationRequestToCustomTabs(appContext, authorizationRequestUri);
+//  }
 }

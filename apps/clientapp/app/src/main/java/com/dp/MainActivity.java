@@ -43,13 +43,14 @@ public class MainActivity extends AppCompatActivity {
     mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
     NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
 
+    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
+
 //    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
 //        .get(AuthorizationViewModel.class);
 
     mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
         .get(UserAuthViewModel.class);
 
-    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
   }
 
   @Override

@@ -9,10 +9,12 @@ import androidx.annotation.Nullable;
 public final class TokenResponse {
   private String access_token;
   private String token_type;
+  private String refresh_token;
   private int expires_in;
 
   public TokenResponse(String accessToken,
                        String tokenType,
+                       String refresh_token,
                        String expireTime) {
     access_token = accessToken;
     token_type = tokenType;
@@ -21,6 +23,10 @@ public final class TokenResponse {
 
   public String getAccessToken() {
     return access_token;
+  }
+
+  public String getRefreshToken() {
+    return refresh_token;
   }
 
   public String getTokenType() {
@@ -36,6 +42,7 @@ public final class TokenResponse {
     Intent intent = new Intent();
     intent.putExtra("access_token", access_token);
     intent.putExtra("token_type", token_type);
+    intent.putExtra("refresh_token", refresh_token);
     intent.putExtra("expires_in", Integer.toString(expires_in));
     return intent;
   }
@@ -48,6 +55,7 @@ public final class TokenResponse {
     return new TokenResponse(
         data.getString("access_token"),
         data.getString("token_type"),
+        data.getString("refresh_token"),
         data.getString("expires_in")
     );
   }

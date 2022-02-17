@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.dp.auth.AuthStatus;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
 import com.dp.auth.model.AuthorizationResponse;
 import com.dp.auth.model.TokenResponse;
@@ -34,7 +35,21 @@ public class AuthorizationActivity extends AppCompatActivity {
         this,
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-    mAuthViewModel.acquireAccessCodeGrant(this);
+
+    Thread executor = new Thread(() -> {
+      AuthStatus result =  mAuthViewModel.authorize(this);
+      if (result == AuthStatus.COMPLETED_OK) {
+        setResult(RESULT_OK);
+        finish();
+      } else if (result == AuthStatus.TOKEN_REQUEST_REQUIRED) {
+
+      }
+    });
+    executor.start();
+    try {
+      executor.join();
+    } catch (Exception ignore) {}
+
   }
 
   @Override

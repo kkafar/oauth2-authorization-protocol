@@ -71,10 +71,10 @@ public class UserDataFragment extends Fragment {
     mUserDataViewModel.getUserDataState().observe(getViewLifecycleOwner(), new Observer<UserDataState>() {
       @Override
       public void onChanged(UserDataState userDataState) {
-
         Log.d(TAG, "onChanged UserDataState: " + userDataState.toString());
         mBinding.userNameTextView.setText(userDataState.getName());
         mBinding.userEmailTextView.setText(userDataState.getEmail());
+        mBinding.userNickTextView.setText(userDataState.getNick());
       }
     });
 

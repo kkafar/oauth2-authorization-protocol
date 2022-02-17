@@ -3,6 +3,7 @@ package com.dp.data.viewmodels;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.Browser;
 import android.util.Log;
 
@@ -13,15 +14,21 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.dp.R;
+import com.dp.auth.AuthStatus;
 import com.dp.auth.AuthorizationResponseError;
 import com.dp.auth.AuthorizationServerEndpointName;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.AuthorizationResponse;
+import com.dp.auth.model.OperationStatus;
 import com.dp.auth.model.TokenRequest;
 import com.dp.auth.model.TokenResponse;
 import com.dp.data.repositories.AuthorizationManager;
 import com.dp.data.repositories.AuthorizationServerRepository;
+import com.dp.database.AppDatabase;
+import com.dp.database.DatabaseProvider;
+import com.dp.database.dao.UserAuthInfoDao;
+import com.dp.database.entity.UserAuthInfo;
 import com.dp.ui.UserAuthState;
 import com.google.gson.Gson;
 
@@ -49,7 +56,8 @@ public class AuthorizationViewModel extends ViewModel {
 
   private final AuthorizationServerRepository mAuthServerRepository;
   private final AuthorizationManager mAuthorizationManager;
-  private final Gson gson;
+  private final Gson mGson;
+  private final AppDatabase mDatabase;
 
   public AuthorizationViewModel(
       AuthorizationServerRepository authorizationServerRepository,
@@ -57,12 +65,8 @@ public class AuthorizationViewModel extends ViewModel {
   ) {
     mAuthServerRepository = authorizationServerRepository;
     mAuthorizationManager = authorizationManager;
-    gson = new Gson();
-  }
-
-
-  public void handleAuthorizationCode(String authCode) {
-    // TODO: redirect call to data repository to retrieve access token
+    mGson = new Gson();
+    mDatabase = DatabaseProvider.getInstance(null);
   }
 
 
@@ -159,7 +163,7 @@ public class AuthorizationViewModel extends ViewModel {
           byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
           httpResponse.getEntity().getContent().read(bytes);
           Log.d(TAG, new String(bytes));
-          TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
+          TokenResponse tokenResponse = mGson.fromJson(new String(bytes), TokenResponse.class);
           mAuthorizationManager.setTokenResponse(tokenResponse);
         } catch (Exception exception) {
           if (exception.getMessage() != null) {
@@ -183,16 +187,29 @@ public class AuthorizationViewModel extends ViewModel {
     return mAuthorizationManager.getLatestTokenResponse();
   }
 
-  public void acquireAccessCodeGrant(Context appContext) {
-    AuthorizationRequest authorizationRequest =
-        createNewAuthorizationRequest(appContext.getString(R.string.client_id),
-            appContext.getResources().getStringArray(R.array.auth_required_scopes));
+  public AuthStatus authorize(Context appContext) {
+    // check if there is something in database
+    UserAuthInfoDao dao = mDatabase.userAuthInfo();
+    UserAuthInfo userAuthInfo = dao.findById(0);
 
-    Uri authorizationRequestUri = authorizationRequest.toUri();
-
-    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
-
-    delegateAuthorizationRequestToCustomTabs(appContext, authorizationRequestUri);
+    if (userAuthInfo != null) {
+      // if there is: first check for token:
+      if (userHasValidToken(userAuthInfo)) {
+        return AuthStatus.COMPLETED_OK;
+      } else if (userHasRefreshToken(userAuthInfo)) {
+        OperationStatus opStatus = mAuthorizationManager.tryRefreshTokenRequest(userAuthInfo.refreshToken);
+        if (opStatus.isSuccess()) {
+          return AuthStatus.COMPLETED_OK;
+        } else {
+          tryAcquireAuthorizationCode(appContext);
+        }
+      } else {
+        tryAcquireAuthorizationCode(appContext);
+      }
+    } else {
+       tryAcquireAuthorizationCode(appContext);
+    }
+    return AuthStatus.TOKEN_REQUEST_REQUIRED;
   }
 
   private void delegateAuthorizationRequestToCustomTabs(Context appContext, Uri request) {
@@ -203,5 +220,35 @@ public class AuthorizationViewModel extends ViewModel {
     intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
     Log.d(TAG, "Launching custom tabs");
     intent.launchUrl(appContext, request);
+  }
+
+  private boolean userHasValidToken(@NonNull UserAuthInfo userAuthInfo) {
+    if (userAuthInfo.token == null) return false;
+
+//    if (userAuthInfo.tokenExpiresIn) return false;
+    long acquireTime = userAuthInfo.acquireTime;
+    long currentTime = System.currentTimeMillis() / 1000;
+    long expireTime = userAuthInfo.tokenExpiresIn;
+
+    if (acquireTime + expireTime < currentTime) return true;
+
+    return false;
+  }
+
+  private boolean userHasRefreshToken(UserAuthInfo userAuthInfo) {
+    return userAuthInfo.refreshToken != null;
+  }
+
+  private OperationStatus tryAcquireAuthorizationCode(Context appContext) {
+    AuthorizationRequest authorizationRequest =
+        createNewAuthorizationRequest(appContext.getString(R.string.client_id),
+            appContext.getResources().getStringArray(R.array.auth_required_scopes));
+
+    Uri authorizationRequestUri = authorizationRequest.toUri();
+
+    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
+
+    delegateAuthorizationRequestToCustomTabs(appContext, authorizationRequestUri);
+    return new OperationStatus(true, null);
   }
 }
