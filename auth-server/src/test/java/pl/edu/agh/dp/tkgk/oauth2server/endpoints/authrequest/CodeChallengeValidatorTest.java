@@ -53,22 +53,6 @@ class CodeChallengeValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"as c", " ala", "12\n3", "g\r5g5", "pla#in w", "s256!plain"})
-    public void whenCodeChallengeIsMalformed_thenShouldReturnResponseContainingCorrectFragment(String code){
-        HashMap<String, List<String>> parameters = new HashMap<>();
-        parameters.put("redirect_uri", List.of("http"));
-        parameters.put("state", List.of("sunny"));
-        parameters.put("code_challenge", List.of(code));
-        HttpRequestWithParameters request = new HttpRequestWithParameters(null,parameters,null,null);
-
-        FullHttpResponse response = codeChallengeValidator.handle(request);
-
-        assertNotNull(response);
-        String errorUri = response.headers().get(HttpHeaderNames.LOCATION);
-        assertTrue(errorUri.contains(AuthErrorFragments.INVALID_CODE_CHALLENGE_FRAGMENT));
-    }
-
-    @ParameterizedTest
     @ValueSource(strings = {"asc", "ala", "123", "g5g5", "plain w", "s256 plain"})
     public void whenCodeChallengeMethodIsUnknown_thenShouldReturnResponseContainingCorrectFragment(String codeMethod){
         HashMap<String, List<String>> parameters = new HashMap<>();
@@ -86,7 +70,7 @@ class CodeChallengeValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"plain", "s256"})
+    @ValueSource(strings = {"plain", "S256", "s256"})
     public void whenEverythingIsRight_thenShouldCallNextHandler(String codeMethod){
         HashMap<String, List<String>> parameters = new HashMap<>();
         parameters.put("redirect_uri", List.of("http"));
