@@ -44,15 +44,9 @@ public class AuthorizationActivity extends AppCompatActivity {
         this,
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-    AuthorizationRequest authorizationRequest = mAuthViewModel
-        .createNewAuthorizationRequest(getString(R.string.client_id),
-            getResources().getStringArray(R.array.auth_required_scopes));
+    mAuthViewModel.acquireAccessCodeGrant(this);
 
-    Uri authorizationRequestUri = authorizationRequest.toUri();
 
-    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
-
-    delegateAuthorizationRequestToCustomTabs(authorizationRequestUri);
   }
 
   @Override
@@ -81,15 +75,5 @@ public class AuthorizationActivity extends AppCompatActivity {
     setResult(RESULT_OK, resultIntent);
     finish();
 
-  }
-
-  private void delegateAuthorizationRequestToCustomTabs(Uri request) {
-    CustomTabsIntent.Builder customTabsIntentBuilder = new CustomTabsIntent.Builder();
-    CustomTabsIntent intent = customTabsIntentBuilder.build();
-    Bundle headers = new Bundle();
-    headers.putString("content-type", "application/x-www-form-urlencoded");
-    intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
-    Log.d(TAG, "Launching custom tabs");
-    intent.launchUrl(this, request);
   }
 }

@@ -15,6 +15,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.dp.data.viewmodels.UserAuthViewModel;
 import com.dp.data.viewmodels.UserAuthViewModelFactory;
+import com.dp.database.AppDatabase;
+import com.dp.database.DatabaseProvider;
 import com.dp.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding mBinding;
 //  private AuthorizationViewModel mAuthorizationViewModel;
   private UserAuthViewModel mUserAuthViewModel;
+  private AppDatabase mDatabase;
 
 
   @Override
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
         .get(UserAuthViewModel.class);
+
+    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
   }
 
   @Override

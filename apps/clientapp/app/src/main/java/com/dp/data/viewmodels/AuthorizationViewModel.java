@@ -1,12 +1,18 @@
 package com.dp.data.viewmodels;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.Browser;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.dp.R;
 import com.dp.auth.AuthorizationResponseError;
 import com.dp.auth.AuthorizationServerEndpointName;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
@@ -175,5 +181,27 @@ public class AuthorizationViewModel extends ViewModel {
     } catch (InterruptedException ignore) {
     }
     return mAuthFlowRepository.getLatestTokenResponse();
+  }
+
+  public void acquireAccessCodeGrant(Context appContext) {
+    AuthorizationRequest authorizationRequest =
+        createNewAuthorizationRequest(appContext.getString(R.string.client_id),
+            appContext.getResources().getStringArray(R.array.auth_required_scopes));
+
+    Uri authorizationRequestUri = authorizationRequest.toUri();
+
+    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
+
+    delegateAuthorizationRequestToCustomTabs(appContext, authorizationRequestUri);
+  }
+
+  private void delegateAuthorizationRequestToCustomTabs(Context appContext, Uri request) {
+    CustomTabsIntent.Builder customTabsIntentBuilder = new CustomTabsIntent.Builder();
+    CustomTabsIntent intent = customTabsIntentBuilder.build();
+    Bundle headers = new Bundle();
+    headers.putString("content-type", "application/x-www-form-urlencoded");
+    intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
+    Log.d(TAG, "Launching custom tabs");
+    intent.launchUrl(appContext, request);
   }
 }

@@ -4,13 +4,14 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.dp.database.entity.UserAuthInfo;
 
 import java.util.List;
 
 @Dao
-public interface UserAuthInfoDAO {
+public interface UserAuthInfoDao {
   @Query("SELECT * FROM UserAuthInfo")
   List<UserAuthInfo> getAll();
 
@@ -23,6 +24,6 @@ public interface UserAuthInfoDAO {
   @Delete
   void deleteUserAuthInfo(UserAuthInfo userAuthInfo);
 
-
-
+  @Update
+  void updateUserAuthInfo(UserAuthInfo userAuthInfo);
 }
