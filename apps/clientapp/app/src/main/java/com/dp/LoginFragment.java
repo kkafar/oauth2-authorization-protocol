@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.dp.auth.model.TokenResponse;
-import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.UserAuthViewModel;
 import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.databinding.FragmentLoginBinding;
@@ -39,6 +38,7 @@ public class LoginFragment extends Fragment {
     return mBinding.getRoot();
   }
 
+  @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
@@ -49,19 +49,16 @@ public class LoginFragment extends Fragment {
       startActivityForResult(intent, LOGIN_REQUEST_CODE);
     });
 
-    mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
+    mUserAuthViewModel = new ViewModelProvider(requireActivity(), new UserAuthViewModelFactory())
         .get(UserAuthViewModel.class);
   }
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-    switch (requestCode) {
-      case LOGIN_REQUEST_CODE: {
-        handleLoginActivityResult(resultCode, data);
-        break;
-      }
-      default:
-        handleUnknownActivityResult(resultCode, data);
+    if (requestCode == LOGIN_REQUEST_CODE) {
+      handleLoginActivityResult(resultCode, data);
+    } else {
+      handleUnknownActivityResult(resultCode, data);
     }
   }
 
@@ -71,13 +68,14 @@ public class LoginFragment extends Fragment {
 
   private void handleLoginActivityResult(int resultCode, @Nullable Intent data) {
     if (resultCode == Activity.RESULT_OK) {
-      Log.d(TAG, "Login activity resulted in success");
+      Log.d(TAG, "Login activity resulted in success. Currently on activity " + requireActivity().toString());
       assert data != null;
       mUserAuthViewModel.changeUserAuthState(new UserAuthState(true, TokenResponse.fromIntent(data)));
       Log.d(TAG, "Navigating to user data fragment");
       Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_userDataFragment);
     } else if (resultCode == Activity.RESULT_CANCELED) { // login did not succeed
       Log.d(TAG, "Login activity resulted in failure");
+      mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
     }
   }
 }

@@ -5,8 +5,8 @@ import androidx.annotation.Nullable;
 import com.dp.auth.model.AuthorizationRequest;
 import com.dp.data.datasources.UserLoginDataSource;
 
-public class UserLoginRepository {
-  private static volatile UserLoginRepository instance;
+public class UserAuthRepository {
+  private static volatile UserAuthRepository instance;
 
   private UserLoginDataSource mDataSource;
 
@@ -17,13 +17,13 @@ public class UserLoginRepository {
 //  private TokenRequest mTokenRequest;
 
 
-  private UserLoginRepository(UserLoginDataSource dataSource) {
+  private UserAuthRepository(UserLoginDataSource dataSource) {
     mDataSource = dataSource;
   }
 
-  public static UserLoginRepository getInstance(UserLoginDataSource dataSource) {
+  public static UserAuthRepository getInstance(UserLoginDataSource dataSource) {
     if (instance == null) {
-      instance = new UserLoginRepository(dataSource);
+      instance = new UserAuthRepository(dataSource);
     }
     return instance;
   }

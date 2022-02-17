@@ -29,7 +29,9 @@ public final class AuthorizationManager {
   @Nullable
   private String mCodeVerifier = null;
 
-  private AuthorizationManager() {}
+  private AuthorizationManager() {
+    Log.d(TAG, "CTOR");
+  }
 
   public static AuthorizationManager getInstance() {
     if (instance == null) {

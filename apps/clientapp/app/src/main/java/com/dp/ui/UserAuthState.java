@@ -33,6 +33,18 @@ public class UserAuthState {
     mTokenType = tokenResponse.getTokenType();
   }
 
+  public UserAuthState(
+      @NonNull Boolean isLoggedIn,
+      @Nullable String token,
+      @Nullable String tokenType,
+      @Nullable int expiresIn
+  ) {
+    mIsLoggedIn = isLoggedIn;
+    mToken = token;
+    mTokenType = tokenType;
+    mExpiresIn = expiresIn;
+  }
+
   @NonNull
   public Boolean isLoggedIn() {
     return mIsLoggedIn;

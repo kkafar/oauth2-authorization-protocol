@@ -1,10 +1,11 @@
 package com.dp;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -12,15 +13,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.dp.data.viewmodels.AuthorizationViewModel;
-import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.data.viewmodels.UserAuthViewModel;
 import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.databinding.ActivityMainBinding;
-
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
   public final String TAG = "MainActivity";
@@ -70,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
     if (id == R.id.action_settings) {
       return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
 

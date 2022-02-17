@@ -49,7 +49,7 @@ public class InitFragment extends Fragment {
 
 
     mBinding.nextButton.setOnClickListener(_view -> {
-      if (mViewModel.getUserAuthState().getValue().isLoggedIn()) {
+      if (mViewModel.isUserLoggedIn()) {
         Log.d(TAG, "User has valid access token. Navigating to data screen.");
         Navigation.findNavController(_view).navigate(R.id.action_initFragment_to_userDataFragment);
       } else {
