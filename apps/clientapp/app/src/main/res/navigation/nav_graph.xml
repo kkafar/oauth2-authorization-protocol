@@ -3,26 +3,35 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/nav_graph"
-        app:startDestination="@id/FirstFragment">
-
+        app:startDestination="@id/initFragment">
     <fragment
-            android:id="@+id/FirstFragment"
-            android:name="com.dp.FirstFragment"
-            android:label="@string/first_fragment_label"
-            tools:layout="@layout/fragment_first">
-
+            android:id="@+id/loginFragment"
+            android:name="com.dp.LoginFragment"
+            android:label="fragment_login"
+            tools:layout="@layout/fragment_login" >
         <action
-                android:id="@+id/action_FirstFragment_to_SecondFragment"
-                app:destination="@id/SecondFragment" />
+                android:id="@+id/action_loginFragment_to_userDataFragment"
+                app:destination="@id/userDataFragment" />
     </fragment>
     <fragment
-            android:id="@+id/SecondFragment"
-            android:name="com.dp.SecondFragment"
-            android:label="@string/second_fragment_label"
-            tools:layout="@layout/fragment_second">
-
+            android:id="@+id/userDataFragment"
+            android:name="com.dp.UserDataFragment"
+            android:label="fragment_user_data"
+            tools:layout="@layout/fragment_user_data" >
         <action
-                android:id="@+id/action_SecondFragment_to_FirstFragment"
-                app:destination="@id/FirstFragment" />
+                android:id="@+id/action_userDataFragment_to_loginFragment"
+                app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/initFragment"
+            android:name="com.dp.ui.init.InitFragment"
+            android:label="fragment_init"
+            tools:layout="@layout/fragment_init" >
+        <action
+                android:id="@+id/action_initFragment_to_loginFragment"
+                app:destination="@id/loginFragment" />
+        <action
+                android:id="@+id/action_initFragment_to_userDataFragment"
+                app:destination="@id/userDataFragment" />
     </fragment>
 </navigation>

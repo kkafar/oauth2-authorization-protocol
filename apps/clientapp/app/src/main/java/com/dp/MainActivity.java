@@ -1,48 +1,55 @@
 package com.dp;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.dp.databinding.ActivityMainBinding;
-
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
-  private AppBarConfiguration appBarConfiguration;
-  private ActivityMainBinding binding;
+import com.dp.data.viewmodels.UserAuthViewModel;
+import com.dp.data.viewmodels.UserAuthViewModelFactory;
+import com.dp.database.AppDatabase;
+import com.dp.database.DatabaseProvider;
+import com.dp.databinding.ActivityMainBinding;
+
+public class MainActivity extends AppCompatActivity {
+  public final String TAG = "MainActivity";
+
+  private AppBarConfiguration mAppBarConfiguration;
+  private ActivityMainBinding mBinding;
+//  private AuthorizationViewModel mAuthorizationViewModel;
+  private UserAuthViewModel mUserAuthViewModel;
+  private AppDatabase mDatabase;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.d(TAG, "onCreate");
 
-    binding = ActivityMainBinding.inflate(getLayoutInflater());
-    setContentView(binding.getRoot());
+    mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+    setContentView(mBinding.getRoot());
 
-    setSupportActionBar(binding.toolbar);
+    setSupportActionBar(mBinding.toolbar);
 
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-    appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+    NavController navController = getNavController();
+    mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+    NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
 
-    binding.fab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-            .setAction("Action", null).show();
-      }
-    });
+//    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
+//        .get(AuthorizationViewModel.class);
+
+    mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
+        .get(UserAuthViewModel.class);
+
+    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
   }
 
   @Override
@@ -63,14 +70,21 @@ public class MainActivity extends AppCompatActivity {
     if (id == R.id.action_settings) {
       return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
 
   @Override
   public boolean onSupportNavigateUp() {
-    NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-    return NavigationUI.navigateUp(navController, appBarConfiguration)
+    NavController navController = getNavController();
+    return NavigationUI.navigateUp(navController, mAppBarConfiguration)
         || super.onSupportNavigateUp();
+  }
+
+  private NavController getNavController() {
+    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_content_main);
+    if (!(fragment instanceof NavHostFragment)) {
+      throw new IllegalStateException("Activity " + this + " does not have a NavHostFragment");
+    }
+    return ((NavHostFragment) fragment).getNavController();
   }
 }
