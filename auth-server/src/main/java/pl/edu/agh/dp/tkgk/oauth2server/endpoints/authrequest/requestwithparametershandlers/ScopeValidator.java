@@ -31,7 +31,7 @@ public class ScopeValidator extends BaseHandler<HttpRequestWithParameters, HttpR
 
         Optional<String> invalidScopeEntries = getInvalidScopeEntries(parameters.get(HttpParameters.SCOPE).get(0), parameters.get(HttpParameters.CLIENT_ID).get(0));
         if(invalidScopeEntries.isPresent()){
-            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, AuthErrorFragments.UNKNOWN_SCOPE_FRAGMENT, redirect_uri);
+            return AuthEndpointUtil.buildAuthErrorResponse(INVALID_SCOPE, AuthErrorFragments.UNKNOWN_SCOPE_FRAGMENT, redirect_uri, state);
         }
 
         return next.handle(request);
