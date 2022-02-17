@@ -86,7 +86,6 @@ public class UserDataFragment extends Fragment {
     mBinding.logoutButton.setOnClickListener(_view -> {
       Log.d(TAG, "logoutButtonClicked");
       mUserAuthViewModel.revokeToken();
-      mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
     });
   }
 

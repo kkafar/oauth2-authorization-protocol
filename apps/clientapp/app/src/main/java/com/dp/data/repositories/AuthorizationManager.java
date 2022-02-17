@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public final class AuthorizationManager {
   private final String TAG = "AuthorizationFlowRepository";
@@ -185,6 +186,7 @@ public final class AuthorizationManager {
   }
 
   public void revokeToken() {
+    Log.d(TAG, "revokeToken");
     String token = getLatestToken();
     if (token == null) {
       return;
@@ -203,11 +205,26 @@ public final class AuthorizationManager {
           Log.d(TAG, httpResponse.toString());
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
           Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
-          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
-          httpResponse.getEntity().getContent().read(bytes);
-          Log.d(TAG, new String(bytes));
+          int responseBodyLength = (int) httpResponse.getEntity().getContentLength();
+          if (responseBodyLength >= 0) {
+            byte[] bytes = new byte[responseBodyLength];
+            httpResponse.getEntity().getContent().read(bytes);
+            Log.d(TAG, new String(bytes));
+          }
+
           UserAuthInfoDao dao = mDatabase.userAuthInfo();
-          dao.deleteUserAuthInfo(dao.findById(0));
+          UserAuthInfo old = dao.findById(0);
+          Log.d(TAG, "BEFORE REMOVAL");
+          Log.d(TAG, old.toString());
+          dao.deleteUserAuthInfo(old);
+          Log.d(TAG, "AFTER REMOVAL");
+          old = dao.findById(0);
+          if (old != null) {
+            Log.d(TAG, old.toString());
+          } else {
+            Log.d(TAG, "No record found");
+          }
+
           mAuthorizationRequest = null;
           mCodeVerifier = null;
           mTokenResponse = null;
@@ -287,20 +304,4 @@ public final class AuthorizationManager {
 
     return new OperationStatus(true, null);
   }
-
-//  public OperationStatus tryAcquireAuthorizationCode(Context appContext, AuthorizationRequest authorizationRequest) {
-//    AuthorizationRequest authorizationRequest =
-//        createNewAuthorizationRequest(appContext.getString(R.string.client_id),
-//            appContext.getResources().getStringArray(R.array.auth_required_scopes));
-//
-//    AuthorizationRequest authorizationRequest1 = createNewAuthorizationRequest(
-//
-//    )
-//
-//    Uri authorizationRequestUri = authorizationRequest.toUri();
-//
-//    Log.d(TAG, "Authorization request:" + authorizationRequestUri.toString());
-//
-//    delegateAuthorizationRequestToCustomTabs(appContext, authorizationRequestUri);
-//  }
 }

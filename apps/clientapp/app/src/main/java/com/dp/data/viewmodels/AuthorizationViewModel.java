@@ -188,26 +188,33 @@ public class AuthorizationViewModel extends ViewModel {
   }
 
   public AuthStatus authorize(Context appContext) {
+    Log.d(TAG, "authorize");
     // check if there is something in database
     UserAuthInfoDao dao = mDatabase.userAuthInfo();
     UserAuthInfo userAuthInfo = dao.findById(0);
 
+
     if (userAuthInfo != null) {
       // if there is: first check for token:
+      Log.d(TAG, userAuthInfo.toString());
       if (userHasValidToken(userAuthInfo)) {
+        Log.d(TAG, "valid token detected");
         return AuthStatus.COMPLETED_OK;
       } else if (userHasRefreshToken(userAuthInfo)) {
+        Log.d(TAG, "refresh token detected");
         OperationStatus opStatus = mAuthorizationManager.tryRefreshTokenRequest(userAuthInfo.refreshToken);
         if (opStatus.isSuccess()) {
           return AuthStatus.COMPLETED_OK;
         } else {
+          Log.d(TAG, "refresh token request failed");
           tryAcquireAuthorizationCode(appContext);
         }
       } else {
         tryAcquireAuthorizationCode(appContext);
       }
     } else {
-       tryAcquireAuthorizationCode(appContext);
+      Log.d(TAG, "No UserAuthInfo record found in database");
+      tryAcquireAuthorizationCode(appContext);
     }
     return AuthStatus.TOKEN_REQUEST_REQUIRED;
   }
@@ -230,8 +237,13 @@ public class AuthorizationViewModel extends ViewModel {
     long currentTime = System.currentTimeMillis() / 1000;
     long expireTime = userAuthInfo.tokenExpiresIn;
 
-    if (acquireTime + expireTime < currentTime) return true;
-
+    if (acquireTime + expireTime > currentTime){
+      Log.d(TAG, Long.toString(acquireTime) + " + " + expireTime + " > " + currentTime);
+      Log.d(TAG, "userHasValidToken returns true");
+      return true;
+    }
+    Log.d(TAG, Long.toString(acquireTime) + " + " + expireTime + " <= " + currentTime);
+    Log.d(TAG, "userHasValid token returns false");
     return false;
   }
 

@@ -51,4 +51,20 @@ public class UserAuthInfo {
     this.tokenExpiresIn = tokenExpiresIn;
     this.acquireTime = acquireTime;
   }
+
+  @NonNull
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UserAuthInfo:\n")
+        .append("uid: ").append(uid).append('\n')
+        .append("authCode: ").append(authCode).append('\n')
+        .append("codeVerifier: ").append(codeVerifier).append('\n')
+        .append("token: ").append(token).append('\n')
+        .append("refreshToken: ").append(refreshToken).append('\n')
+        .append("tokenType: ").append(tokenType).append('\n')
+        .append("tokenExpiresIn: ").append(Long.toString(tokenExpiresIn)).append('\n')
+        .append("acquireTime: ").append(Long.toString(acquireTime));
+    return builder.toString();
+  }
 }

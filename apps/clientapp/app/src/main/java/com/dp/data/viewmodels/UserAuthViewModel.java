@@ -39,6 +39,8 @@ public class UserAuthViewModel extends ViewModel {
   }
 
   public void revokeToken() {
+    Log.d(TAG, "revokeToken");
+    changeUserAuthState(new UserAuthState(false));
     mAuthorizationManager.revokeToken();
   }
 }

@@ -49,7 +49,6 @@ public class AuthorizationActivity extends AppCompatActivity {
     try {
       executor.join();
     } catch (Exception ignore) {}
-
   }
 
   @Override
