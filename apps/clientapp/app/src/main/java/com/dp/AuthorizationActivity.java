@@ -3,27 +3,17 @@ package com.dp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Browser;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
-import com.dp.auth.model.AuthorizationRequest;
 import com.dp.auth.model.AuthorizationResponse;
-import com.dp.auth.model.TokenRequest;
 import com.dp.auth.model.TokenResponse;
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityAuthorizationBinding;
-
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-
-import java.io.IOException;
 
 public class AuthorizationActivity extends AppCompatActivity {
   public final String TAG = "AuthorizationActivity";
@@ -45,8 +35,6 @@ public class AuthorizationActivity extends AppCompatActivity {
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
     mAuthViewModel.acquireAccessCodeGrant(this);
-
-
   }
 
   @Override
@@ -70,10 +58,9 @@ public class AuthorizationActivity extends AppCompatActivity {
     Log.d(TAG, "Whole server response: " + intentData);
     Log.d(TAG, "Authorization code grant granted by server: " + response.mCode);
 
-    TokenResponse tokenResponse = mAuthViewModel.sendTokenRequest(response);
+    TokenResponse tokenResponse = mAuthViewModel.acquireAccessToken(response);
     Intent resultIntent = tokenResponse.toIntent();
     setResult(RESULT_OK, resultIntent);
     finish();
-
   }
 }

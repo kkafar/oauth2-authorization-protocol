@@ -35,4 +35,7 @@ public class UserAuthViewModel extends ViewModel {
 
   private void verifyUserAuthState() {
   }
+
+  public void revokeToken() {
+  }
 }

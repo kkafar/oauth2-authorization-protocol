@@ -11,58 +11,21 @@
             android:layout_width="76dp"
             android:layout_height="23dp"
             android:id="@+id/userNameTextView"
-            app:layout_constraintTop_toTopOf="@+id/userNameLabel"
-            android:layout_marginTop="40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/userNameLabel"
-            android:layout_marginBottom="25dp"
-            app:layout_constraintVertical_bias="0.0"
-            app:layout_constraintEnd_toEndOf="@+id/userNameLabel"
-            android:layout_marginEnd="101dp"
-            app:layout_constraintStart_toStartOf="@+id/userNameLabel"
-            android:layout_marginStart="113dp" />
-
-    <EditText
-            android:layout_width="291dp"
-            android:layout_height="77dp"
-            android:inputType="textPersonName"
-            android:text="@string/user_email_label"
-            android:ems="10"
-            android:id="@+id/userEmailLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="344dp" />
-
-    <EditText
-            android:layout_width="290dp"
-            android:layout_height="88dp"
-            android:inputType="textPersonName"
-            android:text="@string/user_name_label"
-            android:ems="10"
-            android:id="@+id/userNameLabel"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="72dp"
+            android:layout_marginTop="152dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintHorizontal_bias="0.499"
-            android:layout_marginBottom="101dp"
-            app:layout_constraintBottom_toTopOf="@+id/userEmailLabel"
-            app:layout_constraintVertical_bias="0.878" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
             android:text="@string/user_email_literal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/userEmailTextView"
-            app:layout_constraintTop_toTopOf="@+id/userEmailLabel"
-            android:layout_marginTop="24dp"
-            app:layout_constraintBottom_toBottomOf="@+id/userEmailLabel"
-            android:layout_marginBottom="34dp"
-            app:layout_constraintVertical_bias="1.0"
-            app:layout_constraintEnd_toEndOf="@+id/userEmailLabel"
-            android:layout_marginEnd="130dp"
-            app:layout_constraintStart_toStartOf="@+id/userEmailLabel"
-            android:layout_marginStart="126dp" />
+            app:layout_constraintBottom_toTopOf="@+id/fetchDataButton"
+            app:layout_constraintTop_toBottomOf="@+id/userNameTextView"
+            app:layout_constraintVertical_bias="0.454"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     <Button
             android:text="@string/log_out"
@@ -80,11 +43,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/fetchDataButton"
-            android:layout_marginTop="156dp"
-            app:layout_constraintTop_toBottomOf="@+id/userEmailLabel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             android:layout_marginBottom="43dp"
             app:layout_constraintBottom_toTopOf="@+id/logoutButton" />
+
+    <TextView
+            android:text="@string/user_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/userNameLabel"
+            app:layout_constraintEnd_toStartOf="@+id/userNameTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.314"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.219" />
+
+    <TextView
+            android:text="@string/user_email_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/userEmailLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/userEmailTextView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.288"
+            app:layout_constraintVertical_bias="0.469" />
 </androidx.constraintlayout.widget.ConstraintLayout>

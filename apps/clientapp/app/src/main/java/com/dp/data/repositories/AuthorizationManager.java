@@ -68,6 +68,8 @@ public final class AuthorizationManager {
 
     String codeVerifier = new CodeVerifierProvider().generateCodeVerifier();
 
+    Log.d(TAG, "CODE VERIFER IN BASE64: " + codeVerifier);
+
     CodeChallengeProvider codeChallengeProvider = new CodeChallengeProvider();
 
     String codeChallenge = null;
@@ -116,5 +118,9 @@ public final class AuthorizationManager {
   @Nullable
   public TokenResponse getLatestTokenResponse() {
     return mTokenResponse;
+  }
+
+  public String getLatestToken() {
+    return mTokenResponse.getAccessToken();
   }
 }

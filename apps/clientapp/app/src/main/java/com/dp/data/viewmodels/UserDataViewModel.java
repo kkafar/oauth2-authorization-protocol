@@ -23,5 +23,7 @@ public class UserDataViewModel extends ViewModel {
 
 
   public void updateUserData() {
+    UserDataState newUserDataState = mUserDataRepository.updateUserData();
+    mUserDataState.setValue(newUserDataState);
   }
 }

@@ -71,8 +71,10 @@ public class UserDataFragment extends Fragment {
     mUserDataViewModel.getUserDataState().observe(getViewLifecycleOwner(), new Observer<UserDataState>() {
       @Override
       public void onChanged(UserDataState userDataState) {
-          mBinding.userNameTextView.setText(userDataState.getName());
-          mBinding.userEmailTextView.setText(userDataState.getEmail());
+
+        Log.d(TAG, "onChanged UserDataState: " + userDataState.toString());
+        mBinding.userNameTextView.setText(userDataState.getName());
+        mBinding.userEmailTextView.setText(userDataState.getEmail());
       }
     });
 
@@ -83,7 +85,7 @@ public class UserDataFragment extends Fragment {
 
     mBinding.logoutButton.setOnClickListener(_view -> {
       Log.d(TAG, "logoutButtonClicked");
-      // todo: token revocation
+      mUserAuthViewModel.revokeToken();
       mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
     });
   }

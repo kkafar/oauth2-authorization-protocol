@@ -48,7 +48,7 @@ public class AuthorizationViewModel extends ViewModel {
   private MutableLiveData<UserAuthState> mUserState = new MutableLiveData<>();
 
   private final AuthorizationServerRepository mAuthServerRepository;
-  private final AuthorizationManager mAuthFlowRepository;
+  private final AuthorizationManager mAuthorizationManager;
   private final Gson gson;
 
   public AuthorizationViewModel(
@@ -56,7 +56,7 @@ public class AuthorizationViewModel extends ViewModel {
       AuthorizationManager authorizationManager
   ) {
     mAuthServerRepository = authorizationServerRepository;
-    mAuthFlowRepository = authorizationManager;
+    mAuthorizationManager = authorizationManager;
     gson = new Gson();
   }
 
@@ -69,7 +69,7 @@ public class AuthorizationViewModel extends ViewModel {
   public AuthorizationRequest createNewAuthorizationRequest(@NonNull String clientId, @NonNull String[] requiredScopes) {
     Set<String> scopes = new HashSet<>();
     Collections.addAll(scopes, requiredScopes);
-    return mAuthFlowRepository.createNewAuthorizationRequest(
+    return mAuthorizationManager.createNewAuthorizationRequest(
         mAuthServerRepository.getAuthServerAuthority(),
         clientId,
         "auth://callback",
@@ -94,12 +94,12 @@ public class AuthorizationViewModel extends ViewModel {
 
   @Nullable
   public AuthorizationRequest getLatestAuthorizationRequest() {
-    return mAuthFlowRepository.getLatestAuthorizationRequest();
+    return mAuthorizationManager.getLatestAuthorizationRequest();
   }
 
   @Nullable
   public String getLatestCodeVerifier() {
-    return mAuthFlowRepository.getLatestCodeVerifier();
+    return mAuthorizationManager.getLatestCodeVerifier();
   }
 
   public void validateAuthorizationResponse(AuthorizationResponse authorizationResponse)
@@ -112,7 +112,7 @@ public class AuthorizationViewModel extends ViewModel {
       throw new InvalidAuthorizationResponseException("Null response");
     }
 
-    AuthorizationRequest request = mAuthFlowRepository.getLatestAuthorizationRequest();
+    AuthorizationRequest request = mAuthorizationManager.getLatestAuthorizationRequest();
     if (request == null) {
       throw new IllegalStateException("Authorization server response validation method called w/o " +
           "request in AuthorizationFlowRepository instance");
@@ -136,7 +136,7 @@ public class AuthorizationViewModel extends ViewModel {
     }
   }
 
-  public TokenResponse sendTokenRequest(AuthorizationResponse response) {
+  public TokenResponse acquireAccessToken(AuthorizationResponse response) {
     Log.d(TAG, "Sending Token request");
     Thread connectionExecutor = new Thread(() -> {
       try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -146,9 +146,9 @@ public class AuthorizationViewModel extends ViewModel {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("grant_type", "authorization_code"));
         parameters.add(new BasicNameValuePair("code", response.mCode));
-        parameters.add(new BasicNameValuePair("redirect_uri", mAuthFlowRepository.getLatestAuthorizationRequest().mRedirectUri));
-        parameters.add(new BasicNameValuePair("client_id", mAuthFlowRepository.getLatestAuthorizationRequest().mClientId));
-        parameters.add(new BasicNameValuePair("code_verifier", mAuthFlowRepository.getLatestCodeVerifier()));
+        parameters.add(new BasicNameValuePair("redirect_uri", mAuthorizationManager.getLatestAuthorizationRequest().mRedirectUri));
+        parameters.add(new BasicNameValuePair("client_id", mAuthorizationManager.getLatestAuthorizationRequest().mClientId));
+        parameters.add(new BasicNameValuePair("code_verifier", mAuthorizationManager.getLatestCodeVerifier()));
 
         httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
         try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
@@ -160,7 +160,7 @@ public class AuthorizationViewModel extends ViewModel {
           httpResponse.getEntity().getContent().read(bytes);
           Log.d(TAG, new String(bytes));
           TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
-          mAuthFlowRepository.setTokenResponse(tokenResponse);
+          mAuthorizationManager.setTokenResponse(tokenResponse);
         } catch (Exception exception) {
           if (exception.getMessage() != null) {
             Log.e(TAG, exception.getMessage());
@@ -177,10 +177,10 @@ public class AuthorizationViewModel extends ViewModel {
 
     connectionExecutor.start();
     try {
-      connectionExecutor.join(5000);
+      connectionExecutor.join(8000);
     } catch (InterruptedException ignore) {
     }
-    return mAuthFlowRepository.getLatestTokenResponse();
+    return mAuthorizationManager.getLatestTokenResponse();
   }
 
   public void acquireAccessCodeGrant(Context appContext) {

@@ -4,29 +4,29 @@ import androidx.annotation.Nullable;
 
 public class UserDataState {
   @Nullable
-  private final String mName;
+  private final String username;
 
   @Nullable
-  private final String mEmail;
+  private final String mail;
 
   public UserDataState(@Nullable String name, @Nullable String email) {
-    mName = name;
-    mEmail = email;
+    username = name;
+    mail = email;
   }
 
   public String getName() {
-    return mName;
+    return username;
   }
 
   public String getEmail() {
-    return mEmail;
+    return mail;
   }
 
   public boolean hasName() {
-    return mName != null;
+    return username != null;
   }
 
   public boolean hasEmail() {
-    return mEmail != null;
+    return mail != null;
   }
 }

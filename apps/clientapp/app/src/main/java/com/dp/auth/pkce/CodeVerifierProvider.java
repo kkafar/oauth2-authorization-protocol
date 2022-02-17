@@ -14,7 +14,7 @@ public class CodeVerifierProvider {
     SecureRandom secureRandom = new SecureRandom();
     byte[] codeVerifier = new byte[getLength()];
     secureRandom.nextBytes(codeVerifier);
-    return Base64.getUrlEncoder().encodeToString(codeVerifier);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(codeVerifier);
   }
 
   private static int getLength() {

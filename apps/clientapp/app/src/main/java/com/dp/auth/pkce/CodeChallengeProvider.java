@@ -36,7 +36,7 @@ public class CodeChallengeProvider {
     byte[] bytes = codeVerifier.getBytes();
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
     messageDigest.update(bytes, 0, bytes.length);
-    String codeChallenge = Base64.getUrlEncoder().encodeToString(messageDigest.digest());
+    String codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(messageDigest.digest());
     return codeChallenge;
   }
 }
