@@ -30,6 +30,7 @@
     <string name="welcome_message">Welcome to the OAuth 2.0 testing application!</string>
     <string name="login_info_required">Hi user! It seems that you need to log in!</string>
     <string name="login_in_progress">Logging in...</string>
+    <string name="user_nick_literal">Nickname</string>
     <string-array name="auth_required_scopes">
         <item>username</item>
     </string-array>

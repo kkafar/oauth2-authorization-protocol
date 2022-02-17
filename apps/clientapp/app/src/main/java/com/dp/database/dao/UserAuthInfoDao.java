@@ -3,6 +3,7 @@ package com.dp.database.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -18,7 +19,7 @@ public interface UserAuthInfoDao {
   @Query("SELECT * FROM UserAuthInfo WHERE uid == :id")
   UserAuthInfo findById(int id);
 
-  @Insert
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
   void insertUserAuthInfo(UserAuthInfo userAuthInfo);
 
   @Delete

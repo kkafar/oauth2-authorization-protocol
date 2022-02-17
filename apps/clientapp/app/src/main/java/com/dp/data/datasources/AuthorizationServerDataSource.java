@@ -11,7 +11,7 @@ public class AuthorizationServerDataSource {
   private final String mAuthority;
 
   public AuthorizationServerDataSource() {
-    mAuthority = "5ce7-185-233-24-186.ngrok.io";
+    mAuthority = "8e4d-91-123-181-221.ngrok.io";
     mHttpsAddress = "https://" + mAuthority;
   }
 
