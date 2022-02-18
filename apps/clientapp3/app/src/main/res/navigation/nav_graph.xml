@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nav_graph"
+        app:startDestination="@id/initFragment">
+    <fragment
+            android:id="@+id/loginFragment"
+            android:name="com.clientapp3.LoginFragment"
+            android:label="fragment_login"
+            tools:layout="@layout/fragment_login" >
+        <action
+                android:id="@+id/action_loginFragment_to_userDataFragment"
+                app:destination="@id/userDataFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/userDataFragment"
+            android:name="com.clientapp3.UserDataFragment"
+            android:label="fragment_user_data"
+            tools:layout="@layout/fragment_user_data" >
+        <action
+                android:id="@+id/action_userDataFragment_to_loginFragment"
+                app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+            android:id="@+id/initFragment"
+            android:name="com.clientapp3.ui.init.InitFragment"
+            android:label="fragment_init"
+            tools:layout="@layout/fragment_init" >
+        <action
+                android:id="@+id/action_initFragment_to_loginFragment"
+                app:destination="@id/loginFragment" />
+        <action
+                android:id="@+id/action_initFragment_to_userDataFragment"
+                app:destination="@id/userDataFragment" />
+    </fragment>
+</navigation>

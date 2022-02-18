@@ -56,6 +56,8 @@ public class UserDataFragment extends Fragment {
     mUserDataViewModel = new ViewModelProvider(requireActivity(), new UserDataViewModelFactory())
         .get(UserDataViewModel.class);
 
+    mUserDataViewModel.updateUserData(requireContext());
+
     mUserAuthViewModel.getUserAuthState().observe(getViewLifecycleOwner(), new Observer<UserAuthState>() {
       @Override
       public void onChanged(UserAuthState userAuthState) {
@@ -68,25 +70,34 @@ public class UserDataFragment extends Fragment {
       }
     });
 
+
     mUserDataViewModel.getUserDataState().observe(getViewLifecycleOwner(), new Observer<UserDataState>() {
       @Override
       public void onChanged(UserDataState userDataState) {
-
         Log.d(TAG, "onChanged UserDataState: " + userDataState.toString());
-        mBinding.userNameTextView.setText(userDataState.getName());
-        mBinding.userEmailTextView.setText(userDataState.getEmail());
+        if (userDataState.getError() == null) {
+          if (userDataState.getName() != null)
+            mBinding.userNameTextView.setText(userDataState.getName());
+
+          if (userDataState.getEmail() != null)
+            mBinding.userEmailTextView.setText(userDataState.getEmail());
+
+          if (userDataState.getNick() != null)
+            mBinding.userNickTextView.setText(userDataState.getNick());
+        } else {
+          mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
+        }
       }
     });
 
     mBinding.fetchDataButton.setOnClickListener(_view -> {
       Log.d(TAG, "fetchDataButton clicked");
-      mUserDataViewModel.updateUserData();
+      mUserDataViewModel.updateUserData(requireContext());
     });
 
     mBinding.logoutButton.setOnClickListener(_view -> {
       Log.d(TAG, "logoutButtonClicked");
       mUserAuthViewModel.revokeToken();
-      mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
     });
   }
 

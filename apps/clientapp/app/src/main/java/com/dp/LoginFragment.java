@@ -69,8 +69,8 @@ public class LoginFragment extends Fragment {
   private void handleLoginActivityResult(int resultCode, @Nullable Intent data) {
     if (resultCode == Activity.RESULT_OK) {
       Log.d(TAG, "Login activity resulted in success. Currently on activity " + requireActivity().toString());
-      assert data != null;
-      mUserAuthViewModel.changeUserAuthState(new UserAuthState(true, TokenResponse.fromIntent(data)));
+      mUserAuthViewModel.changeUserAuthState(new UserAuthState(true));
+
       Log.d(TAG, "Navigating to user data fragment");
       Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_userDataFragment);
     } else if (resultCode == Activity.RESULT_CANCELED) { // login did not succeed

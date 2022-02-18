@@ -5,7 +5,7 @@ public class ResourceServerDataSource {
   private final String mAuthority;
 
   public ResourceServerDataSource() {
-    mAuthority = "ad01-31-182-161-222.ngrok.io";
+    mAuthority = "5ce7-185-233-24-186.ngrok.io";
     mHttpsAddress = "https://" + mAuthority;
   }
 

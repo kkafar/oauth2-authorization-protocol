@@ -8,12 +8,15 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.dp.auth.AuthStatus;
 import com.dp.auth.exceptions.InvalidAuthorizationResponseException;
 import com.dp.auth.model.AuthorizationResponse;
 import com.dp.auth.model.TokenResponse;
 import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityAuthorizationBinding;
+
+import java.util.concurrent.ExecutionException;
 
 public class AuthorizationActivity extends AppCompatActivity {
   public final String TAG = "AuthorizationActivity";
@@ -34,7 +37,17 @@ public class AuthorizationActivity extends AppCompatActivity {
         this,
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-    mAuthViewModel.acquireAccessCodeGrant(this);
+    try {
+      AuthStatus status =  mAuthViewModel.authorize(this);
+      if (status == AuthStatus.COMPLETED_OK) {
+        setResult(RESULT_OK);
+        finish();
+      }
+    } catch (ExecutionException | InterruptedException e) {
+      e.printStackTrace();
+      setResult(RESULT_CANCELED, null);
+      finish();
+    }
   }
 
   @Override
@@ -58,9 +71,8 @@ public class AuthorizationActivity extends AppCompatActivity {
     Log.d(TAG, "Whole server response: " + intentData);
     Log.d(TAG, "Authorization code grant granted by server: " + response.mCode);
 
-    TokenResponse tokenResponse = mAuthViewModel.acquireAccessToken(response);
-    Intent resultIntent = tokenResponse.toIntent();
-    setResult(RESULT_OK, resultIntent);
+    mAuthViewModel.acquireAccessToken(this, response);
+    setResult(RESULT_OK, null);
     finish();
   }
 }

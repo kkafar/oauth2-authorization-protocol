@@ -8,5 +8,5 @@ import com.dp.database.entity.UserAuthInfo;
 
 @Database(entities = {UserAuthInfo.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
-  public abstract UserAuthInfoDao userAuthInfo();
+  public abstract UserAuthInfoDao userAuthInfoDao();
 }

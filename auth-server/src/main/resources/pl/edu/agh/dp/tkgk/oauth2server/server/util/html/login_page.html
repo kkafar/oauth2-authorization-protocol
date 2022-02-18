@@ -3,14 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <style>
+        body{
+            background-color: #2c2c2c;
+        }
+
+        @media only screen and (max-width: 1081px){
+            #login_form{
+                background-color: #12b0b0;
+                display: block;
+                width: 80%;
+                margin-top: 100px;
+                margin-inline: auto;
+                padding: 10px;
+                border-color: blue;
+                border-radius: 5px;
+                border-width: 3px;
+                border-style: groove;
+                font-size: 3rem;
+                text-align: center;
+            }
+
+            #login_form form input{
+                font-size: 3rem;
+            }
+
+            #submit_button{
+                color: crimson;
+                text-shadow: 4px 4px black;
+                background-color: steelblue;
+                border: none;
+                padding: 5% 10%;
+                font-family: fantasy;
+                font-size: 3rem;
+            }
+
+        }
+        @media only screen and (min-width: 1082px){
+            #login_form{
+                background-color: #12b0b0;
+                display: block;
+                width: 300px;
+                margin-top: 100px;
+                margin-inline: auto;
+                padding: 10px;
+                border-color: blue;
+                border-radius: 5px;
+                border-width: 3px;
+                border-style: groove;
+            }
+
+            #submit_button{
+                color: crimson;
+                text-shadow: 1px 1px black;
+                background-color: steelblue;
+                border: none;
+                padding: 10px 20px;
+                font-family: fantasy;
+            }
+
+        }
+
+        #login_form form label{
+            text-shadow: 1px 1px yellow;
+            font-family: fantasy;
+        }
+
+    </style>
 </head>
 <body>
-<form action="$SUBMIT_URL" method="post" enctype="application/x-www-form-urlencoded">
-    <label for="login">Login:</label>
-    <input type="text" id="login" name="login"><br><br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password"><br><br>
-    <input type="submit" value="Submit">
-</form>
+<div id="login_form">
+    <form action="$SUBMIT_URL" method="post" enctype="application/x-www-form-urlencoded">
+        <label for="login">Login:</label><br>
+        <input type="text" id="login" name="login"><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input id="submit_button" type="submit" value="Login">
+    </form>
+</div>
+
 </body>
 </html>

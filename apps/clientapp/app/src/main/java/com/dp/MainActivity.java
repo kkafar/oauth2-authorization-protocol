@@ -13,6 +13,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.dp.data.viewmodels.AuthorizationViewModel;
+import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.data.viewmodels.UserAuthViewModel;
 import com.dp.data.viewmodels.UserAuthViewModelFactory;
 import com.dp.database.AppDatabase;
@@ -24,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
   private AppBarConfiguration mAppBarConfiguration;
   private ActivityMainBinding mBinding;
-//  private AuthorizationViewModel mAuthorizationViewModel;
+  private AuthorizationViewModel mAuthorizationViewModel;
   private UserAuthViewModel mUserAuthViewModel;
   private AppDatabase mDatabase;
 
@@ -43,13 +45,14 @@ public class MainActivity extends AppCompatActivity {
     mAppBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
     NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
 
-//    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
-//        .get(AuthorizationViewModel.class);
+    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
+
+    mAuthorizationViewModel = new ViewModelProvider(this, new AuthorizationViewModelFactory())
+        .get(AuthorizationViewModel.class);
 
     mUserAuthViewModel = new ViewModelProvider(this, new UserAuthViewModelFactory())
         .get(UserAuthViewModel.class);
 
-    mDatabase = DatabaseProvider.getInstance(getApplicationContext());
   }
 
   @Override
