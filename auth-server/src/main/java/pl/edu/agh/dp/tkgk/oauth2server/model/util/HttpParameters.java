@@ -19,4 +19,5 @@ public final class HttpParameters {
     public static final String STATE = "state";
     public static final String CODE_CHALLENGE = "code_challenge";
     public static final String CODE_CHALLENGE_METHOD = "code_challenge_method";
+    public static final String USER_LOGIN = "user_login";
 }

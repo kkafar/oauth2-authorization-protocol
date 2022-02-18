@@ -6,12 +6,38 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.Objects;
 
-public record Credentials(@BsonId() String login, @BsonProperty("password") String password) {
+public class Credentials {
+    @BsonId
+    private final String login;
+    @BsonProperty(JsonFields.PASSWORD)
+    private final String password;
+    @BsonProperty(JsonFields.LOGGED_OUT_BY_ADMIN)
+    private boolean loggedOutByAdmin;
 
     @BsonCreator
-    public Credentials(@BsonProperty("login") String login, @BsonProperty("password") String password) {
+    public Credentials(@BsonProperty("login") String login, @BsonProperty("password") String password,
+                       @BsonProperty("loggedOutByAdmin") boolean loggedOutByAdmin) {
         this.login = login;
         this.password = password;
+        this.loggedOutByAdmin = loggedOutByAdmin;
+    }
+
+    public static class JsonFields {
+
+        public static final String LOGIN = "_id";
+
+        public static final String PASSWORD = "password";
+
+        public static final String LOGGED_OUT_BY_ADMIN = "logged_out_by_admin";
+
+    }
+
+    public boolean getLoggedOutByAdmin() {
+        return loggedOutByAdmin;
+    }
+
+    public void setLoggedOutByAdmin(boolean loggedOutByAdmin) {
+        this.loggedOutByAdmin = loggedOutByAdmin;
     }
 
     public String getLogin() {

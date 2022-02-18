@@ -49,7 +49,7 @@ public class HttpRequestWithParameters2AuthorizationRequest extends BaseHandler<
         String login = request.bodyParameters.get(LOGIN).get(0);
         String password = request.bodyParameters.get(PASSWORD).get(0);
 
-        return new Credentials(login,password);
+        return new Credentials(login,password, false);
     }
 
 

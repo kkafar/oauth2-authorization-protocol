@@ -72,4 +72,8 @@ public interface Database {
     Map<String, Boolean> getUserLoginsWithActiveInfo();
 
     void logOutUser(String userLogin);
+
+    Optional<Credentials> getUserCredentialsAndResetLoggedOutStatus(String userLogin);
+
+    void resetLoggedOutByAdminStatus(String userLogin);
 }

@@ -17,6 +17,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.converters.HttpRequ
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers.HttpHeadersValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers.RepeatingGetParametersChecker;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.*;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.checkloggedoutendpoint.CheckLoggedOutRequestHandler;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.checkloggedoutendpoint.CheckLoggedOutRequestValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenendpoint.TokenGrantTypeDispatcher;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenendpoint.TokenRequestValidator;
@@ -49,6 +51,7 @@ public class ServerEndpointsBuilder {
         buildAuthorizationEndpoint();
         buildAuthErrorPageEndpoint();
         buildAdminEndpoint();
+        buildCheckUserLoggedOutByAdminEndpoint();
     }
 
     private void buildAdminEndpoint() {
@@ -57,6 +60,13 @@ public class ServerEndpointsBuilder {
         injectDatabase(firstHandler.getChain(), AuthorizationDatabaseProvider.getInstance());
 
         endpointHandlerMap.put("/admin", firstHandler);
+    }
+
+    private void buildCheckUserLoggedOutByAdminEndpoint() {
+        Handler<FullHttpRequest,HttpPostRequestDecoder> firstHandler = new CheckLoggedOutRequestValidator();
+        firstHandler.setNextAndGet(new CheckLoggedOutRequestHandler());
+
+        endpointHandlerMap.put("/checkLoggedOutByAdmin", firstHandler);
     }
 
     private void buildAuthErrorPageEndpoint() {

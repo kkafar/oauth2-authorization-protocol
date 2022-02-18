@@ -22,7 +22,7 @@ public class RAMDBFacade implements Database{
     private final Random random;
     private final static int SESSION_LIFE_TIME_IN_SECONDS = 1200;
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
-    private final Credentials validCredentials = new Credentials("ala", "makota");
+    private final Credentials validCredentials = new Credentials("ala", "makota", false);
 
     private RAMDBFacade() {
         sessionHashMap = new ConcurrentHashMap<>();
@@ -153,5 +153,14 @@ public class RAMDBFacade implements Database{
 
     @Override
     public void logOutUser(String userLogin) {
+    }
+
+    @Override
+    public Optional<Credentials> getUserCredentialsAndResetLoggedOutStatus(String userLogin) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void resetLoggedOutByAdminStatus(String userLogin) {
     }
 }

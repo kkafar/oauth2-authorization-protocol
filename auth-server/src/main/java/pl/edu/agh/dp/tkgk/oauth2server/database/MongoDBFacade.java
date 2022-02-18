@@ -1,8 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -19,7 +17,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -92,6 +89,9 @@ public final class MongoDBFacade implements Database {
 
         String authCode = decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
 
+        AuthCode authCodeObj = queries.getObjectFromCollection(authCodesCollection, AuthCode.JsonFields.ID, authCode);
+        resetLoggedOutByAdminStatus(authCodeObj.getUserLogin());
+
         String tokenId = decodedToken.getId();
 
         if (tokenHint == TokenHint.NO_TOKEN_HINT) {
@@ -139,6 +139,9 @@ public final class MongoDBFacade implements Database {
         String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
 
         Token tokenObj = new Token(tokenId, token, authorizationCode, clientId);
+
+        AuthCode authCodeObj = queries.getObjectFromCollection(authCodesCollection, AuthCode.JsonFields.ID, authorizationCode);
+        resetLoggedOutByAdminStatus(authCodeObj.getUserLogin());
 
         MongoCollection<Token> tokens = isAccessToken ? accessTokensCollection : refreshTokensCollection;
         queries.addObjectToCollection(tokenObj, tokens);
@@ -264,6 +267,23 @@ public final class MongoDBFacade implements Database {
             queries.deleteObjectsFromCollection(accessTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
             queries.deleteObjectsFromCollection(refreshTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
         }
+
+        queries.updateObjectFromCollection(credentialsCollection, Credentials.JsonFields.LOGIN, userLogin,
+                Credentials.JsonFields.LOGGED_OUT_BY_ADMIN, true);
+    }
+
+    @Override
+    public Optional<Credentials> getUserCredentialsAndResetLoggedOutStatus(String userLogin) {
+        Credentials credentials = queries.getObjectFromCollection(credentialsCollection, Credentials.JsonFields.LOGIN, userLogin);
+        if (credentials != null && credentials.getLoggedOutByAdmin()) {
+            resetLoggedOutByAdminStatus(userLogin);
+        }
+        return Optional.ofNullable(credentials);
+    }
+
+    public void resetLoggedOutByAdminStatus(String userLogin) {
+        queries.updateObjectFromCollection(credentialsCollection, Credentials.JsonFields.LOGIN, userLogin,
+                Credentials.JsonFields.LOGGED_OUT_BY_ADMIN, false);
     }
 
     // for testing purposes now only

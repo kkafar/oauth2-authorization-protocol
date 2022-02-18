@@ -64,7 +64,7 @@ public class AuthorizationRequestMother {
                 "challenge",
                 CodeChallengeMethod.PLAIN,
                 Set.of("all"),
-                new Credentials("ala", "makota"),
+                new Credentials("ala", "makota", false),
                 "session_ala",
                 false
         );
@@ -80,7 +80,7 @@ public class AuthorizationRequestMother {
                 "challenge",
                 CodeChallengeMethod.PLAIN,
                 Set.of("all"),
-                new Credentials("ala", "makota"),
+                new Credentials("ala", "makota", false),
                 null,
                 false
         );

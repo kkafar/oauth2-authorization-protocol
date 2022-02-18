@@ -125,11 +125,12 @@ public final class AuthCode {
         return expireTime == authCode.expireTime && used == authCode.used && Objects.equals(code, authCode.code)
                 && Objects.equals(codeChallenge, authCode.codeChallenge)
                 && Objects.equals(codeChallengeMethod, authCode.codeChallengeMethod)
-                && Objects.equals(clientId, authCode.clientId);
+                && Objects.equals(clientId, authCode.clientId)
+                && Objects.equals(userLogin, authCode.userLogin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(code, codeChallenge, codeChallengeMethod, expireTime, clientId, used);
+        return Objects.hash(code, codeChallenge, codeChallengeMethod, expireTime, clientId, userLogin, used);
     }
 }
