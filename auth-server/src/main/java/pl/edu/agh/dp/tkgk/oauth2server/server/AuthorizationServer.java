@@ -29,6 +29,8 @@ public class AuthorizationServer {
 
             logger.info("Server is running on port " + port);
 
+
+
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

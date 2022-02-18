@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.Handler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.adminpanel.AdminPageResponder;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.adminpanel.InvalidateTokenHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.autherrorpage.ErrorPageResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.AuthorizationCodeResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.authrequesthandlers.IdentityVerifier;
@@ -44,6 +46,13 @@ public class ServerEndpointsBuilder {
         buildPingEndpoint();
         buildAuthorizationEndpoint();
         buildAuthErrorPageEndpoint();
+        buildAdminEndpoint();
+    }
+
+    private void buildAdminEndpoint() {
+        Handler<FullHttpRequest,FullHttpRequest> firstHandler = new InvalidateTokenHandler();
+        firstHandler.setNextAndGet(new AdminPageResponder());
+        endpointHandlerMap.put("/admin", firstHandler);
     }
 
     private void buildAuthErrorPageEndpoint() {
