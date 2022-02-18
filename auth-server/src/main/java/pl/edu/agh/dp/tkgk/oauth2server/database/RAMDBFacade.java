@@ -140,8 +140,18 @@ public class RAMDBFacade implements Database{
 
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        request.clientId, false, request.scope.stream().toList()); // AuthCode needs clientId and used parameters, so I added them here
+                        request.clientId, sessionHashMap.get(request.sessionId).getLogin(),
+                        false, request.scope.stream().toList()); // AuthCode needs clientId and used parameters, so I added them here
         authCodeHashMap.put(code, authCode);
         return code;
+    }
+
+    @Override
+    public Map<String, Boolean> getUserLoginsWithActiveInfo() {
+        return null;
+    }
+
+    @Override
+    public void logOutUser(String userLogin) {
     }
 }

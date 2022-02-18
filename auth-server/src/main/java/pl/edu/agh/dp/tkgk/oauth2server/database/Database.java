@@ -10,6 +10,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface Database {
@@ -40,7 +41,7 @@ public interface Database {
     /**
      * Generates new token with given parameters and unique token id, adds token to database and then updates
      * <code>authorizationCode</code> as used
-     * @param expiresIn validity time in days
+     * @param expiresIn validity time in seconds
      * @param authorizationCode authorization code to be marked as used
      * @param isAccessToken indicates if token is access or refresh token
      * @param tokenType e.g. "Bearer"
@@ -51,7 +52,7 @@ public interface Database {
 
     /**
      * Generates new token with given parameters and unique token id, adds token to database
-     * @param expiresIn validity time in days
+     * @param expiresIn validity time in seconds
      * @param authorizationCode authorization code to be marked as used
      * @param isAccessToken indicates if token is access or refresh token
      * @param tokenType e.g. "Bearer"
@@ -67,4 +68,8 @@ public interface Database {
     String createNewSession(String login);
 
     String generateCode(AuthorizationRequest request);
+
+    Map<String, Boolean> getUserLoginsWithActiveInfo();
+
+    void logOutUser(String userLogin);
 }

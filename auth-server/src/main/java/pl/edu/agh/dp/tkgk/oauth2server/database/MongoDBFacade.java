@@ -1,6 +1,8 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -17,6 +19,8 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public final class MongoDBFacade implements Database {
@@ -30,6 +34,22 @@ public final class MongoDBFacade implements Database {
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
     public final static long SESSION_LIFE_TIME_IN_SECONDS = 1200;
 
+    private final MongoCollection<AuthCode> authCodesCollection =
+            getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
+
+    private final MongoCollection<Token> refreshTokensCollection =
+            getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
+
+    private final MongoCollection<Token> accessTokensCollection =
+            getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
+
+    private final MongoCollection<Credentials> credentialsCollection =
+            getCollection(Credentials.class, MongoDBInfo.Collections.CREDENTIALS_COLLECTION.toString());
+
+    private final MongoCollection<Client> clientsCollection =
+            getCollection(Client.class, MongoDBInfo.Collections.CLIENTS_COLLECTION.toString());
+
+    private final Logger logger = Logger.getGlobal();
 
     private MongoDBFacade() {
         sessionMap = new ConcurrentHashMap<>();
@@ -50,17 +70,11 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
-        MongoCollection<Token> accessTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
-
-        MongoCollection<Token> refreshTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
-
         if (tokenHint == TokenHint.ACCESS_TOKEN) {
-            return fetchTokenWithTwoTries(tokenId, accessTokens, refreshTokens);
+            return fetchTokenWithTwoTries(tokenId, accessTokensCollection, refreshTokensCollection);
         }
 
-        return fetchTokenWithTwoTries(tokenId, refreshTokens, accessTokens);
+        return fetchTokenWithTwoTries(tokenId, refreshTokensCollection, accessTokensCollection);
     }
 
     private Optional<Token> fetchTokenWithTwoTries(String tokenId, MongoCollection<Token> expectedTokens,
@@ -76,28 +90,22 @@ public final class MongoDBFacade implements Database {
     @Override
     public void tokenRevocation(DecodedJWT decodedToken, TokenHint tokenHint) {
 
-        MongoCollection<Token> accessTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString());
-
-        MongoCollection<Token> refreshTokens =
-                getCollection(Token.class, MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString());
-
         String authCode = decodedToken.getClaim(DecodedToken.CustomClaims.AUTH_CODE).asString();
 
         String tokenId = decodedToken.getId();
 
         if (tokenHint == TokenHint.NO_TOKEN_HINT) {
-            if (queries.getObjectFromCollection(accessTokens, Token.JsonFields.ID, tokenId) != null) {
+            if (queries.getObjectFromCollection(accessTokensCollection, Token.JsonFields.ID, tokenId) != null) {
                 tokenHint = TokenHint.ACCESS_TOKEN;
-            } else if (queries.getObjectFromCollection(refreshTokens, Token.JsonFields.ID, tokenId) != null) {
+            } else if (queries.getObjectFromCollection(refreshTokensCollection, Token.JsonFields.ID, tokenId) != null) {
                 tokenHint = TokenHint.REFRESH_TOKEN;
             }
         }
 
         if (tokenHint == TokenHint.ACCESS_TOKEN) {
-            tokenAndAssociatedTokensRemoval(refreshTokens, accessTokens, tokenId, authCode);
+            tokenAndAssociatedTokensRemoval(refreshTokensCollection, accessTokensCollection, tokenId, authCode);
         } else if (tokenHint == TokenHint.REFRESH_TOKEN) {
-            tokenAndAssociatedTokensRemoval(accessTokens, refreshTokens, tokenId, authCode);
+            tokenAndAssociatedTokensRemoval(accessTokensCollection, refreshTokensCollection, tokenId, authCode);
         }
     }
 
@@ -115,14 +123,12 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public Optional<Client> fetchClient(String clientId) {
-        MongoCollection<Client> clients = getCollection(Client.class, MongoDBInfo.Collections.CLIENTS_COLLECTION.toString());
-        return Optional.ofNullable(queries.getObjectFromCollection(clients, Client.JsonFields.ID, clientId));
+        return Optional.ofNullable(queries.getObjectFromCollection(clientsCollection, Client.JsonFields.ID, clientId));
     }
 
     @Override
     public Optional<AuthCode> fetchAuthorizationCode(String authorizationCode) {
-        MongoCollection<AuthCode> authCodes = getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
-        return Optional.ofNullable(queries.getObjectFromCollection(authCodes, AuthCode.JsonFields.ID, authorizationCode));
+        return Optional.ofNullable(queries.getObjectFromCollection(authCodesCollection, AuthCode.JsonFields.ID, authorizationCode));
     }
 
     @Override
@@ -134,10 +140,7 @@ public final class MongoDBFacade implements Database {
 
         Token tokenObj = new Token(tokenId, token, authorizationCode, clientId);
 
-        String tokensCollection = isAccessToken ? MongoDBInfo.Collections.ACCESS_TOKENS_COLLECTION.toString()
-                : MongoDBInfo.Collections.REFRESH_TOKENS_COLLECTION.toString();
-
-        MongoCollection<Token> tokens = getCollection(Token.class, tokensCollection);
+        MongoCollection<Token> tokens = isAccessToken ? accessTokensCollection : refreshTokensCollection;
         queries.addObjectToCollection(tokenObj, tokens);
 
         return tokenObj;
@@ -150,10 +153,7 @@ public final class MongoDBFacade implements Database {
         Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
                 isAccessToken, tokenType, authorizationCode.getClientId());
 
-        MongoCollection<AuthCode> authCodes =
-                getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
-
-        queries.updateObjectFromCollection(authCodes, AuthCode.JsonFields.ID, authorizationCode.getCode(),
+        queries.updateObjectFromCollection(authCodesCollection, AuthCode.JsonFields.ID, authorizationCode.getCode(),
                 AuthCode.JsonFields.USED, true);
 
         return token;
@@ -184,9 +184,7 @@ public final class MongoDBFacade implements Database {
 
     @Override
     public boolean areCredentialsValid(@NotNull Credentials credentials) {
-        MongoCollection<Credentials> credentialsMongoCollection =
-                getCollection(Credentials.class, MongoDBInfo.Collections.CREDENTIALS_COLLECTION.toString());
-        Credentials storedCredentials = queries.getObjectFromCollection(credentialsMongoCollection, "_id", credentials.getLogin());
+        Credentials storedCredentials = queries.getObjectFromCollection(credentialsCollection, "_id", credentials.getLogin());
         return credentials.equals(storedCredentials);
     }
 
@@ -205,11 +203,10 @@ public final class MongoDBFacade implements Database {
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        request.clientId, false, request.scope.stream().toList());
+                        request.clientId, sessionMap.get(request.sessionId).getLogin(), false,
+                        request.scope.stream().toList());
 
-        MongoCollection<AuthCode> authCodeMongoCollection =
-                getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());
-        queries.addObjectToCollection(authCode, authCodeMongoCollection);
+        queries.addObjectToCollection(authCode, authCodesCollection);
 
         return code;
     }
@@ -219,6 +216,54 @@ public final class MongoDBFacade implements Database {
         byte[] randomBytes = new byte[x];
         random.nextBytes(randomBytes);
         return new String(Base64.getUrlEncoder().encode(randomBytes));
+    }
+
+    @Override
+    public Map<String, Boolean> getUserLoginsWithActiveInfo() {
+        List<Credentials> credentialsList =
+                queries.getObjectsFromCollection(credentialsCollection, "_id", null);
+
+        Map<String, Boolean> result = new HashMap<>();
+
+        credentialsList.forEach(credential -> {
+            String login = credential.getLogin();
+            result.put(login, isUserLogged(login));
+        });
+
+        return result;
+    }
+
+    private boolean isUserLogged(String userLogin) {
+        List<AuthCode> authCodesList =
+                queries.getObjectsFromCollection(authCodesCollection, AuthCode.JsonFields.USER_LOGIN, userLogin);
+
+        for (AuthCode authCode : authCodesList) {
+            if (!authCode.isUsed()) continue;
+            List<Token> accessTokens =
+                    queries.getObjectsFromCollection(accessTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
+            for (Token accessToken : accessTokens) {
+                if (accessToken.getDecodedToken().isActive()) return true;
+            }
+
+            List<Token> refreshTokens =
+                    queries.getObjectsFromCollection(refreshTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
+            for (Token refreshToken : refreshTokens) {
+                if (refreshToken.getDecodedToken().isActive()) return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public void logOutUser(String userLogin) {
+        List<AuthCode> authCodesList =
+                queries.getObjectsFromCollection(authCodesCollection, AuthCode.JsonFields.USER_LOGIN, userLogin);
+
+        for (AuthCode authCode : authCodesList) {
+            queries.deleteObjectsFromCollection(accessTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
+            queries.deleteObjectsFromCollection(refreshTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
+        }
     }
 
     // for testing purposes now only
