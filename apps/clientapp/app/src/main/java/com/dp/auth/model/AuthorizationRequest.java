@@ -5,7 +5,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import com.dp.auth.AuthorizationServerEndpointName;
-import com.dp.auth.OAuthHttpsQueryParameter;
+import com.dp.auth.OAuthHttpRequestParameter;
 import com.dp.auth.pkce.CodeChallengeMethod;
 
 import java.util.Set;
@@ -46,18 +46,18 @@ public final class AuthorizationRequest {
     builder.scheme("https")
         .authority(mAuthServerAuthority)
         .appendPath(AuthorizationServerEndpointName.AUTHORIZATION.toString())
-        .appendQueryParameter(OAuthHttpsQueryParameter.RESPONSE_TYPE.toString(), mResponseType)
-        .appendQueryParameter(OAuthHttpsQueryParameter.CLIENT_ID.toString(), mClientId)
-        .appendQueryParameter(OAuthHttpsQueryParameter.CODE_CHALLENGE.toString(), mCodeChallenge);
+        .appendQueryParameter(OAuthHttpRequestParameter.RESPONSE_TYPE.toString(), mResponseType)
+        .appendQueryParameter(OAuthHttpRequestParameter.CLIENT_ID.toString(), mClientId)
+        .appendQueryParameter(OAuthHttpRequestParameter.CODE_CHALLENGE.toString(), mCodeChallenge);
 
     if (mCodeChallengeMethod != null) {
-      builder.appendQueryParameter(OAuthHttpsQueryParameter.CODE_CHALLENGE_METHOD.toString(), mCodeChallengeMethod);
+      builder.appendQueryParameter(OAuthHttpRequestParameter.CODE_CHALLENGE_METHOD.toString(), mCodeChallengeMethod);
     }
     if (mRedirectUri != null) {
-      builder.appendQueryParameter(OAuthHttpsQueryParameter.REDIRECT_URI.toString(), mRedirectUri);
+      builder.appendQueryParameter(OAuthHttpRequestParameter.REDIRECT_URI.toString(), mRedirectUri);
     }
     if (mState != null) {
-      builder.appendQueryParameter(OAuthHttpsQueryParameter.STATE.toString(), mState);
+      builder.appendQueryParameter(OAuthHttpRequestParameter.STATE.toString(), mState);
     }
     if (mScopesSet != null && !mScopesSet.isEmpty()) {
       StringBuilder scopeSetBuilder = new StringBuilder();
@@ -65,7 +65,7 @@ public final class AuthorizationRequest {
         scopeSetBuilder.append(scope).append(" ");
       });
       scopeSetBuilder.deleteCharAt(scopeSetBuilder.length() - 1);
-      builder.appendQueryParameter(OAuthHttpsQueryParameter.SCOPE.toString(), scopeSetBuilder.toString());
+      builder.appendQueryParameter(OAuthHttpRequestParameter.SCOPE.toString(), scopeSetBuilder.toString());
     }
     return builder.build();
   }
