@@ -94,7 +94,7 @@ public final class AuthorizationManager {
     mDatabase = DatabaseProvider.getInstance(null);
     mUserAuthInfoDao = mDatabase.userAuthInfoDao();
     mAuthProcessStatus = AuthStatus.UNDEFINED;
-    executor = Executors.newSingleThreadExecutor();
+    executor = Executors.newFixedThreadPool(2);
   }
 
   public static AuthorizationManager getInstance() {
@@ -244,7 +244,7 @@ public final class AuthorizationManager {
   public OperationStatus tryRefreshTokenRequest(String refreshToken) {
     Log.d(TAG, "refreshToken");
 
-    executor.submit(new HttpRequestTask(
+    Future guard = executor.submit(new HttpRequestTask(
         new RefreshTokenRequestFactory(refreshToken),
         httpResponse -> {
           Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
@@ -263,6 +263,11 @@ public final class AuthorizationManager {
           ));
         }
     ));
+    try {
+      guard.get();
+    } catch (InterruptedException | ExecutionException exception) {
+      exception.printStackTrace();
+    }
     return new OperationStatus(true, null);
   }
 
