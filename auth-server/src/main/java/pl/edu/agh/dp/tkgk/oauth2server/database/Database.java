@@ -10,6 +10,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.Token;
 import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenHint;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface Database {
@@ -67,4 +68,8 @@ public interface Database {
     String createNewSession(String login);
 
     String generateCode(AuthorizationRequest request);
+
+    Map<String, Boolean> getUserLoginsWithActiveInfo();
+
+    void logOutUser(String userLogin);
 }

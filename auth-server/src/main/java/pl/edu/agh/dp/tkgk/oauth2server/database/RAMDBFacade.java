@@ -145,4 +145,13 @@ public class RAMDBFacade implements Database{
         authCodeHashMap.put(code, authCode);
         return code;
     }
+
+    @Override
+    public Map<String, Boolean> getUserLoginsWithActiveInfo() {
+        return null;
+    }
+
+    @Override
+    public void logOutUser(String userLogin) {
+    }
 }

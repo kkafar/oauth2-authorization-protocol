@@ -3,6 +3,7 @@ package pl.edu.agh.dp.tkgk.oauth2server.database.queries;
 import com.mongodb.client.MongoCollection;
 import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -47,4 +48,9 @@ public class Queries {
         return genericQueries.getObjectsFromCollection(objects, filter).first();
     }
 
+    public <T, K> List<T> getObjectsFromCollection(MongoCollection<T> objects, String fieldName, K fieldValue) {
+        if (fieldValue == null) return objects.find().into(new ArrayList<T>());
+        Bson filter = eq(fieldName, fieldValue);
+        return genericQueries.getObjectsFromCollection(objects, filter).into(new ArrayList<T>());
+    }
 }
