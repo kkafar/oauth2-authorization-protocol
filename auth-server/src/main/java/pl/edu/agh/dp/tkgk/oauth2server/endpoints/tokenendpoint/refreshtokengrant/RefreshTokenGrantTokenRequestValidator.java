@@ -67,11 +67,6 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
 
             if (new ArrayList<>(new HashSet<>(scopeItems)).size() != scopeItems.size()) return false; // requested scope contains duplicates
 
-            Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(refreshTokenObj.getAuthCode());
-
-            if (authCodeOptional.isEmpty()) return false;
-
-            authCodeObj = authCodeOptional.get();
             List<String> authCodeScope = authCodeObj.getScope();
 
             for (String scopeItem : scopeItems) {
@@ -108,9 +103,20 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
             refreshTokenObj = refreshTokenObjOptional.get();
             DecodedToken decodedRefreshTokenObj = refreshTokenObj.getDecodedToken();
 
-            return decodedRefreshTokenObj.isActive() && !decodedRefreshTokenObj.isAccessToken();
+            return decodedRefreshTokenObj.isActive() && !decodedRefreshTokenObj.isAccessToken()
+                    && getAuthorizationCodeFromDb();
         }
 
         return false;
+    }
+
+    private boolean getAuthorizationCodeFromDb() {
+        Optional<AuthCode> authCodeOptional = database.fetchAuthorizationCode(refreshTokenObj.getAuthCode());
+
+        if (authCodeOptional.isEmpty()) return false;
+
+        authCodeObj = authCodeOptional.get();
+
+        return true;
     }
 }
