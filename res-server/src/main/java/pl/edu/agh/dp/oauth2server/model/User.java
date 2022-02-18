@@ -23,7 +23,7 @@ public class User {
                 @BsonProperty("user_id") String userID,
                 @BsonProperty("username") String username,
                 @BsonProperty("mail") String mail,
-                @BsonProperty("posts") String nick) {
+                @BsonProperty("nick") String nick) {
         this.id = id;
         this.userID = userID;
         this.username = username;
