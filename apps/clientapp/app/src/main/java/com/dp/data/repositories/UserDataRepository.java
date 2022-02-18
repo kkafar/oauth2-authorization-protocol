@@ -22,9 +22,9 @@ public class UserDataRepository {
   }
 
   public UserDataState updateUserData() {
+
     return mDataSource
         .fetchUserDataFromServer(
-            mAuthorizationManager.getLatestToken(),
-            mAuthorizationManager.getLatestAuthorizationRequest().mScopesSet);
+            mAuthorizationManager.getLatestTokenSync());
   }
 }

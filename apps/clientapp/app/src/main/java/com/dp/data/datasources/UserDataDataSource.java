@@ -39,7 +39,7 @@ public class UserDataDataSource {
     gson = new Gson();
   }
 
-  public UserDataState fetchUserDataFromServer(String token, Set<String> scopes) {
+  public UserDataState fetchUserDataFromServer(String token) {
     Thread connectionExecutor = new Thread(() -> {
       try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
         HttpGet httpGetRequest = new HttpGet(mResourceServerDataSource.getAddress());

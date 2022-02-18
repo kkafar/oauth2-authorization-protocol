@@ -16,6 +16,8 @@ import com.dp.data.viewmodels.AuthorizationViewModel;
 import com.dp.data.viewmodels.AuthorizationViewModelFactory;
 import com.dp.databinding.ActivityAuthorizationBinding;
 
+import java.util.concurrent.ExecutionException;
+
 public class AuthorizationActivity extends AppCompatActivity {
   public final String TAG = "AuthorizationActivity";
 
@@ -36,19 +38,15 @@ public class AuthorizationActivity extends AppCompatActivity {
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
 
-    Thread executor = new Thread(() -> {
-      AuthStatus result =  mAuthViewModel.authorize(this);
-      if (result == AuthStatus.COMPLETED_OK) {
-        setResult(RESULT_OK);
-        finish();
-      } else if (result == AuthStatus.TOKEN_REQUEST_REQUIRED) {
-
-      }
-    });
-    executor.start();
     try {
-      executor.join();
-    } catch (Exception ignore) {}
+      mAuthViewModel.authorize(this);
+//      setResult(RESULT_OK, null);
+//      finish();
+    } catch (ExecutionException | InterruptedException e) {
+      e.printStackTrace();
+      setResult(RESULT_CANCELED, null);
+      finish();
+    }
   }
 
   @Override
@@ -72,9 +70,8 @@ public class AuthorizationActivity extends AppCompatActivity {
     Log.d(TAG, "Whole server response: " + intentData);
     Log.d(TAG, "Authorization code grant granted by server: " + response.mCode);
 
-    TokenResponse tokenResponse = mAuthViewModel.acquireAccessToken(response);
-    Intent resultIntent = tokenResponse.toIntent();
-    setResult(RESULT_OK, resultIntent);
+    mAuthViewModel.acquireAccessToken(this, response);
+    setResult(RESULT_OK, null);
     finish();
   }
 }
