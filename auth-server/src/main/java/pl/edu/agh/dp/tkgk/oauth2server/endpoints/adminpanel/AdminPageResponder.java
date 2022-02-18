@@ -8,12 +8,12 @@ import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
-import pl.edu.agh.dp.tkgk.oauth2server.server.AuthorizationServer;
 import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 
-import javax.xml.crypto.Data;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> implements DatabaseInjectable {
     private Database database;
@@ -21,7 +21,7 @@ public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> imple
 
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
-        List<Credentials> users = List.of(new Credentials("ala", "makota"));
+        List<String> users = getUsers();
         String adminPage, userFragment;
         try {
             adminPage = AuthorizationServerUtil.loadTextResource("html/admin_page.html");
@@ -31,9 +31,9 @@ public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> imple
             return null;
         }
 
-        for(Credentials user : users){
+        for(String user : users){
             String concreteUserFragment = userFragment;
-            concreteUserFragment = concreteUserFragment.replace("$USER_NAME", user.getLogin());
+            concreteUserFragment = concreteUserFragment.replace("$USER_NAME", user);
             adminPage = adminPage.replace("$USER_FRAGMENT", concreteUserFragment);
         }
         adminPage = adminPage.replace("$USER_FRAGMENT", "");
@@ -44,8 +44,17 @@ public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> imple
         return builder.getResponse();
     }
 
+    private List<String> getUsers() {
+        List<String> users = database.getUserLoginsWithActiveInfo().entrySet()
+                .stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .toList();
+        return users;
+    }
+
     @Override
     public void setDatabase(Database database) {
-
+        this.database = database;
     }
 }

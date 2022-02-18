@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.common.Handler;
 import pl.edu.agh.dp.tkgk.oauth2server.database.AuthorizationDatabaseProvider;
+import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.adminpanel.AdminPageResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.adminpanel.InvalidateTokenHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.autherrorpage.ErrorPageResponder;
@@ -25,6 +26,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenrevocation.TokenRevocation
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenrevocation.TokenRevocationRequestValidator;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class ServerEndpointsBuilder {
 
@@ -52,6 +54,8 @@ public class ServerEndpointsBuilder {
     private void buildAdminEndpoint() {
         Handler<FullHttpRequest,FullHttpRequest> firstHandler = new InvalidateTokenHandler();
         firstHandler.setNextAndGet(new AdminPageResponder());
+        injectDatabase(firstHandler.getChain(), AuthorizationDatabaseProvider.getInstance());
+
         endpointHandlerMap.put("/admin", firstHandler);
     }
 
@@ -103,12 +107,16 @@ public class ServerEndpointsBuilder {
                 .setNextAndGet(new ScopeAcceptedVerifier())
                 .setNextAndGet(new AuthorizationCodeResponder());
 
-        authFirstHandler.getChain().stream()
-                .filter(handler -> handler instanceof DatabaseInjectable)
-                .map(handler -> (DatabaseInjectable)handler)
-                .forEach(injectable -> injectable.setDatabase(AuthorizationDatabaseProvider.getInstance()));
+        injectDatabase(authFirstHandler.getChain(), AuthorizationDatabaseProvider.getInstance());
 
         endpointHandlerMap.put("/authorize", authFirstHandler);
+    }
+
+    private void injectDatabase(List<Handler<?, ?>> handlers, Database database) {
+        handlers.stream()
+                .filter(handler -> handler instanceof DatabaseInjectable)
+                .map(handler -> (DatabaseInjectable)handler)
+                .forEach(injectable -> injectable.setDatabase(database));
     }
 
     private void buildPingEndpoint() {

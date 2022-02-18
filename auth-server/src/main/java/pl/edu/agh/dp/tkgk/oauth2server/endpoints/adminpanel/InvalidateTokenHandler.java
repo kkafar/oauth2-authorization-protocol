@@ -6,6 +6,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
 
 import javax.xml.crypto.Data;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class InvalidateTokenHandler extends BaseHandler<FullHttpRequest, FullHttpRequest> implements DatabaseInjectable {
@@ -15,14 +16,17 @@ public class InvalidateTokenHandler extends BaseHandler<FullHttpRequest, FullHtt
     @Override
     public FullHttpResponse handle(FullHttpRequest request) {
         if(request.headers().contains(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED, false)){
-            QueryStringDecoder decoder = new QueryStringDecoder(new String(request.content().array()));
+            String content = request.content().toString(StandardCharsets.UTF_8);
+            QueryStringDecoder decoder = new QueryStringDecoder(content, false);
             invalidate(decoder.parameters().keySet());
         }
         return next.handle(request);
     }
 
     private void invalidate(Set<String> usernames){
-
+        for(String user : usernames){
+            database.logOutUser(user);
+        }
     }
 
     @Override
