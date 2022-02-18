@@ -265,7 +265,7 @@ public final class AuthorizationManager {
               old.uid,
               old.authCode,
               old.codeVerifier,
-              tokenResponse.getRefreshToken(),
+              tokenResponse.getAccessToken(),
               old.refreshToken,
               old.tokenType,
               tokenResponse.getExpireTime(),
