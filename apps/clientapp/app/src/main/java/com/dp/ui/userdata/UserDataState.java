@@ -11,10 +11,17 @@ public class UserDataState {
 
   @Nullable final String nick;
 
-  public UserDataState(@Nullable String name, @Nullable String email, @Nullable String nick) {
+  @Nullable final String error;
+
+  public UserDataState(
+      @Nullable String name,
+      @Nullable String email,
+      @Nullable String nick,
+      @Nullable String error) {
     this.username = name;
     this.mail = email;
     this.nick = nick;
+    this.error = error;
   }
 
   public String getName() {
@@ -29,6 +36,10 @@ public class UserDataState {
     return nick;
   }
 
+  public String getError() {
+    return error;
+  }
+
   public boolean hasName() {
     return username != null;
   }
@@ -39,5 +50,15 @@ public class UserDataState {
 
   public boolean hasNick() {
     return nick != null;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    return builder
+        .append("nick: ").append(nick).append('\n')
+        .append("email: ").append(mail).append('\n')
+        .append("name: ").append(username).append('\n')
+        .append("error: ").append(error).append('\n').toString();
   }
 }
