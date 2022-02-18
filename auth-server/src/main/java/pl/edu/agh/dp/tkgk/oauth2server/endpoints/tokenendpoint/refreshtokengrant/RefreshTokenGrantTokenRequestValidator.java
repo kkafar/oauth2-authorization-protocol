@@ -96,7 +96,7 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
                 return false;
             }
 
-            Optional<Token> refreshTokenObjOptional = database.fetchToken(decodedRefreshToken.getId(), TokenHint.REFRESH_TOKEN);
+            Optional<Token> refreshTokenObjOptional = database.fetchTokenById(decodedRefreshToken.getId(), TokenHint.REFRESH_TOKEN);
 
             if (refreshTokenObjOptional.isEmpty()) return false;
 

@@ -51,7 +51,7 @@ public class FetchTokenTests {
     @Test
     public void fetchAvailableAccessTokenWithCorrectTokenHintTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken(accessToken1.getJwtId(), TokenHint.ACCESS_TOKEN);
+        Optional<Token> token = mongoDBFacade.fetchTokenById(accessToken1.getJwtId(), TokenHint.ACCESS_TOKEN);
         //then
         assertTrue(token.isPresent());
         assertEquals(accessToken1, token.get());
@@ -60,7 +60,7 @@ public class FetchTokenTests {
     @Test
     public void fetchAvailableRefreshTokenWithCorrectTokenHintTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken(refreshToken1.getJwtId(), TokenHint.REFRESH_TOKEN);
+        Optional<Token> token = mongoDBFacade.fetchTokenById(refreshToken1.getJwtId(), TokenHint.REFRESH_TOKEN);
         //then
         assertTrue(token.isPresent());
         assertEquals(refreshToken1, token.get());
@@ -69,7 +69,7 @@ public class FetchTokenTests {
     @Test
     public void fetchUnavailableTokenTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken("some-fake-id", TokenHint.ACCESS_TOKEN);
+        Optional<Token> token = mongoDBFacade.fetchTokenById("some-fake-id", TokenHint.ACCESS_TOKEN);
         //then
         assertTrue(token.isEmpty());
     }
@@ -77,7 +77,7 @@ public class FetchTokenTests {
     @Test
     public void fetchAvailableRefreshTokenWithIncorrectTokenHintTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken(refreshToken1.getJwtId(), TokenHint.ACCESS_TOKEN);
+        Optional<Token> token = mongoDBFacade.fetchTokenById(refreshToken1.getJwtId(), TokenHint.ACCESS_TOKEN);
         //then
         assertTrue(token.isPresent());
         assertEquals(refreshToken1, token.get());
@@ -86,7 +86,7 @@ public class FetchTokenTests {
     @Test
     public void fetchAvailableAccessTokenWithIncorrectTokenHintTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken(accessToken1.getJwtId(), TokenHint.REFRESH_TOKEN);
+        Optional<Token> token = mongoDBFacade.fetchTokenById(accessToken1.getJwtId(), TokenHint.REFRESH_TOKEN);
         //then
         assertTrue(token.isPresent());
         assertEquals(accessToken1, token.get());
@@ -95,7 +95,7 @@ public class FetchTokenTests {
     @Test
     public void fetchAvailableTokenWithoutTokenHintTest() {
         //when
-        Optional<Token> token = mongoDBFacade.fetchToken(refreshToken1.getJwtId(), TokenHint.NO_TOKEN_HINT);
+        Optional<Token> token = mongoDBFacade.fetchTokenById(refreshToken1.getJwtId(), TokenHint.NO_TOKEN_HINT);
         //then
         assertTrue(token.isPresent());
         assertEquals(refreshToken1, token.get());

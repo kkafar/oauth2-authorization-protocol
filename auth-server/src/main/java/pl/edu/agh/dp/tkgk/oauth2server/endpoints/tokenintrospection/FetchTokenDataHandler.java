@@ -43,7 +43,7 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, O
             tokenHint = bodyDecoder.fetchTokenHint();
             decodedJWT = TokenUtil.decodeToken(tokenString);
             Database database = AuthorizationDatabaseProvider.getInstance();
-            Optional<Token> optionalToken = database.fetchToken(decodedJWT.getId(), tokenHint);
+            Optional<Token> optionalToken = database.fetchTokenById(decodedJWT.getId(), tokenHint);
 
             return director.constructJsonResponse(responseBuilder, tokenDataToJson(optionalToken),
                     HttpResponseStatus.OK, false);

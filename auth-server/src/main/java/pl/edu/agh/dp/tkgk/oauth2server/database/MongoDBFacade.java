@@ -1,8 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -19,7 +17,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -69,7 +66,7 @@ public final class MongoDBFacade implements Database {
     }
 
     @Override
-    public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
+    public Optional<Token> fetchTokenById(String tokenId, TokenHint tokenHint) {
         if (tokenHint == TokenHint.ACCESS_TOKEN) {
             return fetchTokenWithTwoTries(tokenId, accessTokensCollection, refreshTokensCollection);
         }
@@ -85,6 +82,16 @@ public final class MongoDBFacade implements Database {
             return Optional.ofNullable(queries.getObjectFromCollection(otherTokens, Token.JsonFields.ID, tokenId));
         }
         return Optional.of(token);
+    }
+
+    @Override
+    public Optional<Token> fetchToken(String token, TokenHint tokenHint) {
+        return Optional.ofNullable(
+                queries.getObjectFromCollection(
+                        tokenHint == TokenHint.ACCESS_TOKEN ? accessTokensCollection : refreshTokensCollection,
+                        Token.JsonFields.TOKEN, token
+                )
+        );
     }
 
     @Override
@@ -165,7 +172,7 @@ public final class MongoDBFacade implements Database {
 
         do {
             tokenId = TokenUtil.generateTokenId();
-            token = fetchToken(tokenId, TokenHint.NO_TOKEN_HINT);
+            token = fetchTokenById(tokenId, TokenHint.NO_TOKEN_HINT);
         } while (token.isPresent());
 
         return tokenId;

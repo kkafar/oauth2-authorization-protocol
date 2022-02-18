@@ -32,7 +32,9 @@ public interface Database {
      *                  not given at all
      * @return Optional of the fetched token, Optional.empty if the requested token was not available
      */
-    Optional<Token> fetchToken(String tokenId, TokenHint tokenHint);
+    Optional<Token> fetchTokenById(String tokenId, TokenHint tokenHint);
+
+    Optional<Token> fetchToken(String token, TokenHint tokenHint);
 
     Optional<Client> fetchClient(String clientId);
 

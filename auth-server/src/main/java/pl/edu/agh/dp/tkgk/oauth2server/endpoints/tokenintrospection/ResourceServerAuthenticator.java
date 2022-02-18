@@ -33,7 +33,7 @@ public record ResourceServerAuthenticator(FullHttpRequest request) {
         }
 
         Database database = AuthorizationDatabaseProvider.getInstance();
-        return database.fetchToken(decodedToken.getId(), TokenHint.NO_TOKEN_HINT).isPresent();
+        return database.fetchTokenById(decodedToken.getId(), TokenHint.NO_TOKEN_HINT).isPresent();
     }
 
     public FullHttpResponse failedBearerTokenAuthenticationResponse() {

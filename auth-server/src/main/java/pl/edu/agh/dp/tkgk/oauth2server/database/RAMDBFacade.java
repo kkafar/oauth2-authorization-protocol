@@ -58,9 +58,14 @@ public class RAMDBFacade implements Database{
     }
 
     @Override
-    public Optional<Token> fetchToken(String tokenId, TokenHint tokenHint) {
+    public Optional<Token> fetchTokenById(String tokenId, TokenHint tokenHint) {
         if(accessTokens.containsKey(tokenId)) return Optional.of(accessTokens.get(tokenId));
         return Optional.ofNullable(refreshTokens.get(tokenId));
+    }
+
+    @Override
+    public Optional<Token> fetchToken(String token, TokenHint tokenHint) {
+        return Optional.empty();
     }
 
     @Override
@@ -98,7 +103,7 @@ public class RAMDBFacade implements Database{
 
         do {
             tokenId = TokenUtil.generateTokenId();
-            token = fetchToken(tokenId, TokenHint.NO_TOKEN_HINT);
+            token = fetchTokenById(tokenId, TokenHint.NO_TOKEN_HINT);
         } while (token.isPresent());
 
         return tokenId;
