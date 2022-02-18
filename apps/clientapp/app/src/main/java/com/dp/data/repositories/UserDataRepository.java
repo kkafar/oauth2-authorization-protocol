@@ -1,9 +1,12 @@
 package com.dp.data.repositories;
 
+import android.util.Log;
+
 import com.dp.data.datasources.UserDataDataSource;
 import com.dp.ui.userdata.UserDataState;
 
 public class UserDataRepository {
+  public final String TAG = "UserDataRepository";
   private volatile static UserDataRepository instance;
   private UserDataDataSource mDataSource;
 
@@ -21,10 +24,11 @@ public class UserDataRepository {
     return instance;
   }
 
-  public UserDataState updateUserData() {
-
+  public UserDataState updateUserData(String parsedScopes) {
+    Log.d(TAG, "updateUserData");
     return mDataSource
         .fetchUserDataFromServer(
-            mAuthorizationManager.getLatestTokenSync());
+            mAuthorizationManager.getLatestTokenSync(),
+            parsedScopes);
   }
 }

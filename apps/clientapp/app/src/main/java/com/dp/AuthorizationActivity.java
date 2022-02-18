@@ -37,11 +37,12 @@ public class AuthorizationActivity extends AppCompatActivity {
         this,
         new AuthorizationViewModelFactory()).get(AuthorizationViewModel.class);
 
-
     try {
-      mAuthViewModel.authorize(this);
-//      setResult(RESULT_OK, null);
-//      finish();
+      AuthStatus status =  mAuthViewModel.authorize(this);
+      if (status == AuthStatus.COMPLETED_OK) {
+        setResult(RESULT_OK);
+        finish();
+      }
     } catch (ExecutionException | InterruptedException e) {
       e.printStackTrace();
       setResult(RESULT_CANCELED, null);

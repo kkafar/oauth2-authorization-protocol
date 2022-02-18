@@ -62,7 +62,7 @@ public class AuthorizationViewModel extends ViewModel {
 
   public AuthStatus authorize(Context appContext) throws ExecutionException, InterruptedException {
     Log.d(TAG, "authorize");
-    return mAuthorizationManager.authorize(appContext);
+    return mAuthorizationManager.authorize(appContext).get();
   }
 
 

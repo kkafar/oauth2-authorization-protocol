@@ -1,14 +1,19 @@
 package com.dp.data.viewmodels;
 
 
+import android.content.Context;
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.dp.R;
 import com.dp.data.repositories.UserDataRepository;
 import com.dp.ui.userdata.UserDataState;
 
 public class UserDataViewModel extends ViewModel {
+  public final String TAG = "UserDataViewModel";
   private MutableLiveData<UserDataState> mUserDataState = new MutableLiveData<>();
 
   private UserDataRepository mUserDataRepository;
@@ -22,8 +27,14 @@ public class UserDataViewModel extends ViewModel {
   }
 
 
-  public void updateUserData() {
-    UserDataState newUserDataState = mUserDataRepository.updateUserData();
+  public void updateUserData(Context appContext) {
+    Log.d(TAG, "updateUserData");
+    String[] scopes = appContext.getResources().getStringArray(R.array.auth_required_scopes);
+    StringBuilder builder = new StringBuilder();
+    for (String scope : scopes) {
+      builder.append(scope).append(" ");
+    }
+    UserDataState newUserDataState = mUserDataRepository.updateUserData(builder.toString());
     mUserDataState.setValue(newUserDataState);
   }
 }

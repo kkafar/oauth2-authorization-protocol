@@ -6,16 +6,23 @@ import androidx.annotation.NonNull;
 
 import com.dp.auth.AuthorizationServerEndpointName;
 import com.dp.auth.model.TokenResponse;
+import com.dp.net.HttpBodyDecoders;
+import com.dp.net.HttpContentTypes;
+import com.dp.net.HttpRequestTask;
+import com.dp.net.HttpUriRequestBaseBuilder;
+import com.dp.net.OAuthHttpUriRequestBaseFactory;
 import com.dp.ui.userdata.UserDataState;
 import com.google.gson.Gson;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 
@@ -25,6 +32,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class UserDataDataSource {
   public final String TAG = "UserDataDataSource";
@@ -33,52 +44,60 @@ public class UserDataDataSource {
   private Gson gson;
 
   private UserDataState mUserDataState;
+  private ExecutorService executor;
 
   public UserDataDataSource(ResourceServerDataSource resourceServerDataSource) {
     mResourceServerDataSource = resourceServerDataSource;
     gson = new Gson();
+    executor = Executors.newSingleThreadExecutor();
   }
 
-  public UserDataState fetchUserDataFromServer(String token) {
-    Thread connectionExecutor = new Thread(() -> {
-      try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-        HttpGet httpGetRequest = new HttpGet(mResourceServerDataSource.getAddress());
-        httpGetRequest.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        httpGetRequest.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
-        httpGetRequest.addHeader("Requested-Data", "username");
+  public UserDataState fetchUserDataFromServer(String token, String scopes) {
+    Log.d(TAG, "fetchUserDataFromServer");
+    Log.d(TAG, "TOKEN: " + token);
+    Log.d(TAG, "SCOPES: " + scopes);
 
-        try (CloseableHttpResponse httpResponse = httpClient.execute(httpGetRequest)) {
-          Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
+    Future guard = executor.submit(new HttpRequestTask(
+        new UserDataRequestFactory(token, scopes),
+        httpResponse -> {
+          Log.d(TAG, "Resource server response");
           Log.d(TAG, httpResponse.toString());
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
-          Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
-          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
-          httpResponse.getEntity().getContent().read(bytes);
-          Log.d(TAG, new String(bytes));
-          mUserDataState = gson.fromJson(new String(bytes), UserDataState.class);
-        } catch (Exception exception) {
-          if (exception.getMessage() != null) {
-            Log.e(TAG, exception.getMessage());
-          }
-          exception.printStackTrace();
+          mUserDataState = HttpBodyDecoders
+              .decodeHttpResponseBody(httpResponse.getEntity(), UserDataState.class);
         }
-      } catch (IOException exception) {
-        if (exception.getMessage() != null) {
-          Log.e(TAG, exception.getMessage());
-        }
-        exception.printStackTrace();
-      }
-    });
-  connectionExecutor.start();
+    ));
 
-  try {
-    connectionExecutor.join(5000);
-  } catch (Exception ignore) {
-
+    try {
+      guard.get(); // terminate operation
+    } catch (InterruptedException | ExecutionException exception) {
+      exception.printStackTrace();
+    }
+    return mUserDataState;
   }
 
-  return mUserDataState;
+  private final class UserDataRequestFactory implements OAuthHttpUriRequestBaseFactory {
+    private final String mToken;
+    private final String mScope;
+    public UserDataRequestFactory(@NonNull String token, @NonNull String scope) {
+      mToken = token;
+      mScope = scope;
+    }
+
+    @Override
+    public HttpUriRequestBase create() {
+      HttpUriRequestBaseBuilder requestBuilder = new HttpUriRequestBaseBuilder(
+          Method.GET,
+          mResourceServerDataSource.getAddress()
+      );
+      return requestBuilder
+          .setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + mToken)
+          .setHeader(HttpHeaders.CONTENT_TYPE, HttpContentTypes.APPLICATION_X_WWW_FORM_URLENCODED)
+          .setHeader("Requested-Data", mScope)
+          .build();
+    }
   }
+
 
   private String scopesToString(@NonNull Set<String> scopes) {
     StringBuilder builder = new StringBuilder();

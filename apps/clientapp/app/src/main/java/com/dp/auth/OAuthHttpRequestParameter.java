@@ -12,6 +12,7 @@ public class OAuthHttpRequestParameter {
   public final static String GRANT_TYPE = "grant_type";
   public final static String CODE = "code";
   public final static String CODE_VERIFIER = "code_verifier";
+  public final static String REFRESH_TOKEN = "refresh_token";
 
   private OAuthHttpRequestParameter() {};
 }

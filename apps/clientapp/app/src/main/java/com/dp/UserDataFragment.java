@@ -80,7 +80,7 @@ public class UserDataFragment extends Fragment {
 
     mBinding.fetchDataButton.setOnClickListener(_view -> {
       Log.d(TAG, "fetchDataButton clicked");
-      mUserDataViewModel.updateUserData();
+      mUserDataViewModel.updateUserData(requireContext());
     });
 
     mBinding.logoutButton.setOnClickListener(_view -> {

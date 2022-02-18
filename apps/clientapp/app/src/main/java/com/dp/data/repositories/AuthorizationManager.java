@@ -28,6 +28,7 @@ import com.dp.database.AppDatabase;
 import com.dp.database.DatabaseProvider;
 import com.dp.database.dao.UserAuthInfoDao;
 import com.dp.database.entity.UserAuthInfo;
+import com.dp.net.HttpBodyDecoders;
 import com.dp.net.HttpContentTypes;
 import com.dp.net.HttpRequestTask;
 import com.dp.net.HttpUriRequestBaseBuilder;
@@ -241,65 +242,37 @@ public final class AuthorizationManager {
   }
 
   public OperationStatus tryRefreshTokenRequest(String refreshToken) {
-    Thread connectionExecutor = new Thread(() -> {
-      try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-        HttpPost httpPostRequest = new HttpPost(mAuthorizationServerDataSource.getAddressOfTokenEndpoint());
-        httpPostRequest.addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
+    Log.d(TAG, "refreshToken");
 
-        List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("grant_type", "refresh_token"));
-        parameters.add(new BasicNameValuePair("refresh_token", refreshToken));
-
-        httpPostRequest.setEntity(new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8));
-
-        try (CloseableHttpResponse httpResponse = httpClient.execute(httpPostRequest)) {
+    executor.submit(new HttpRequestTask(
+        new RefreshTokenRequestFactory(refreshToken),
+        httpResponse -> {
           Log.d(TAG, "Resource SERVER RESPONSE FOR TOKEN REQUEST");
-          Log.d(TAG, httpResponse.toString());
-          Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
-          Log.d(TAG, Long.toString(httpResponse.getEntity().getContentLength()));
-          byte[] bytes = new byte[(int)(httpResponse.getEntity().getContentLength())];
-          httpResponse.getEntity().getContent().read(bytes);
-          TokenResponse tokenResponse = gson.fromJson(new String(bytes), TokenResponse.class);
-          UserAuthInfo old = mDatabase.userAuthInfoDao().findById(0);
-          mDatabase.userAuthInfoDao().insertUserAuthInfo(new UserAuthInfo(
-              old.uid,
-              old.authCode,
-              old.codeVerifier,
+          TokenResponse tokenResponse = HttpBodyDecoders
+              .decodeHttpResponseBody(httpResponse.getEntity(), TokenResponse.class);
+          UserAuthInfo oldRecord = mUserAuthInfoDao.findById(0);
+          mUserAuthInfoDao.insertUserAuthInfo(new UserAuthInfo(
+              0,
+              oldRecord.authCode,
+              oldRecord.codeVerifier,
               tokenResponse.getAccessToken(),
-              old.refreshToken,
-              old.tokenType,
+              oldRecord.refreshToken,
+              oldRecord.tokenType,
               tokenResponse.getExpireTime(),
               System.currentTimeMillis() / 1000
           ));
-          Log.d(TAG, new String(bytes));
-        } catch (Exception exception) {
-          if (exception.getMessage() != null) {
-            Log.e(TAG, exception.getMessage());
-          }
-          exception.printStackTrace();
         }
-      } catch (IOException exception) {
-        if (exception.getMessage() != null) {
-          Log.e(TAG, exception.getMessage());
-        }
-        exception.printStackTrace();
-      }
-    });
-
-    connectionExecutor.start();
-
-    try {
-      connectionExecutor.join(8000);
-    } catch (Exception ignore) {}
-
+    ));
     return new OperationStatus(true, null);
   }
 
-  public AuthStatus authorize(Context appContext) throws ExecutionException, InterruptedException {
+  public Future<AuthStatus> authorize(Context appContext) throws ExecutionException, InterruptedException {
+    Log.d(TAG, "authorize");
     Future<AuthStatus> future =  executor.submit(() -> {
       UserAuthInfo userAuthInfo = mUserAuthInfoDao.findById(0);
 
       if (userAuthInfo != null) {
+        Log.d(TAG, "user auth info found in database");
         Log.d(TAG, userAuthInfo.toString());
         if (hasValidAccessToken(userAuthInfo)) {
           return AuthStatus.COMPLETED_OK;
@@ -316,15 +289,16 @@ public final class AuthorizationManager {
           acquireAuthorizationCode(appContext);
         }
       } else {
+        Log.d(TAG, "no user auth info found in database");
         acquireAuthorizationCode(appContext);
       }
       return AuthStatus.TOKEN_REQUEST_REQUIRED;
     });
-
-    return null; // todo
+    return future;
   }
 
   private OperationStatus acquireAuthorizationCode(Context appContext) {
+    Log.d(TAG, "acquireAuthorizationCode");
     Set<String> scopes = new HashSet<>();
     Collections.addAll(scopes, appContext.getResources().getStringArray(R.array.auth_required_scopes));
     AuthorizationRequest authorizationRequest = createNewAuthorizationRequest(
@@ -367,7 +341,8 @@ public final class AuthorizationManager {
           Log.d(TAG, "AUTH SERVER RESPONSE FOR TOKEN REQUEST");
           Log.d(TAG, httpResponse.toString());
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
-          TokenResponse tokenResponse = decodeHttpResponseBody(httpResponse.getEntity(), TokenResponse.class);
+          TokenResponse tokenResponse = HttpBodyDecoders
+              .decodeHttpResponseBody(httpResponse.getEntity(), TokenResponse.class);
           if (tokenResponse == null) return;
           UserAuthInfo userAuthInfo = new UserAuthInfo(
               0,
@@ -488,18 +463,26 @@ public final class AuthorizationManager {
     }
   }
 
-  private <T> T decodeHttpResponseBody(@NonNull HttpEntity body, Class<T> klazz) {
-    long bodyLength = body.getContentLength();
-    if (bodyLength <= 0) return null;
-    byte[] bytes = new byte[(int)(bodyLength)];
-    try {
-      body.getContent().read(bytes);
-    } catch (IOException exception) {
-      exception.printStackTrace();
-      return null;
+  private final class RefreshTokenRequestFactory implements OAuthHttpUriRequestBaseFactory {
+    private final String mRefreshToken;
+    public RefreshTokenRequestFactory(
+        @NonNull String refreshToken
+    ) {
+      mRefreshToken = refreshToken;
     }
-    String jsonString = new String(bytes);
-    T retVal = gson.fromJson(jsonString, klazz);
-    return retVal;
+
+    @Override
+    public HttpUriRequestBase create() {
+      HttpUriRequestBaseBuilder requestBuilder = new HttpUriRequestBaseBuilder(
+          Method.POST,
+          mAuthorizationServerDataSource.getAddressOfTokenEndpoint()
+      );
+      return requestBuilder
+          .setHeader(HttpHeaders.CONTENT_TYPE, HttpContentTypes.APPLICATION_X_WWW_FORM_URLENCODED)
+          .addParam(OAuthHttpRequestParameter.GRANT_TYPE, "refresh_token")
+          .addParam(OAuthHttpRequestParameter.REFRESH_TOKEN, mRefreshToken)
+          .build();
+    }
   }
+
 }
