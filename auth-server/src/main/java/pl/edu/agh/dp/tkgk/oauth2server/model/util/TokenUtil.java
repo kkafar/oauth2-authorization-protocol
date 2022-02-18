@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
@@ -37,14 +38,16 @@ public class TokenUtil {
                                        boolean isAccessToken, String tokenType, String tokenId) throws JWTCreationException {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
+        long now = Instant.now().getEpochSecond();
+
         return JWT.create()
                 .withClaim(DecodedToken.CustomClaims.AUTH_CODE, authorizationCode)
                 .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, tokenType)
                 .withClaim(DecodedToken.CustomClaims.IS_ACCESS_TOKEN, isAccessToken)
                 .withClaim(DecodedToken.CustomClaims.SCOPE, scope)
                 .withJWTId(tokenId)
-                .withExpiresAt(Date.valueOf(LocalDate.now().plusDays(expiresIn)))
-                .withIssuedAt(Date.valueOf(LocalDate.now()))
+                .withExpiresAt(new Date((now + expiresIn) * 1000))
+                .withIssuedAt(new Date(now * 1000))
                 .sign(algorithm);
     }
 

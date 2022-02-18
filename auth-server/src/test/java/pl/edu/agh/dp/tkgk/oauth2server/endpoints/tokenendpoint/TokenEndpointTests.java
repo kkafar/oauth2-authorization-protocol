@@ -56,17 +56,17 @@ public class TokenEndpointTests {
     Client client = new Client("client1", "client1_redirect_uri", List.of("image", "birth_date", "name"));
 
     AuthCode authCode = new AuthCode("code1", "abc", CodeChallengeMethod.PLAIN,
-            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), false, client.getScope());
+            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), "user", false, client.getScope());
 
     AuthCode notActiveAuthCode = new AuthCode("code2", "abc", CodeChallengeMethod.PLAIN,
-            Instant.now().minusSeconds(1000).getEpochSecond(), client.getClientId(), false, client.getScope());
+            Instant.now().minusSeconds(1000).getEpochSecond(), client.getClientId(), "user", false, client.getScope());
 
     AuthCode usedAuthCode = new AuthCode("code3", "abc", CodeChallengeMethod.PLAIN,
-            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), true, client.getScope());
+            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), "user", true, client.getScope());
 
     private final String abcToSHA256InBase64Url = "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0";
     AuthCode s256AuthCode = new AuthCode("code4", abcToSHA256InBase64Url, CodeChallengeMethod.S256,
-            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), false, client.getScope());
+            Instant.now().plusSeconds(1000).getEpochSecond(), client.getClientId(), "user", false, client.getScope());
 
     Token refreshTokenObj;
 
@@ -108,7 +108,7 @@ public class TokenEndpointTests {
         authCodes = db.getCollection(MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString(), AuthCode.class);
 
         String refreshTokenId = TokenUtil.generateTokenId();
-        String refreshToken = TokenUtil.generateToken(7, authCode.getScope(), authCode.getCode(), false,
+        String refreshToken = TokenUtil.generateToken(1000, authCode.getScope(), authCode.getCode(), false,
                 "Bearer", refreshTokenId);
 
         refreshTokenObj = new Token(refreshTokenId, refreshToken, authCode.getCode(), client.getClientId());
@@ -286,7 +286,7 @@ public class TokenEndpointTests {
 
     private Stream<Arguments> getInvalidAuthorizationCode() {
         AuthCode notAvailableInDbAuthCode = new AuthCode("x", "x", CodeChallengeMethod.PLAIN,
-                Instant.now().getEpochSecond(), "client1", false, List.of("image"));
+                Instant.now().getEpochSecond(), "client1", "user", false, List.of("image"));
 
         return Stream.of(
                 Arguments.of("not available in database", notAvailableInDbAuthCode, "x"),
@@ -338,7 +338,7 @@ public class TokenEndpointTests {
     }
 
     private Stream<Arguments> getInvalidRefreshTokens() {
-        String refreshToken1 = TokenUtil.generateToken(5, List.of("all"), authCode.getCode(), false, "Bearer", "x");
+        String refreshToken1 = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(), false, "Bearer", "x");
         Token notAvailableInDatabaseRefreshToken = new Token("x", refreshToken1, authCode.getCode(), authCode.getClientId());
 
         String tokenId2 = TokenUtil.generateTokenId();
@@ -346,7 +346,7 @@ public class TokenEndpointTests {
         Token notActiveRefreshToken = new Token(tokenId2, refreshToken2, authCode.getCode(), authCode.getClientId());
 
         String tokenId3 = TokenUtil.generateTokenId();
-        String accessToken = TokenUtil.generateToken(5, List.of("all"), authCode.getCode(), true, "Bearer", tokenId3);
+        String accessToken = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(), true, "Bearer", tokenId3);
         Token accessTokenObj = new Token(tokenId3, accessToken, authCode.getCode(), authCode.getClientId());
 
         queries.addObjectToCollection(accessTokenObj, accessTokens);

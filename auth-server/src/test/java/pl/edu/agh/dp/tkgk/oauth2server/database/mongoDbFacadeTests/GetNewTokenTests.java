@@ -42,10 +42,8 @@ public class GetNewTokenTests {
     Queries queries = new Queries();
 
     AuthCode validAuthCode = new AuthCode("code1", "abc",
-            CodeChallengeMethod.PLAIN, Instant.now().plusSeconds(1000).getEpochSecond(), "client1", false,
-            List.of("image", "password", "data"));
-
-    private static final int TWO_DAYS_IN_SECONDS = 172800;
+            CodeChallengeMethod.PLAIN, Instant.now().plusSeconds(1000).getEpochSecond(), "client1", "user",
+            false, List.of("image", "password", "data"));
 
     @BeforeAll
     public void beforeAll() {
@@ -72,7 +70,7 @@ public class GetNewTokenTests {
     @Test
     public void getNewAccessTokenWithAuthCodeTest() {
         // when
-        mongoDBFacade.getNewTokenFromAuthCode(2, validAuthCode, true, "Bearer");
+        mongoDBFacade.getNewTokenFromAuthCode(1000, validAuthCode, true, "Bearer");
 
         Token generatedAccessToken = queries.getObjectFromCollection(accessTokens, "auth_code", validAuthCode.getCode());
         DecodedToken decodedGeneratedToken = generatedAccessToken.getDecodedToken();
@@ -89,7 +87,7 @@ public class GetNewTokenTests {
         assertEquals(validAuthCode.getClientId(), decodedGeneratedToken.getClientId());
         assertEquals(decodedGeneratedToken.getExpiresAt(),
                 decodedGeneratedToken.getIssuedAt()
-                        + Instant.ofEpochSecond(0).plusSeconds(TWO_DAYS_IN_SECONDS).getEpochSecond());
+                        + Instant.ofEpochSecond(0).plusSeconds(1000).getEpochSecond());
         assertEquals(validAuthCode.getScope(), decodedGeneratedToken.getScopeList());
 
         assertTrue(authCodeUsed.isUsed());
@@ -98,7 +96,7 @@ public class GetNewTokenTests {
     @Test
     public void getNewAccessTokenTest() {
         // when
-        mongoDBFacade.getNewToken(2, validAuthCode.getScope(), validAuthCode.getCode(), true,
+        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), true,
                 "Bearer", validAuthCode.getClientId());
 
         Token generatedAccessToken = queries.getObjectFromCollection(accessTokens, "auth_code", validAuthCode.getCode());
@@ -114,14 +112,14 @@ public class GetNewTokenTests {
         assertEquals(validAuthCode.getClientId(), decodedGeneratedToken.getClientId());
         assertEquals(decodedGeneratedToken.getExpiresAt(),
                 decodedGeneratedToken.getIssuedAt()
-                        + Instant.ofEpochSecond(0).plusSeconds(TWO_DAYS_IN_SECONDS).getEpochSecond());
+                        + Instant.ofEpochSecond(0).plusSeconds(1000).getEpochSecond());
         assertEquals(validAuthCode.getScope(), decodedGeneratedToken.getScopeList());
     }
 
     @Test
     public void getNewRefreshTokenTest() {
         // when
-        mongoDBFacade.getNewToken(2, validAuthCode.getScope(), validAuthCode.getCode(), false,
+        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), false,
                 "Bearer", validAuthCode.getClientId());
 
         Token generatedRefreshToken = queries.getObjectFromCollection(refreshTokens, "auth_code", validAuthCode.getCode());
@@ -137,7 +135,7 @@ public class GetNewTokenTests {
         assertEquals(validAuthCode.getClientId(), decodedGeneratedToken.getClientId());
         assertEquals(decodedGeneratedToken.getExpiresAt(),
                 decodedGeneratedToken.getIssuedAt()
-                        + Instant.ofEpochSecond(0).plusSeconds(TWO_DAYS_IN_SECONDS).getEpochSecond());
+                        + Instant.ofEpochSecond(0).plusSeconds(1000).getEpochSecond());
         assertEquals(validAuthCode.getScope(), decodedGeneratedToken.getScopeList());
     }
 
