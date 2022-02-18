@@ -22,6 +22,8 @@ public final class AuthCode {
     private final long expireTime;
     @BsonProperty(value = JsonFields.CLIENT_ID)
     private final String clientId;
+    @BsonProperty(value = JsonFields.USER_LOGIN)
+    private final String userLogin;
     private boolean used;
     private List<String> scope;
 
@@ -31,6 +33,7 @@ public final class AuthCode {
                     @BsonProperty("codeChallengeMethod") CodeChallengeMethod codeChallengeMethod,
                     @BsonProperty("expireTime") long expireTime,
                     @BsonProperty("clientId") String clientId,
+                    @BsonProperty("userLogin") String userLogin,
                     @BsonProperty("used") boolean used,
                     @BsonProperty("scope") List<String> scope)
     {
@@ -39,6 +42,7 @@ public final class AuthCode {
         this.codeChallengeMethod = codeChallengeMethod;
         this.expireTime = expireTime;
         this.clientId = clientId;
+        this.userLogin = userLogin;
         this.used = used;
         this.scope = scope;
     }
@@ -54,6 +58,8 @@ public final class AuthCode {
         public static final String EXPIRE_TIME = "expire_time";
 
         public static final String CLIENT_ID = "client_id";
+
+        public static final String USER_LOGIN = "user_login";
 
         public static final String USED = "used";
 
@@ -83,6 +89,10 @@ public final class AuthCode {
 
     public String getClientId() {
         return clientId;
+    }
+
+    public String getUserLogin() {
+        return userLogin;
     }
 
     public boolean isUsed() {

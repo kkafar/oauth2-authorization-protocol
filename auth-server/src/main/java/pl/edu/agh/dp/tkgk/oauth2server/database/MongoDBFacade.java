@@ -205,7 +205,8 @@ public final class MongoDBFacade implements Database {
         long expireTime = Instant.now().getEpochSecond() + CODE_LIFE_TIME_IN_SECONDS;
         AuthCode authCode =
                 new AuthCode(code, request.codeChallenge, request.codeChallengeMethod, expireTime,
-                        request.clientId, false, request.scope.stream().toList());
+                        request.clientId, sessionMap.get(request.sessionId).getLogin(), false,
+                        request.scope.stream().toList());
 
         MongoCollection<AuthCode> authCodeMongoCollection =
                 getCollection(AuthCode.class, MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString());

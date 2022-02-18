@@ -40,7 +40,7 @@ public interface Database {
     /**
      * Generates new token with given parameters and unique token id, adds token to database and then updates
      * <code>authorizationCode</code> as used
-     * @param expiresIn validity time in days
+     * @param expiresIn validity time in seconds
      * @param authorizationCode authorization code to be marked as used
      * @param isAccessToken indicates if token is access or refresh token
      * @param tokenType e.g. "Bearer"
@@ -51,7 +51,7 @@ public interface Database {
 
     /**
      * Generates new token with given parameters and unique token id, adds token to database
-     * @param expiresIn validity time in days
+     * @param expiresIn validity time in seconds
      * @param authorizationCode authorization code to be marked as used
      * @param isAccessToken indicates if token is access or refresh token
      * @param tokenType e.g. "Bearer"
