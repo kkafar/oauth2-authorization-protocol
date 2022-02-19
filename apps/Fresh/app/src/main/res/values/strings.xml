@@ -1,3 +1,14 @@
 <resources>
+    <!--  Application information  -->
     <string name="app_name">Fresh</string>
+    <string name="client_id">FreshApplicationClientId</string>
+    <string-array name="required_scopes">
+        <item>username</item>
+        <item>mail</item>
+        <item>nick</item>
+    </string-array>
+
+
+    <!--    UI strings    -->
+
 </resources>
