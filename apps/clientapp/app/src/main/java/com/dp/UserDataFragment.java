@@ -62,6 +62,9 @@ public class UserDataFragment extends Fragment {
       @Override
       public void onChanged(UserAuthState userAuthState) {
         if (!userAuthState.isLoggedIn()) {
+          if (userAuthState.getContext() != null && userAuthState.getContext().equals("data_fetch_failed")) {
+            mUserAuthViewModel.notifyOnDataFetchFailure("data_fetch_failed");
+          }
           Log.d(TAG, "User is not logged in! Navigating to login fragment");
           mBinding.userNameTextView.setText(R.string.user_name_literal);
           mBinding.userEmailTextView.setText(R.string.user_email_literal);
@@ -85,7 +88,8 @@ public class UserDataFragment extends Fragment {
           if (userDataState.getNick() != null)
             mBinding.userNickTextView.setText(userDataState.getNick());
         } else {
-          mUserAuthViewModel.changeUserAuthState(new UserAuthState(false));
+          Log.d(TAG, "Fetch of user data failed with error: " + userDataState.getError());
+          mUserAuthViewModel.changeUserAuthState(new UserAuthState(false, "data_fetch_failed"));
         }
       }
     });

@@ -280,6 +280,7 @@ public final class AuthorizationManager {
         Log.d(TAG, "user auth info found in database");
         Log.d(TAG, userAuthInfo.toString());
         if (hasValidAccessToken(userAuthInfo)) {
+          // what is auth server revoked the token?
           return AuthStatus.COMPLETED_OK;
         } else if (hasRefreshToken(userAuthInfo)) {
           Log.d(TAG, "refresh token detected");
@@ -421,6 +422,12 @@ public final class AuthorizationManager {
 
   public boolean hasRefreshToken(@NonNull UserAuthInfo userAuthInfo) {
     return userAuthInfo.refreshToken != null;
+  }
+
+  public Future<?> deleteUserAuthInfo() {
+    return executor.submit(() -> {
+      mUserAuthInfoDao.deleteUserAuthInfo(mUserAuthInfoDao.findById(0));
+    });
   }
 
   private final class RevocationRequestFactory implements OAuthHttpUriRequestBaseFactory {
