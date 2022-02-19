@@ -87,10 +87,16 @@ public class DataSource {
 //          mDataRequestResultLiveData.setValue(Result.newError(exception));
 //        }
 //    ));
+
     // MOCK IMPL
     mExecutor.submit(() -> {
       Log.d(TAG, "fetchData IN EXECUTOR");
       DataResponse response = new DataResponse("Kacper", "student@agh.edu.pl", "hehe", null);
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException exception) {
+        exception.printStackTrace();
+      }
       pushResultToLiveDataStream(Result.newSuccess(response));
     });
   }

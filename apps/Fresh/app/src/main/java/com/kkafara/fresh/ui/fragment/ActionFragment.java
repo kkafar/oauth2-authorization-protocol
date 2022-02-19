@@ -39,10 +39,6 @@ public class ActionFragment extends Fragment {
 
     Log.d(TAG, "onViewCreated");
 
-    if (getArguments() != null) {
-      Log.d(TAG, "params: " + getArguments().getString("param1") + " " + getArguments().getString("param2"));
-    }
-
     mBinding.proceedToDataFragmentButton.setOnClickListener(_view -> {
       Navigation.findNavController(requireView()).navigate(R.id.action_actionFragment_to_dataFragment);
     });

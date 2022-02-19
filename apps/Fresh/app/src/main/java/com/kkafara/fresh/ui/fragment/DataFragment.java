@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.kkafara.fresh.R;
 import com.kkafara.fresh.data.model.DataResponse;
@@ -55,22 +56,19 @@ public class DataFragment extends Fragment {
 
     Log.d(TAG, "register callback for data fetch result");
     mDataViewModel.getDataResponseLiveData().observe(requireActivity(), result -> {
-      Log.d(TAG, "Running callback OUTSIDE");
-      requireActivity().runOnUiThread(() -> {
-        Log.d(TAG, "Running callback INSIDE");
-        if (result.isError()) {
-          Log.d(TAG, "Data fetch failed");
-        } else if (result.hasSuccessValue()) {
-          Log.d(TAG, "Data fetch succeeded");
-          DataResponse response = result.getSuccessValue();
-          UserData userData = UserData.fromDataResponse(response);
-          mBinding.usernameDataTextView.setText(userData.getUsername().orElse(getString(R.string.username)));
-          mBinding.emailDataTextView.setText(userData.getMail().orElse(getString(R.string.email)));
-          mBinding.emailDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
-        } else {
-          Log.wtf(TAG, "THIS SHOULD NOT HAPPEN");
-        }
-      });
+      mBinding.dataFetchProgressBar.setVisibility(View.INVISIBLE);
+      if (result.isError()) {
+        Log.d(TAG, "Data fetch failed");
+      } else if (result.hasSuccessValue()) {
+        Log.d(TAG, "Data fetch succeeded");
+        DataResponse response = result.getSuccessValue();
+        UserData userData = UserData.fromDataResponse(response);
+        mBinding.usernameDataTextView.setText(userData.getUsername().orElse(getString(R.string.username)));
+        mBinding.emailDataTextView.setText(userData.getMail().orElse(getString(R.string.email)));
+        mBinding.emailDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
+      } else {
+        Log.wtf(TAG, "THIS SHOULD NOT HAPPEN");
+      }
     });
 
     Log.d(TAG, "register callback for logout button");
@@ -81,6 +79,7 @@ public class DataFragment extends Fragment {
     Log.d(TAG, "register callback for refresh button");
     mBinding.refreshDataButton.setOnClickListener(_view -> {
       mDataViewModel.fetchData();
+      mBinding.dataFetchProgressBar.setVisibility(View.VISIBLE);
     });
   }
 }
