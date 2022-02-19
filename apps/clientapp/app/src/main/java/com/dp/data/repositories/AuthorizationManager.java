@@ -237,7 +237,8 @@ public final class AuthorizationManager {
           if (oldRecord != null) {
             mUserAuthInfoDao.deleteUserAuthInfo(oldRecord);
           }
-        }
+        },
+        null
     ));
   }
 
@@ -261,7 +262,8 @@ public final class AuthorizationManager {
               tokenResponse.getExpireTime(),
               System.currentTimeMillis() / 1000
           ));
-        }
+        },
+        null
     ));
     try {
       guard.get();
@@ -361,7 +363,8 @@ public final class AuthorizationManager {
               System.currentTimeMillis() / 1000
           );
           mUserAuthInfoDao.insertUserAuthInfo(userAuthInfo);
-        }
+        },
+        null
     ));
 
     try {
