@@ -17,7 +17,6 @@
                 app:exitAnim="@android:anim/slide_out_right"
                 app:popEnterAnim="@android:anim/slide_in_left"
                 app:popExitAnim="@android:anim/slide_out_right"
-                app:popUpTo="@id/actionFragment"
                 app:launchSingleTop="false" />
     </fragment>
     <fragment
@@ -31,16 +30,14 @@
                 app:enterAnim="@android:anim/slide_in_left"
                 app:exitAnim="@android:anim/slide_out_right"
                 app:popEnterAnim="@android:anim/slide_in_left"
-                app:popExitAnim="@android:anim/slide_out_right"
-                app:popUpTo="@id/actionFragment" />
+                app:popExitAnim="@android:anim/slide_out_right" />
         <action
                 android:id="@+id/action_actionFragment_to_loginFragment"
                 app:destination="@id/loginFragment"
                 app:enterAnim="@android:anim/slide_in_left"
                 app:popEnterAnim="@android:anim/slide_in_left"
                 app:exitAnim="@android:anim/slide_out_right"
-                app:popExitAnim="@android:anim/slide_out_right"
-                app:popUpTo="@id/actionFragment" />
+                app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
             android:id="@+id/dataFragment"
@@ -73,7 +70,6 @@
                 app:enterAnim="@android:anim/slide_in_left"
                 app:popEnterAnim="@android:anim/slide_in_left"
                 app:exitAnim="@android:anim/slide_out_right"
-                app:popExitAnim="@android:anim/slide_out_right"
-                app:popUpTo="@id/actionFragment" />
+                app:popExitAnim="@android:anim/slide_out_right" />
     </fragment>
 </navigation>

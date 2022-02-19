@@ -32,7 +32,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="24sp"
             app:layout_constraintTop_toBottomOf="@+id/emailDataTextView"
-            android:layout_marginTop="60dp" />
+            android:layout_marginTop="40dp" />
 
     <TextView
             android:text="@string/email"
@@ -57,7 +57,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="24sp"
             app:layout_constraintTop_toBottomOf="@+id/usernameDataTextView"
-            android:layout_marginTop="60dp" />
+            android:layout_marginTop="40dp" />
 
     <TextView
             android:text="@string/username"
@@ -69,7 +69,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="44dp"
+            android:layout_marginTop="40dp"
             android:textSize="24sp" />
 
     <TextView

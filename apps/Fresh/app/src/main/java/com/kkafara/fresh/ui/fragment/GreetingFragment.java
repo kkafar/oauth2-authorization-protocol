@@ -18,6 +18,7 @@ public class GreetingFragment extends Fragment {
   public final String TAG = "GreetingFragment";
 
   private FragmentGreetingBinding mBinding;
+  private int mCounter = 0;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -42,8 +43,11 @@ public class GreetingFragment extends Fragment {
     mBinding.proceedButton.setOnClickListener(_view -> {
       Log.d(TAG, "proceedButton clicked; navigating to ActionFragment");
       Bundle argsForActionFragment = new Bundle();
-      argsForActionFragment.putString("param1", "value1");
+      if (mCounter % 2 == 0) {
+        argsForActionFragment.putString("param1", "value1");
+      }
       argsForActionFragment.putString("param2", "value2");
+      ++mCounter;
 
       Navigation.findNavController(requireView()).navigate(
           R.id.action_greetingFragment_to_actionFragment,
