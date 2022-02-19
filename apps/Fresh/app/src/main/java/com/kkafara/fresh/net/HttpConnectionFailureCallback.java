@@ -1,5 +1,5 @@
 package com.kkafara.fresh.net;
 
-public interface HttpConnectionFailureCallback {
-  void invoke(Exception exception);
+public interface HttpConnectionFailureCallback<T> {
+  T invoke(Exception exception);
 }

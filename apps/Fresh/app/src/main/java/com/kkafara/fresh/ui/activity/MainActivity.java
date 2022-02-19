@@ -7,7 +7,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -16,6 +19,10 @@ import com.kkafara.fresh.R;
 import com.kkafara.fresh.database.DatabaseInstanceProvider;
 import com.kkafara.fresh.database.MainDatabase;
 import com.kkafara.fresh.databinding.ActivityMainBinding;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
   public final String TAG = "MainActivity";
@@ -62,4 +69,29 @@ public class MainActivity extends AppCompatActivity {
     super.onNewIntent(intent);
     Log.d(TAG, "onNewIntent");
   }
+
+  private boolean isNetworkAvailable(Context context) {
+    ConnectivityManager connectivityManager
+         = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+    return activeNetworkInfo != null;
+  }
+
+  private boolean hasActiveInternetConnection(Context context) {
+    if (isNetworkAvailable(context)) {
+        try {
+            HttpURLConnection urlc = (HttpURLConnection) (new URL("http://www.google.com").openConnection());
+            urlc.setRequestProperty("User-Agent", "Test");
+            urlc.setRequestProperty("Connection", "close");
+            urlc.setConnectTimeout(1500);
+            urlc.connect();
+            return (urlc.getResponseCode() == 200);
+        } catch (IOException e) {
+            Log.e(TAG, "Error checking internet connection", e);
+        }
+    } else {
+        Log.d(TAG, "No network available!");
+    }
+    return false;
+}
 }

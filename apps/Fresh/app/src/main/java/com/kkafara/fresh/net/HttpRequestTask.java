@@ -1,5 +1,6 @@
 package com.kkafara.fresh.net;
 
+import android.telecom.Call;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,17 +12,18 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
-public class HttpRequestTask implements Runnable {
+public class HttpRequestTask<T> implements Runnable, Callable<T> {
   public final String TAG = "HttpRequestTask";
   private final OAuthHttpUriRequestBaseFactory requestFactory;
-  private final HttpResponseCallback responseCallback;
-  private final HttpConnectionFailureCallback connectionFailureCallback;
+  private final HttpResponseCallback<T> responseCallback;
+  private final HttpConnectionFailureCallback<T> connectionFailureCallback;
 
   public HttpRequestTask(
       @NonNull OAuthHttpUriRequestBaseFactory requestFactory,
-      @Nullable HttpResponseCallback responseCallback,
-      @Nullable HttpConnectionFailureCallback connectionFailureCallback
+      @Nullable HttpResponseCallback<T> responseCallback,
+      @Nullable HttpConnectionFailureCallback<T> connectionFailureCallback
   ) {
     this.requestFactory = requestFactory;
     this.responseCallback = responseCallback;
@@ -54,5 +56,34 @@ public class HttpRequestTask implements Runnable {
         connectionFailureCallback.invoke(exception);
       }
     }
+  }
+
+  @Override
+  public T call() {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+      HttpUriRequestBase request = requestFactory.create();
+      try (CloseableHttpResponse httpResponse = httpClient.execute(request)) {
+        if (responseCallback != null) {
+          return responseCallback.invoke(httpResponse);
+        }
+      } catch (Exception exception) {
+        if (exception.getMessage() != null) {
+          Log.e(TAG, exception.getMessage());
+        }
+        exception.printStackTrace();
+        if (connectionFailureCallback != null) {
+          return connectionFailureCallback.invoke(exception);
+        }
+      }
+    } catch (IOException exception) {
+      if (exception.getMessage() != null) {
+        Log.e(TAG, exception.getMessage());
+      }
+      exception.printStackTrace();
+      if (connectionFailureCallback != null) {
+        return connectionFailureCallback.invoke(exception);
+      }
+    }
+    return null;
   }
 }

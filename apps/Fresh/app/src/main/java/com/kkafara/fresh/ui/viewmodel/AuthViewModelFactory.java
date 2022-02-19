@@ -4,15 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.kkafara.fresh.data.repository.DataRepository;
-import com.kkafara.fresh.data.source.DataSource;
+import com.kkafara.fresh.data.repository.AuthRepository;
+import com.kkafara.fresh.data.source.AuthDataSource;
 
 public class AuthViewModelFactory implements ViewModelProvider.Factory {
   @NonNull
   @Override
   public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     if (modelClass.isAssignableFrom(DataViewModel.class)) {
-      return (T) new AuthViewModel();
+      return (T) new AuthViewModel(AuthRepository.getInstance(AuthDataSource.getInstance()));
     } else {
       throw new IllegalArgumentException("Unknown ViewModel class");
     }

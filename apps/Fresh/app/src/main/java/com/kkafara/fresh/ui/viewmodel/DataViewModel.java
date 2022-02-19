@@ -18,14 +18,15 @@ import com.kkafara.fresh.data.repository.DataRepository;
 public class DataViewModel extends ViewModel {
   public final String TAG = "DataViewModel";
 
-  private final DataRepository mDataRepository;
+  private DataRepository mDataRepository;
   private Activity mOwnerActivity;
-//  private final AuthRepository mAuthRepository;
+  private AuthRepository mAuthRepository;
 
   private MutableLiveData<Result<DataResponse, Throwable>> mDataResponseLiveData = new MutableLiveData<>();
 
-  public DataViewModel(DataRepository dataRepository) {
+  public DataViewModel(DataRepository dataRepository, AuthRepository authRepository) {
     mDataRepository = dataRepository;
+    mAuthRepository = authRepository;
 
     mDataRepository.getDataResponseLiveData().observeForever(result -> {
       Log.d(TAG, "DataRepository result observer");

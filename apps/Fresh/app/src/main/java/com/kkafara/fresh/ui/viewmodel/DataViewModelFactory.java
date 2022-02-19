@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.kkafara.fresh.data.repository.AuthRepository;
 import com.kkafara.fresh.data.repository.DataRepository;
+import com.kkafara.fresh.data.source.AuthDataSource;
 import com.kkafara.fresh.data.source.DataSource;
 
 public class DataViewModelFactory implements ViewModelProvider.Factory {
@@ -13,7 +15,8 @@ public class DataViewModelFactory implements ViewModelProvider.Factory {
   public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     if (modelClass.isAssignableFrom(DataViewModel.class)) {
       return (T) new DataViewModel(
-          new DataRepository(DataSource.getInstance())
+          new DataRepository(DataSource.getInstance()),
+          AuthRepository.getInstance(AuthDataSource.getInstance())
       );
     } else {
       throw new IllegalArgumentException("Unknown ViewModel class");

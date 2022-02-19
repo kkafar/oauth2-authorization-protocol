@@ -97,8 +97,8 @@ public class DataSource {
       } catch (InterruptedException exception) {
         exception.printStackTrace();
       }
-//      pushResultToLiveDataStream(Result.newSuccess(response));
-      pushResultToLiveDataStream(Result.newError(new RuntimeException("connection failure")));
+      pushResultToLiveDataStream(Result.newSuccess(response));
+//      pushResultToLiveDataStream(Result.newError(new RuntimeException("connection failure")));
     });
   }
 }
