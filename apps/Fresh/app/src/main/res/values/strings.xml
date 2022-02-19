@@ -8,6 +8,10 @@
         <item>nick</item>
     </string-array>
 
+    <!--    Authorization callback information    -->
+    <string name="scheme">fresh</string>
+    <string name="host">main</string>
+
     <!--    UI strings    -->
     <string name="greeting">Welcome to the OAuth 2.0 testing application!</string>
     <string name="proceed">Proceed</string>

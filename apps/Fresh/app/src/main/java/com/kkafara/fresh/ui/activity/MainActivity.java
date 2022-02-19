@@ -7,6 +7,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -54,5 +55,11 @@ public class MainActivity extends AppCompatActivity {
       throw new IllegalStateException("Activity " + this + " does not have a NavHostFragment");
     }
     return ((NavHostFragment) fragment).getNavController();
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    Log.d(TAG, "onNewIntent");
   }
 }
