@@ -19,7 +19,8 @@
             app:layout_constraintTop_toBottomOf="@+id/nicknameLabelTextView"
             android:layout_marginTop="26dp"
             android:layout_marginBottom="25dp"
-            app:layout_constraintBottom_toTopOf="@+id/dataFetchProgressBar" />
+            app:layout_constraintBottom_toTopOf="@+id/dataFetchProgressBar"
+            app:layout_constraintVertical_bias="0.0" />
 
     <TextView
             android:text="@string/nickname"
@@ -32,7 +33,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="24sp"
             app:layout_constraintTop_toBottomOf="@+id/emailDataTextView"
-            android:layout_marginTop="40dp" />
+            android:layout_marginTop="20dp" />
 
     <TextView
             android:text="@string/email"
@@ -90,7 +91,7 @@
             android:layout_height="57dp"
             android:id="@+id/logoutButton"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_bias="0.498" />
@@ -100,22 +101,24 @@
             android:layout_width="144dp"
             android:layout_height="57dp"
             android:id="@+id/refreshDataButton"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="28dp"
             app:layout_constraintBottom_toTopOf="@+id/logoutButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.498" />
 
     <ProgressBar
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dataFetchProgressBar"
-            android:layout_marginBottom="29dp"
+            android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/refreshDataButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:indeterminate="true"
             tools:visibility="visible"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            app:layout_constraintHorizontal_bias="0.498" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

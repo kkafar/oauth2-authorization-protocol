@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.kkafara.fresh.R;
 import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.UserData;
@@ -23,6 +24,8 @@ import com.kkafara.fresh.ui.viewmodel.DataViewModelFactory;
 
 public class DataFragment extends Fragment {
   public final String TAG = "DataFragment";
+
+  private final int mSnackBarDuration = 2000;
 
   private FragmentDataBinding mBinding;
 
@@ -57,8 +60,17 @@ public class DataFragment extends Fragment {
     Log.d(TAG, "register callback for data fetch result");
     mDataViewModel.getDataResponseLiveData().observe(requireActivity(), result -> {
       mBinding.dataFetchProgressBar.setVisibility(View.INVISIBLE);
+//      setAlphaForAllButLoadingIndicator(1);
       if (result.isError()) {
         Log.d(TAG, "Data fetch failed");
+        String errorMessage = result.getError().getMessage();
+        if (errorMessage == null) {
+          errorMessage = "Unknown data fetch error";
+        }
+        View _view = getView();
+        if (_view != null) {
+          Snackbar.make(getView(), errorMessage, mSnackBarDuration).show();
+        }
       } else if (result.hasSuccessValue()) {
         Log.d(TAG, "Data fetch succeeded");
         DataResponse response = result.getSuccessValue();
@@ -80,6 +92,18 @@ public class DataFragment extends Fragment {
     mBinding.refreshDataButton.setOnClickListener(_view -> {
       mDataViewModel.fetchData();
       mBinding.dataFetchProgressBar.setVisibility(View.VISIBLE);
+//      setAlphaForAllButLoadingIndicator(0.2f);
     });
+  }
+
+  private void setAlphaForAllButLoadingIndicator(float alpha) {
+    mBinding.usernameLabelTextView.setAlpha(alpha);
+    mBinding.usernameDataTextView.setAlpha(alpha);
+    mBinding.emailLabelTextView.setAlpha(alpha);
+    mBinding.emailDataTextView.setAlpha(alpha);
+    mBinding.nicknameLabelTextView.setAlpha(alpha);
+    mBinding.nicknameDataTextView.setAlpha(alpha);
+    mBinding.logoutButton.setAlpha(alpha);
+    mBinding.refreshDataButton.setAlpha(alpha);
   }
 }
