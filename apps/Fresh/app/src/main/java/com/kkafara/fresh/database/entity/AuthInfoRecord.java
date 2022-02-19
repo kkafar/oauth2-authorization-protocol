@@ -43,14 +43,14 @@ public class AuthInfoRecord {
   public long tokenGrantTime;
 
   public AuthInfoRecord(
-      @NonNull int userId,
+      int userId,
       @Nullable String authorizationCode,
       @Nullable String codeVerifier,
       @Nullable String accessToken,
       @Nullable String refreshToken,
       @Nullable String tokenType,
-      @Nullable long tokenExpireTime,
-      @Nullable long tokenGrantTime
+      long tokenExpireTime,
+      long tokenGrantTime
   ) {
     this.userId = userId;
     this.authorizationCode = authorizationCode;
