@@ -65,7 +65,8 @@ public class UserDataDataSource {
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
           mUserDataState = HttpBodyDecoders
               .decodeHttpResponseBody(httpResponse.getEntity(), UserDataState.class);
-        }
+        },
+        null
     ));
 
     try {
