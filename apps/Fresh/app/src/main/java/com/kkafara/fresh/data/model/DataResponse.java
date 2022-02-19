@@ -46,5 +46,8 @@ public class DataResponse {
   public String getError() {
     return error;
   }
-}
 
+  public boolean isError() {
+    return error != null;
+  }
+}
