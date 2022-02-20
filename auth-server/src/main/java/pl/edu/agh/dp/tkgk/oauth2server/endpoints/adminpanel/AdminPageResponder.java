@@ -6,14 +6,12 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import pl.edu.agh.dp.tkgk.oauth2server.common.BaseHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.common.DatabaseInjectable;
 import pl.edu.agh.dp.tkgk.oauth2server.database.Database;
-import pl.edu.agh.dp.tkgk.oauth2server.model.Credentials;
 import pl.edu.agh.dp.tkgk.oauth2server.responsebuilder.concretebuilders.ResponseWithCustomHtmlBuilder;
 import pl.edu.agh.dp.tkgk.oauth2server.server.util.AuthorizationServerUtil;
 
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> implements DatabaseInjectable {
     private Database database;
@@ -45,12 +43,7 @@ public class AdminPageResponder extends BaseHandler<FullHttpRequest, Void> imple
     }
 
     private List<String> getUsers() {
-        List<String> users = database.getUserLoginsWithActiveInfo().entrySet()
-                .stream()
-                .filter(Map.Entry::getValue)
-                .map(Map.Entry::getKey)
-                .toList();
-        return users;
+        return database.getLoggedUsers();
     }
 
     @Override

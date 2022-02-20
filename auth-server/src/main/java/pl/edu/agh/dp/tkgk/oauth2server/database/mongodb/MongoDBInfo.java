@@ -3,6 +3,17 @@ package pl.edu.agh.dp.tkgk.oauth2server.database.mongodb;
 public class MongoDBInfo {
     public static final String DATABASE_NAME = "auth_server";
 
+    public enum PrivateUsers {
+        RESOURCES_SERVER;
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case RESOURCES_SERVER -> "auth-server";
+            };
+        }
+    }
+
     public enum Collections {
         ACCESS_TOKENS_COLLECTION,
         REFRESH_TOKENS_COLLECTION,

@@ -147,7 +147,7 @@ public class RAMDBFacade implements Database{
     }
 
     @Override
-    public Map<String, Boolean> getUserLoginsWithActiveInfo() {
+    public List<String> getLoggedUsers() {
         return null;
     }
 

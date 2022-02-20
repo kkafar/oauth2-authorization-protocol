@@ -101,7 +101,12 @@ public class RefreshTokenGrantTokenRequestValidator extends BaseHandler<HttpPost
             if (refreshTokenObjOptional.isEmpty()) return false;
 
             refreshTokenObj = refreshTokenObjOptional.get();
-            DecodedToken decodedRefreshTokenObj = refreshTokenObj.getDecodedToken();
+            DecodedToken decodedRefreshTokenObj;
+            try {
+                decodedRefreshTokenObj = refreshTokenObj.getDecodedToken();
+            } catch (JWTVerificationException e) {
+                return false;
+            }
 
             return decodedRefreshTokenObj.isActive() && !decodedRefreshTokenObj.isAccessToken()
                     && getAuthorizationCodeFromDb();
