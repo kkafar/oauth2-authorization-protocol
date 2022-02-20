@@ -21,6 +21,9 @@ import com.kkafara.fresh.ui.viewmodel.AuthViewModelFactory;
 import com.kkafara.fresh.ui.viewmodel.DataViewModel;
 import com.kkafara.fresh.ui.viewmodel.DataViewModelFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class DataFragment extends Fragment {
   public final String TAG = "DataFragment";
 
@@ -108,27 +111,44 @@ public class DataFragment extends Fragment {
     mBinding.refreshDataButton.setOnClickListener(_view -> {
       Log.d(TAG, "refreshDataButton pressed");
       toggleLoadingMode(true);
-      mDataViewModel.fetchData();
+      mDataViewModel.fetchData(getCurrentScopes());
     });
 
     toggleLoadingMode(true);
-    mDataViewModel.fetchData();
+    mDataViewModel.fetchData(getCurrentScopes());
   }
 
   private void toggleLoadingMode(boolean enabled) {
     float alpha = enabled ? MIN_ALPHA : DEFAULT_ALPHA;
-    mBinding.usernameLabelTextView.setAlpha(alpha);
+    mBinding.usernameSwitch.setAlpha(alpha);
     mBinding.usernameDataTextView.setAlpha(alpha);
-    mBinding.emailLabelTextView.setAlpha(alpha);
+    mBinding.emailSwitch.setAlpha(alpha);
     mBinding.emailDataTextView.setAlpha(alpha);
-    mBinding.nicknameLabelTextView.setAlpha(alpha);
+    mBinding.nickSwitch.setAlpha(alpha);
     mBinding.nicknameDataTextView.setAlpha(alpha);
     mBinding.logoutButton.setAlpha(alpha);
     mBinding.refreshDataButton.setAlpha(alpha);
 
     mBinding.logoutButton.setClickable(!enabled);
     mBinding.refreshDataButton.setClickable(!enabled);
+    mBinding.usernameSwitch.setClickable(!enabled);
+    mBinding.emailSwitch.setClickable(!enabled);
+    mBinding.nickSwitch.setClickable(!enabled);
 
     mBinding.dataFetchProgressBar.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  private Set<String> getCurrentScopes() {
+    Set<String> scopes = new HashSet<>();
+    if (mBinding.usernameSwitch.isChecked()) {
+      scopes.add("username");
+    }
+    if (mBinding.emailSwitch.isChecked()) {
+      scopes.add("mail");
+    }
+    if (mBinding.nickSwitch.isChecked()) {
+      scopes.add("nick");
+    }
+    return scopes;
   }
 }

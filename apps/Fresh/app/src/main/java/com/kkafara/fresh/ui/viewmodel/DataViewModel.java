@@ -13,7 +13,9 @@ import com.kkafara.fresh.data.model.LoginState;
 import com.kkafara.fresh.data.model.Result;
 import com.kkafara.fresh.data.repository.AuthRepository;
 import com.kkafara.fresh.data.repository.DataRepository;
+import com.kkafara.fresh.data.util.DataScopeParser;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -41,7 +43,7 @@ public class DataViewModel extends ViewModel {
     return mDataRepository.getDataResponseLiveData();
   }
 
-  public void fetchData() {
+  public void fetchData(Set<String> scopes) {
     LoginState loginState = null;
     try {
       loginState = mAuthRepository.checkIfUserLoggedInAsync().get();
@@ -49,7 +51,7 @@ public class DataViewModel extends ViewModel {
       e.printStackTrace();
     }
     if (loginState != null && loginState.isLoggedIn()) {
-      mDataRepository.fetchData(new DataRequest("mockToken", "username nick"));
+      mDataRepository.fetchData(new DataRequest("NOT NEEDED KURDE", DataScopeParser.stringFromStringSet(scopes)));
     }
   }
 }
