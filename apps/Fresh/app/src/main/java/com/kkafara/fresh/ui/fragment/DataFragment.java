@@ -113,6 +113,8 @@ public class DataFragment extends Fragment {
       toggleLoadingMode(true);
       mDataViewModel.fetchData();
     });
+
+    mDataViewModel.fetchData();
   }
 
   private void toggleLoadingMode(boolean enabled) {
