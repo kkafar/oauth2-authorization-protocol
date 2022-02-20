@@ -3,6 +3,7 @@ package com.dp.database;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
+import com.dp.BuildConfig;
 import com.dp.database.dao.UserAuthInfoDao;
 import com.dp.database.entity.UserAuthInfo;
 
