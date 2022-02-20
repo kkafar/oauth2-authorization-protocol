@@ -19,6 +19,8 @@ import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.UserData;
 import com.kkafara.fresh.databinding.FragmentDataBinding;
 import com.kkafara.fresh.data.repository.DataRepository;
+import com.kkafara.fresh.ui.viewmodel.AuthViewModel;
+import com.kkafara.fresh.ui.viewmodel.AuthViewModelFactory;
 import com.kkafara.fresh.ui.viewmodel.DataViewModel;
 import com.kkafara.fresh.ui.viewmodel.DataViewModelFactory;
 
@@ -30,6 +32,10 @@ public class DataFragment extends Fragment {
   private FragmentDataBinding mBinding;
 
   private DataViewModel mDataViewModel;
+  private AuthViewModel mAuthViewModel;
+
+  private final float MIN_ALPHA = .2f;
+  private final float DEFAULT_ALPHA = 1f;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -52,15 +58,28 @@ public class DataFragment extends Fragment {
 
     Log.d(TAG, "onViewCreated");
 
-    Log.d(TAG, "create DataViewModel");
     mDataViewModel = new ViewModelProvider(requireActivity(), new DataViewModelFactory())
         .get(DataViewModel.class);
 
+    mAuthViewModel = new ViewModelProvider(requireActivity(), new AuthViewModelFactory(this))
+        .get(AuthViewModel.class);
 
-    Log.d(TAG, "register callback for data fetch result");
-    mDataViewModel.getDataResponseLiveData().observe(requireActivity(), result -> {
-      mBinding.dataFetchProgressBar.setVisibility(View.INVISIBLE);
-//      setAlphaForAllButLoadingIndicator(1);
+    mAuthViewModel.getLoginStateLiveData().observe(this, result -> {
+      toggleLoadingMode(false);
+      if (result.isError()) {
+        // TODO: HANDLE ERROR
+      } else if (result.hasSuccessValue()) {
+        if (!result.getSuccessValue().isLoggedIn()) {
+          // TODO: better navigation
+          Navigation.findNavController(requireView()).navigate(R.id.action_dataFragment_to_actionFragment);
+        }
+      } else {
+        Log.d(TAG, "Result w/o login state; THIS SHOULD NOT HAPPEN");
+      }
+    });
+
+    mDataViewModel.getDataResponseLiveData().observe(this, result -> {
+      toggleLoadingMode(false);
       if (result.isError()) {
         Log.d(TAG, "Data fetch failed");
         String errorMessage = result.getError().getMessage();
@@ -83,20 +102,21 @@ public class DataFragment extends Fragment {
       }
     });
 
-    Log.d(TAG, "register callback for logout button");
     mBinding.logoutButton.setOnClickListener(_view -> {
-      Navigation.findNavController(requireView()).navigate(R.id.action_dataFragment_to_actionFragment);
+      Log.d(TAG, "logoutButton pressed");
+      toggleLoadingMode(true);
+      mAuthViewModel.logout();
     });
 
-    Log.d(TAG, "register callback for refresh button");
     mBinding.refreshDataButton.setOnClickListener(_view -> {
+      Log.d(TAG, "refreshDataButton pressed");
+      toggleLoadingMode(true);
       mDataViewModel.fetchData();
-      mBinding.dataFetchProgressBar.setVisibility(View.VISIBLE);
-//      setAlphaForAllButLoadingIndicator(0.2f);
     });
   }
 
-  private void setAlphaForAllButLoadingIndicator(float alpha) {
+  private void toggleLoadingMode(boolean enabled) {
+    float alpha = enabled ? MIN_ALPHA : DEFAULT_ALPHA;
     mBinding.usernameLabelTextView.setAlpha(alpha);
     mBinding.usernameDataTextView.setAlpha(alpha);
     mBinding.emailLabelTextView.setAlpha(alpha);
@@ -105,5 +125,10 @@ public class DataFragment extends Fragment {
     mBinding.nicknameDataTextView.setAlpha(alpha);
     mBinding.logoutButton.setAlpha(alpha);
     mBinding.refreshDataButton.setAlpha(alpha);
+
+    mBinding.logoutButton.setClickable(!enabled);
+    mBinding.refreshDataButton.setClickable(!enabled);
+
+    mBinding.dataFetchProgressBar.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
   }
 }

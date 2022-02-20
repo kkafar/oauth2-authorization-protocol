@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     // initialize database
     mDatabase = DatabaseInstanceProvider.getInstance(getApplicationContext());
 
-    mAuthViewModel = new ViewModelProvider(this, new AuthViewModelFactory())
+    mAuthViewModel = new ViewModelProvider(this, new AuthViewModelFactory(this))
         .get(AuthViewModel.class);
   }
 

@@ -53,7 +53,7 @@ public class ActionFragment extends Fragment {
 
     Log.d(TAG, "onViewCreated");
 
-    mAuthViewModel = new ViewModelProvider(requireActivity(), new AuthViewModelFactory())
+    mAuthViewModel = new ViewModelProvider(requireActivity(), new AuthViewModelFactory(this))
         .get(AuthViewModel.class);
 
     Log.d(TAG, "Setting callback for proceedToDataFragmentButton");

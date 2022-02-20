@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.kkafara.fresh.data.model.LoginState;
 import com.kkafara.fresh.data.model.Result;
 import com.kkafara.fresh.data.source.AuthDataSource;
+import com.kkafara.fresh.data.source.DataSource;
 import com.kkafara.fresh.database.DatabaseInstanceProvider;
 import com.kkafara.fresh.database.MainDatabase;
 import com.kkafara.fresh.database.dao.AuthInfoDao;
@@ -26,8 +27,12 @@ import com.kkafara.fresh.oauth.pkce.PkceFlowDataGenerator;
 import com.kkafara.fresh.oauth.pkce.StateProvider;
 import com.kkafara.fresh.oauth.requestfactory.AccessTokenRequestFactory;
 import com.kkafara.fresh.oauth.requestfactory.RefreshTokenRequestFactory;
+import com.kkafara.fresh.oauth.requestfactory.TokenRevocationRequestFactory;
 import com.kkafara.fresh.oauth.util.OAuthHttpParameter;
 import com.kkafara.fresh.servers.AuthServerInfo;
+
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -66,6 +71,19 @@ public class AuthRepository {
     mAuthInfoDao = mDatabase.getAuthInfoDao();
 
     mExecutor = Executors.newFixedThreadPool(EXECUTOR_THREADS);
+
+    DataSource.getInstance().getDataRequestResultLiveData().observeForever(result -> {
+      if (result.isError()) {
+        Log.d(TAG, "Reacting od data fetch failure");
+        mExecutor.submit(() -> {
+          AuthInfoRecord record = mAuthInfoDao.findByUserId(0);
+          if (record != null && record.accessToken != null && isAccessTokenValidTimeWise(record)) {
+            pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+          }
+          mAuthInfoDao.deleteAuthInfoRecord(record);
+        });
+      }
+    });
   }
 
   public static synchronized AuthRepository getInstance(AuthDataSource dataSource) {
@@ -283,6 +301,40 @@ public class AuthRepository {
         },
         exception -> {
           pushResultToLiveDataStream(Result.newError(exception));
+          return null;
+        }
+    ));
+  }
+
+  public void tokenRevocationFlow() {
+    Log.d(TAG, "tokenRevocationFlow");
+
+    AuthInfoRecord oldAuthInfoRecord = null;
+    try {
+      oldAuthInfoRecord = mExecutor.submit(() -> mAuthInfoDao.findByUserId(0)).get();
+    } catch (ExecutionException | InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    if (oldAuthInfoRecord == null || oldAuthInfoRecord.accessToken == null) {
+      mLoginStateLiveData.setValue(Result.newSuccess(new LoginState(false)));
+    }
+
+    AuthInfoRecord finalOldAuthInfoRecord = oldAuthInfoRecord;
+    mExecutor.submit((Runnable) new HttpRequestTask<Void>(
+        new TokenRevocationRequestFactory(oldAuthInfoRecord.accessToken),
+        httpResponse -> {
+          Log.d(TAG, "AUTH SERVER REVOKE TOKEN");
+          Log.d(TAG, httpResponse.toString());
+          Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
+
+          if (finalOldAuthInfoRecord != null) {
+            mAuthInfoDao.deleteAuthInfoRecord(finalOldAuthInfoRecord);
+          }
+          pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+          return null;
+        },
+        exception -> {
           return null;
         }
     ));

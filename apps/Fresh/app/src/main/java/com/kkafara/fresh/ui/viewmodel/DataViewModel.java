@@ -32,7 +32,6 @@ public class DataViewModel extends ViewModel {
       Log.d(TAG, "DataRepository result observer");
       mDataResponseLiveData.setValue(result);
     });
-
   }
 
   public LiveData<Result<DataResponse, Throwable>> getDataResponseLiveData() {
@@ -41,6 +40,7 @@ public class DataViewModel extends ViewModel {
   }
 
   public void fetchData() {
+    mAuthRepository.checkIfUserLoggedIn();
     mDataRepository.fetchData(new DataRequest("mockToken", "mockScope"));
   }
 }

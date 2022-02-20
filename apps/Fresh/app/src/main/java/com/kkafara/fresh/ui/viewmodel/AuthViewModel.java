@@ -7,6 +7,7 @@ import android.provider.Browser;
 import android.util.Log;
 
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -15,17 +16,13 @@ import com.kkafara.fresh.data.model.LoginState;
 import com.kkafara.fresh.data.model.Result;
 import com.kkafara.fresh.data.repository.AuthRepository;
 import com.kkafara.fresh.data.util.DataScopeParser;
-import com.kkafara.fresh.database.entity.AuthInfoRecord;
 import com.kkafara.fresh.net.HttpContentTypes;
 import com.kkafara.fresh.oauth.data.model.AuthCodeRequest;
 import com.kkafara.fresh.oauth.data.model.AuthCodeResponse;
-import com.kkafara.fresh.ui.activity.MainActivity;
 
 import org.apache.hc.core5.http.HttpHeaders;
 
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class AuthViewModel extends ViewModel {
   public final String TAG = "AuthViewModel";
@@ -33,20 +30,16 @@ public class AuthViewModel extends ViewModel {
 //      new MutableLiveData<>();
 
   private AuthRepository mAuthRepository;
+  private LifecycleOwner mOwner;
 
-  public AuthViewModel(AuthRepository authRepository) {
+  public AuthViewModel(LifecycleOwner owner, AuthRepository authRepository) {
+    mOwner = owner;
     mAuthRepository = authRepository;
 
-//    mAuthRepository.getLoginStateLiveData().observeForever(result -> {
-//
-//    });
   }
 
   public LiveData<Result<LoginState, Throwable>> getLoginStateLiveData() {
     return mAuthRepository.getLoginStateLiveData();
-  }
-
-  public void authorize() {
   }
 
   public void assertUserIsLoggedIn() {
@@ -85,5 +78,9 @@ public class AuthViewModel extends ViewModel {
     } catch (ExecutionException | InterruptedException e) {
       e.printStackTrace();
     }
+  }
+
+  public void logout() {
+    mAuthRepository.tokenRevocationFlow();
   }
 }
