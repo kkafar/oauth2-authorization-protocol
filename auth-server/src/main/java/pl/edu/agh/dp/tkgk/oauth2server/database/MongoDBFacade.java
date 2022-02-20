@@ -132,11 +132,12 @@ public final class MongoDBFacade implements Database {
     }
 
     @Override
-    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
+    public Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, String userLogin,
                              boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException
     {
         String tokenId = getUniqueTokenId();
-        String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode, isAccessToken, tokenType, tokenId);
+        String token = TokenUtil.generateToken(expiresIn, scope, authorizationCode,
+                userLogin, isAccessToken, tokenType, tokenId);
 
         Token tokenObj = new Token(tokenId, token, authorizationCode, clientId);
 
@@ -151,7 +152,7 @@ public final class MongoDBFacade implements Database {
                              boolean isAccessToken, String tokenType) throws JWTCreationException
     {
         Token token = getNewToken(expiresIn, authorizationCode.getScope(), authorizationCode.getCode(),
-                isAccessToken, tokenType, authorizationCode.getClientId());
+                authorizationCode.getUserLogin(), isAccessToken, tokenType, authorizationCode.getClientId());
 
         queries.updateObjectFromCollection(authCodesCollection, AuthCode.JsonFields.ID, authorizationCode.getCode(),
                 AuthCode.JsonFields.USED, true);

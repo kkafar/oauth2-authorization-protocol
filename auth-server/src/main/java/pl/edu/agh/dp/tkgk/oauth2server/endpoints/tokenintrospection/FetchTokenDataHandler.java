@@ -45,7 +45,11 @@ public class FetchTokenDataHandler extends BaseHandler<HttpPostRequestDecoder, O
             Database database = AuthorizationDatabaseProvider.getInstance();
             Optional<Token> optionalToken = database.fetchToken(decodedJWT.getId(), tokenHint);
 
-            return director.constructJsonResponse(responseBuilder, tokenDataToJson(optionalToken),
+            JSONObject tokenInfo = tokenDataToJson(optionalToken);
+
+            tokenInfo.put(DecodedToken.CustomClaims.USER_LOGIN, decodedJWT.getClaim(DecodedToken.CustomClaims.USER_LOGIN).asString());
+
+            return director.constructJsonResponse(responseBuilder, tokenInfo,
                     HttpResponseStatus.OK, false);
 
         } catch (IOException | JWTVerificationException | NoSuchAttributeException e) {

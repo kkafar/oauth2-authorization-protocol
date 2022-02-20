@@ -58,7 +58,7 @@ public interface Database {
      * @param tokenType e.g. "Bearer"
      * @return generated token
      */
-    Token getNewToken(int expiresIn, List<String> scope, String authorizationCode,
+    Token getNewToken(int expiresIn, List<String> scope, String authorizationCode, String userLogin,
                       boolean isAccessToken, String tokenType, String clientId) throws JWTCreationException;
 
     boolean isSessionIdValid(String sessionId);

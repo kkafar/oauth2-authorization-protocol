@@ -34,7 +34,7 @@ public class TokenUtil {
         return sb.toString();
     }
 
-    public static String generateToken(int expiresIn, List<String> scope, String authorizationCode,
+    public static String generateToken(int expiresIn, List<String> scope, String authorizationCode, String userLogin,
                                        boolean isAccessToken, String tokenType, String tokenId) throws JWTCreationException {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
 
@@ -45,10 +45,16 @@ public class TokenUtil {
                 .withClaim(DecodedToken.CustomClaims.TOKEN_TYPE, tokenType)
                 .withClaim(DecodedToken.CustomClaims.IS_ACCESS_TOKEN, isAccessToken)
                 .withClaim(DecodedToken.CustomClaims.SCOPE, scope)
+                .withClaim(DecodedToken.CustomClaims.USER_LOGIN, userLogin)
                 .withJWTId(tokenId)
                 .withExpiresAt(new Date((now + expiresIn) * 1000))
                 .withIssuedAt(new Date(now * 1000))
                 .sign(algorithm);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(TokenUtil.generateToken(10000000, List.of("introspection"), "auth-server",
+                "auth-server", true, "Bearer", TokenUtil.generateTokenId()));
     }
 
     public static DecodedJWT decodeToken(String token) throws JWTVerificationException {
@@ -59,6 +65,7 @@ public class TokenUtil {
                 .withClaimPresence(DecodedToken.CustomClaims.TOKEN_TYPE)
                 .withClaimPresence(DecodedToken.CustomClaims.IS_ACCESS_TOKEN)
                 .withClaimPresence(DecodedToken.CustomClaims.SCOPE)
+                .withClaimPresence(DecodedToken.CustomClaims.USER_LOGIN)
                 .withClaimPresence(JWT_ID_CLAIM_NAME)
                 .build();
 

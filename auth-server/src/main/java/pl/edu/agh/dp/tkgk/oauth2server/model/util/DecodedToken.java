@@ -19,6 +19,7 @@ public class DecodedToken {
     private final boolean isAccessToken;
     private final String clientId;
     private final String authCode;
+    private final String userLogin;
 
     public DecodedToken(Token token)
     {
@@ -33,6 +34,7 @@ public class DecodedToken {
         this.scopeList = decodedToken.getClaim(CustomClaims.SCOPE).asList(String.class);
         this.tokenType = decodedToken.getClaim(CustomClaims.TOKEN_TYPE).asString();
         this.isAccessToken = decodedToken.getClaim(CustomClaims.IS_ACCESS_TOKEN).asBoolean();
+        this.userLogin = decodedToken.getClaim(CustomClaims.USER_LOGIN).asString();
     }
 
     public static class CustomClaims {
@@ -44,6 +46,8 @@ public class DecodedToken {
         public static final String IS_ACCESS_TOKEN = "is_access_token";
 
         public static final String AUTH_CODE = "auth_code";
+
+        public static final String USER_LOGIN = "user_login";
 
     }
 
@@ -88,6 +92,11 @@ public class DecodedToken {
     }
 
     @JSONPropertyIgnore
+    public String getUserLogin() {
+        return userLogin;
+    }
+
+    @JSONPropertyIgnore
     public String getAuthCode() {
         return authCode;
     }
@@ -103,11 +112,11 @@ public class DecodedToken {
         return issuedAt == that.issuedAt && expiresAt == that.expiresAt && isAccessToken == that.isAccessToken
                 && Objects.equals(jwtId, that.jwtId) && Objects.equals(scopeList, that.scopeList)
                 && Objects.equals(tokenType, that.tokenType) && Objects.equals(clientId, that.clientId)
-                && Objects.equals(authCode, that.authCode);
+                && Objects.equals(authCode, that.authCode) && Objects.equals(userLogin, that.userLogin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jwtId, issuedAt, expiresAt, scopeList, tokenType, isAccessToken, clientId, authCode);
+        return Objects.hash(jwtId, issuedAt, expiresAt, scopeList, tokenType, isAccessToken, clientId, authCode, userLogin);
     }
 }
