@@ -7,6 +7,40 @@
         tools:context=".ui.fragment.DataFragment"
         android:id="@+id/ConstraintLayout" >
 
+    <Switch
+            android:text="@string/nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/nickSwitch"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="@color/purple_200"
+            android:layout_marginBottom="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/nicknameDataTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:minHeight="48dp"
+            android:checked="true" />
+
+    <Switch
+            android:text="@string/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/usernameSwitch"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="@color/purple_200"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/usernameDataTextView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            android:minHeight="48dp"
+            android:allowUndo="false"
+            android:checked="true" />
+
     <TextView
             android:text="@string/nickname"
             android:layout_width="321dp"
@@ -16,24 +50,8 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textAlignment="center"
             android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/nicknameLabelTextView"
-            android:layout_marginTop="26dp"
-            android:layout_marginBottom="25dp"
-            app:layout_constraintBottom_toTopOf="@+id/dataFetchProgressBar"
-            app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-            android:text="@string/nickname"
-            android:layout_width="209dp"
-            android:layout_height="35dp"
-            android:id="@+id/nicknameLabelTextView"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:textSize="24sp"
-            app:layout_constraintTop_toBottomOf="@+id/emailDataTextView"
-            android:layout_marginTop="20dp" />
+            android:layout_marginBottom="27dp"
+            app:layout_constraintBottom_toTopOf="@+id/dataFetchProgressBar" />
 
     <TextView
             android:text="@string/email"
@@ -44,46 +62,20 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textAlignment="center"
             android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/emailLabelTextView"
-            android:layout_marginTop="26dp" />
-
-    <TextView
-            android:text="@string/email"
-            android:layout_width="209dp"
-            android:layout_height="35dp"
-            android:id="@+id/emailLabelTextView"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:textSize="24sp"
-            app:layout_constraintTop_toBottomOf="@+id/usernameDataTextView"
-            android:layout_marginTop="40dp" />
-
-    <TextView
-            android:text="@string/username"
-            android:layout_width="209dp"
-            android:layout_height="35dp"
-            android:id="@+id/usernameLabelTextView"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="40dp"
-            android:textSize="24sp" />
+            android:layout_marginBottom="18dp"
+            app:layout_constraintBottom_toTopOf="@+id/nickSwitch" />
 
     <TextView
             android:text="@string/username"
             android:layout_width="321dp"
             android:layout_height="52dp"
             android:id="@+id/usernameDataTextView"
-            android:layout_marginTop="26dp"
-            app:layout_constraintTop_toBottomOf="@+id/usernameLabelTextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textAlignment="center"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/emailSwitch"
+            android:layout_marginBottom="16dp" />
 
     <Button
             android:text="@string/logout"
@@ -91,7 +83,7 @@
             android:layout_height="57dp"
             android:id="@+id/logoutButton"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="56dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_bias="0.498" />
@@ -101,7 +93,7 @@
             android:layout_width="144dp"
             android:layout_height="57dp"
             android:id="@+id/refreshDataButton"
-            android:layout_marginBottom="28dp"
+            android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toTopOf="@+id/logoutButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,16 +101,29 @@
 
     <ProgressBar
             style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="93dp"
+            android:layout_height="85dp"
             android:id="@+id/dataFetchProgressBar"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toTopOf="@+id/refreshDataButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:indeterminate="true"
             tools:visibility="visible"
-            android:visibility="invisible"
-            app:layout_constraintHorizontal_bias="0.498" />
+            android:visibility="invisible" />
+
+    <Switch
+            android:text="@string/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/emailSwitch"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textColor="@color/purple_200"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/emailDataTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:minHeight="48dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

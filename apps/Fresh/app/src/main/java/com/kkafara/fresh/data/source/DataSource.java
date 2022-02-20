@@ -20,6 +20,7 @@ import com.kkafara.fresh.net.HttpRequestTask;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class DataSource {
   public final String TAG = "DataSource";
@@ -68,39 +69,39 @@ public class DataSource {
     mDataRequestResultLiveData.postValue(result);
   }
 
-  public void fetchData(DataRequest request) {
+  public Result<DataResponse, Throwable> fetchData(DataRequest request) {
     Log.d(TAG, "fetchData");
-    mExecutor.submit(() -> {
-      AuthInfoRecord record = mAuthInfoDao.findByUserId(0);
-      if (record == null || record.accessToken == null) {
-        pushResultToLiveDataStream(Result.newError(new RuntimeException("Null record or token")));
-        return;
-      }
-      new HttpRequestTask<Void>(
-          new HttpDataRequestFactory(record.accessToken, request.getRequestedScopes()),
-          response -> {
-            Log.d(TAG, "Resource server response");
-            Log.d(TAG, response.toString());
-            Log.d(TAG, Arrays.toString(response.getHeaders()));
 
-            DataResponse dataResponse = HttpBodyDecoders
-                .decodeHttpResponseBody(response.getEntity(), DataResponse.class);
+    new HttpRequestTask<Void>(
+        new HttpDataRequestFactory(request.getAccessToken(), request.getRequestedScopes()),
+        response -> {
+          Log.d(TAG, "Resource server response");
+          Log.d(TAG, response.toString());
+          Log.d(TAG, Arrays.toString(response.getHeaders()));
 
-            if (dataResponse == null) {
-              pushResultToLiveDataStream(Result.newError(new RuntimeException("Gson returned null"))); // todo (better exception type)
-            } else if (dataResponse.isError()) {
-              pushResultToLiveDataStream(Result.newError(new RuntimeException(dataResponse.getError()))); // todo (better exception type)
-            } else {
-              pushResultToLiveDataStream(Result.newSuccess(dataResponse));
-            }
-            return null;
-          },
-          exception -> {
-            pushResultToLiveDataStream(Result.newError(exception));
-            return null;
+          DataResponse dataResponse = HttpBodyDecoders
+              .decodeHttpResponseBody(response.getEntity(), DataResponse.class);
+
+          if (dataResponse == null) {
+            pushResultToLiveDataStream(Result.newError(new RuntimeException("empty response body"))); // todo (better exception type)
+          } else if (dataResponse.isError()) {
+            pushResultToLiveDataStream(Result.newError(new RuntimeException(dataResponse.getError()))); // todo (better exception type)
+          } else {
+            pushResultToLiveDataStream(Result.newSuccess(dataResponse));
           }
-      ).run();
+          return null;
+        },
+        exception -> {
+          pushResultToLiveDataStream(Result.newError(exception));
+          return null;
+        }
+    ).run();
 
-    });
+    return null;
+  }
+
+  public Future<Result<DataResponse, Throwable>> fetchDataAsync(DataRequest request) {
+    Log.d(TAG, "fetchDataAsync");
+    return mExecutor.submit(() -> fetchData(request));
   }
 }

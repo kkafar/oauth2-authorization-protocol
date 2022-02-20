@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -102,57 +103,65 @@ public class AuthRepository {
     mLoginStateLiveData.postValue(result);
   }
 
+  public Optional<String> getAccessToken() {
+    return Optional.ofNullable(mAuthInfoDao.findAccessTokenByUserId(0));
+  }
+
+  public Future<Optional<String>> getAccessTokenAsync() {
+    return mExecutor.submit(this::getAccessToken);
+  }
 
   public Future<LoginState> checkIfUserLoggedInAsync() {
     Log.d(TAG, "checkIfUserLoggedIn");
-    return mExecutor.submit(() -> {
-      LoginState loginState;
-      // first we check if there is anything stored in database
-      AuthInfoRecord authInfo = mAuthInfoDao.findByUserId(0);
+    return mExecutor.submit(this::checkIfUserLoggedIn);
+  }
 
-      if (authInfo == null) {
-        loginState = new LoginState(false);
-        pushResultToLiveDataStream(Result.newSuccess(loginState));
-      } else { // data record is available
-        if (authInfo.accessToken != null) {
-          // there are 2 main cases:
-          // 1: token is valid
-          if (isAccessTokenValidTimeWise(authInfo)) {
-            // we return true, but be aware, that token could be revoked on server side!
-            // we can only verify it on data request (or on additional endpoint)
+  public LoginState checkIfUserLoggedIn() {
+    LoginState loginState;
+    // first we check if there is anything stored in database
+    AuthInfoRecord authInfo = mAuthInfoDao.findByUserId(0);
 
-            // TODO: CHECK IF TOKEN HAS NOT BEEN REVOKED ON SERVER SIDE
-            loginState = new LoginState(true);
-            pushResultToLiveDataStream(Result.newSuccess(loginState));
-          } else if (hasRefreshToken(authInfo)) {
-            // 2: token has expired, but there is refresh token
-            // try to obtain the access token
-            try {
-              Result<TokenResponse, Throwable> result = tryToObtainAccessTokenWithRefreshTokenWithFuture(authInfo).get();
-              if (result.isError()) {
-                loginState = new LoginState(false);
-                pushResultToLiveDataStream(Result.newSuccess(loginState));
-              } else {
-                loginState = new LoginState(true);
-                pushResultToLiveDataStream(Result.newSuccess(loginState));
-              }
-            } catch (ExecutionException | InterruptedException e) {
-              // if this process failed, we return that user is not logged in
+    if (authInfo == null) {
+      loginState = new LoginState(false);
+      pushResultToLiveDataStream(Result.newSuccess(loginState));
+    } else { // data record is available
+      if (authInfo.accessToken != null) {
+        // there are 2 main cases:
+        // 1: token is valid
+        if (isAccessTokenValidTimeWise(authInfo)) {
+          // we return true, but be aware, that token could be revoked on server side!
+          // we can only verify it on data request (or on additional endpoint)
+
+          // TODO: CHECK IF TOKEN HAS NOT BEEN REVOKED ON SERVER SIDE
+          loginState = new LoginState(true);
+          pushResultToLiveDataStream(Result.newSuccess(loginState));
+        } else if (hasRefreshToken(authInfo)) {
+          // 2: token has expired, but there is refresh token
+          // try to obtain the access token
+          try {
+            Result<TokenResponse, Throwable> result = tryToObtainAccessTokenWithRefreshTokenWithFuture(authInfo).get();
+            if (result.isError()) {
               loginState = new LoginState(false);
-              pushResultToLiveDataStream(Result.newSuccess(loginState));
+            } else {
+              loginState = new LoginState(true);
             }
-          } else {
-            // token has expired and there is no refresh token
+            pushResultToLiveDataStream(Result.newSuccess(loginState));
+          } catch (ExecutionException | InterruptedException e) {
+            // if this process failed, we return that user is not logged in
             loginState = new LoginState(false);
             pushResultToLiveDataStream(Result.newSuccess(loginState));
           }
         } else {
+          // token has expired and there is no refresh token
           loginState = new LoginState(false);
           pushResultToLiveDataStream(Result.newSuccess(loginState));
         }
+      } else {
+        loginState = new LoginState(false);
+        pushResultToLiveDataStream(Result.newSuccess(loginState));
       }
-      return loginState;
-    });
+    }
+    return loginState;
   }
 
   private Future<Result<TokenResponse, Throwable>>
@@ -352,6 +361,7 @@ public class AuthRepository {
         }
     ));
   }
+
 
 //    public void validateAuthorizationResponse(AuthCodeResponse authorizationResponse) {
 //

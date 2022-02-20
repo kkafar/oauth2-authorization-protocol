@@ -62,7 +62,10 @@ public class LoginFragment extends Fragment {
       Log.d(TAG, "loginButton clicked; starting authorization code flow");
 
       toggleLoadingMode(true);
-      mAuthViewModel.startAuthorizationCodeFlow(requireContext(), Arrays.asList("username", "nick"));
+
+      String[] requiredScopes = getResources().getStringArray(R.array.valid_scopes);
+
+      mAuthViewModel.startAuthorizationCodeFlow(requireContext(), Arrays.asList(requiredScopes));
     });
 
     mAuthViewModel.getLoginStateLiveData().observe(this, result -> {

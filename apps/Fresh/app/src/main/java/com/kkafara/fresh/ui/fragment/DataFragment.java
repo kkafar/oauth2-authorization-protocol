@@ -1,28 +1,28 @@
 package com.kkafara.fresh.ui.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.kkafara.fresh.R;
 import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.UserData;
 import com.kkafara.fresh.databinding.FragmentDataBinding;
-import com.kkafara.fresh.data.repository.DataRepository;
 import com.kkafara.fresh.ui.viewmodel.AuthViewModel;
 import com.kkafara.fresh.ui.viewmodel.AuthViewModelFactory;
 import com.kkafara.fresh.ui.viewmodel.DataViewModel;
 import com.kkafara.fresh.ui.viewmodel.DataViewModelFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class DataFragment extends Fragment {
   public final String TAG = "DataFragment";
@@ -96,7 +96,7 @@ public class DataFragment extends Fragment {
         UserData userData = UserData.fromDataResponse(response);
         mBinding.usernameDataTextView.setText(userData.getUsername().orElse(getString(R.string.username)));
         mBinding.emailDataTextView.setText(userData.getMail().orElse(getString(R.string.email)));
-        mBinding.emailDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
+        mBinding.nicknameDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
       } else {
         Log.wtf(TAG, "THIS SHOULD NOT HAPPEN");
       }
@@ -111,26 +111,44 @@ public class DataFragment extends Fragment {
     mBinding.refreshDataButton.setOnClickListener(_view -> {
       Log.d(TAG, "refreshDataButton pressed");
       toggleLoadingMode(true);
-      mDataViewModel.fetchData();
+      mDataViewModel.fetchData(getCurrentScopes());
     });
 
-    mDataViewModel.fetchData();
+    toggleLoadingMode(true);
+    mDataViewModel.fetchData(getCurrentScopes());
   }
 
   private void toggleLoadingMode(boolean enabled) {
     float alpha = enabled ? MIN_ALPHA : DEFAULT_ALPHA;
-    mBinding.usernameLabelTextView.setAlpha(alpha);
+    mBinding.usernameSwitch.setAlpha(alpha);
     mBinding.usernameDataTextView.setAlpha(alpha);
-    mBinding.emailLabelTextView.setAlpha(alpha);
+    mBinding.emailSwitch.setAlpha(alpha);
     mBinding.emailDataTextView.setAlpha(alpha);
-    mBinding.nicknameLabelTextView.setAlpha(alpha);
+    mBinding.nickSwitch.setAlpha(alpha);
     mBinding.nicknameDataTextView.setAlpha(alpha);
     mBinding.logoutButton.setAlpha(alpha);
     mBinding.refreshDataButton.setAlpha(alpha);
 
     mBinding.logoutButton.setClickable(!enabled);
     mBinding.refreshDataButton.setClickable(!enabled);
+    mBinding.usernameSwitch.setClickable(!enabled);
+    mBinding.emailSwitch.setClickable(!enabled);
+    mBinding.nickSwitch.setClickable(!enabled);
 
     mBinding.dataFetchProgressBar.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  private Set<String> getCurrentScopes() {
+    Set<String> scopes = new HashSet<>();
+    if (mBinding.usernameSwitch.isChecked()) {
+      scopes.add("username");
+    }
+    if (mBinding.emailSwitch.isChecked()) {
+      scopes.add("mail");
+    }
+    if (mBinding.nickSwitch.isChecked()) {
+      scopes.add("nick");
+    }
+    return scopes;
   }
 }

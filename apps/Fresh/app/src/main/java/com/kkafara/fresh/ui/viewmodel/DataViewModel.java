@@ -7,15 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.kkafara.fresh.data.model.DataRequest;
 import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.LoginState;
 import com.kkafara.fresh.data.model.Result;
 import com.kkafara.fresh.data.repository.AuthRepository;
 import com.kkafara.fresh.data.repository.DataRepository;
 
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class DataViewModel extends ViewModel {
   public final String TAG = "DataViewModel";
@@ -41,15 +40,7 @@ public class DataViewModel extends ViewModel {
     return mDataRepository.getDataResponseLiveData();
   }
 
-  public void fetchData() {
-    LoginState loginState = null;
-    try {
-      loginState = mAuthRepository.checkIfUserLoggedInAsync().get();
-    } catch (ExecutionException | InterruptedException e) {
-      e.printStackTrace();
-    }
-    if (loginState != null && loginState.isLoggedIn()) {
-      mDataRepository.fetchData(new DataRequest("mockToken", "username nick"));
-    }
+  public void fetchData(Set<String> scopes) {
+    mDataRepository.fetchDataAsync(scopes);
   }
 }
