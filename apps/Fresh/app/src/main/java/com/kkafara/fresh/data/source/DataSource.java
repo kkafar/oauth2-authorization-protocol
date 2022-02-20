@@ -10,6 +10,10 @@ import com.kkafara.fresh.data.model.DataRequest;
 import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.Result;
 import com.kkafara.fresh.data.source.request.HttpDataRequestFactory;
+import com.kkafara.fresh.database.DatabaseInstanceProvider;
+import com.kkafara.fresh.database.MainDatabase;
+import com.kkafara.fresh.database.dao.AuthInfoDao;
+import com.kkafara.fresh.database.entity.AuthInfoRecord;
 import com.kkafara.fresh.net.HttpBodyDecoders;
 import com.kkafara.fresh.net.HttpRequestTask;
 
@@ -33,10 +37,15 @@ public class DataSource {
 
   private Gson mGson;
 
+  private MainDatabase mDatabase;
+
+  private AuthInfoDao mAuthInfoDao;
+
   private DataSource() {
     Log.d(TAG, "ctor");
     mExecutor = Executors.newSingleThreadExecutor();
     mGson = new Gson();
+    mAuthInfoDao = DatabaseInstanceProvider.getInstance(null).getAuthInfoDao();
   }
 
   public static DataSource getInstance() {
@@ -61,42 +70,37 @@ public class DataSource {
 
   public void fetchData(DataRequest request) {
     Log.d(TAG, "fetchData");
-    mExecutor.submit((Runnable) new HttpRequestTask<Void>(
-        new HttpDataRequestFactory(request.getAccessToken(), request.getRequestedScopes()),
-        response -> {
-          Log.d(TAG, "Resource server response");
-          Log.d(TAG, response.toString());
-          Log.d(TAG, Arrays.toString(response.getHeaders()));
+    mExecutor.submit(() -> {
+      AuthInfoRecord record = mAuthInfoDao.findByUserId(0);
+      if (record == null || record.accessToken == null) {
+        pushResultToLiveDataStream(Result.newError(new RuntimeException("Null record or token")));
+        return;
+      }
+      new HttpRequestTask<Void>(
+          new HttpDataRequestFactory(record.accessToken, request.getRequestedScopes()),
+          response -> {
+            Log.d(TAG, "Resource server response");
+            Log.d(TAG, response.toString());
+            Log.d(TAG, Arrays.toString(response.getHeaders()));
 
-          DataResponse dataResponse = HttpBodyDecoders
-              .decodeHttpResponseBody(response.getEntity(), DataResponse.class);
+            DataResponse dataResponse = HttpBodyDecoders
+                .decodeHttpResponseBody(response.getEntity(), DataResponse.class);
 
-          if (dataResponse == null) {
-            pushResultToLiveDataStream(Result.newError(new RuntimeException("Gson returned null"))); // todo (better exception type)
-          } else if (dataResponse.isError()) {
-            pushResultToLiveDataStream(Result.newError(new RuntimeException(dataResponse.getError()))); // todo (better exception type)
-          } else {
-            pushResultToLiveDataStream(Result.newSuccess(dataResponse));
+            if (dataResponse == null) {
+              pushResultToLiveDataStream(Result.newError(new RuntimeException("Gson returned null"))); // todo (better exception type)
+            } else if (dataResponse.isError()) {
+              pushResultToLiveDataStream(Result.newError(new RuntimeException(dataResponse.getError()))); // todo (better exception type)
+            } else {
+              pushResultToLiveDataStream(Result.newSuccess(dataResponse));
+            }
+            return null;
+          },
+          exception -> {
+            pushResultToLiveDataStream(Result.newError(exception));
+            return null;
           }
-          return null;
-        },
-        exception -> {
-          pushResultToLiveDataStream(Result.newError(exception));
-          return null;
-        }
-    ));
+      ).run();
 
-//    // MOCK IMPL
-//    mExecutor.submit(() -> {
-//      Log.d(TAG, "fetchData IN EXECUTOR");
-//      DataResponse response = new DataResponse("Kacper", "student@agh.edu.pl", "hehe", null);
-//      try {
-//        Thread.sleep(1000);
-//      } catch (InterruptedException exception) {
-//        exception.printStackTrace();
-//      }
-//      pushResultToLiveDataStream(Result.newSuccess(response));
-////      pushResultToLiveDataStream(Result.newError(new RuntimeException("connection failure")));
-//    });
+    });
   }
 }

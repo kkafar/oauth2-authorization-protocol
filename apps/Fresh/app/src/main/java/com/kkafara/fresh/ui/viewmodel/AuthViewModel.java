@@ -43,7 +43,7 @@ public class AuthViewModel extends ViewModel {
   }
 
   public void assertUserIsLoggedIn() {
-    mAuthRepository.checkIfUserLoggedIn();
+    mAuthRepository.checkIfUserLoggedInAsync();
   }
 
   public void startAuthorizationCodeFlow(Context appContext, Iterable<String> scopes) {
