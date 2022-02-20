@@ -20,27 +20,27 @@ public class ExampleTokens {
     private void generateTokens() {
         String notInDbTokenId = TokenUtil.generateTokenId();
         String notInDbToken = TokenUtil.generateToken(1000, List.of("something"), "some_code",
-                true, "Bearer", notInDbTokenId);
+                "user", true, "Bearer", notInDbTokenId);
         notInDbTokenObj = new Token(notInDbTokenId, notInDbToken, "some_code", "some_client");
 
         String activeRefreshTokenId = TokenUtil.generateTokenId();
         String activeRefreshToken = TokenUtil.generateToken(1000, List.of("some_scope"), "some_code",
-                false, "Bearer", activeRefreshTokenId);
+                "user", false, "Bearer", activeRefreshTokenId);
         activeRefreshTokenObj = new Token(activeRefreshTokenId, activeRefreshToken, "some_code", "client1");
 
         String expiredRefreshTokenId = TokenUtil.generateTokenId();
         String expiredRefreshToken = TokenUtil.generateToken(0, List.of("some_scope"), "some_code",
-                false, "Bearer", expiredRefreshTokenId);
+                "user", false, "Bearer", expiredRefreshTokenId);
         expiredRefreshTokenObj = new Token(expiredRefreshTokenId, expiredRefreshToken, "some_code", "client1");
 
         String activeAccessTokenId = TokenUtil.generateTokenId();
         String activeAccessToken = TokenUtil.generateToken(1000, List.of("some_scope"), "some_code",
-                true, "Bearer", activeAccessTokenId);
+                "user", true, "Bearer", activeAccessTokenId);
         activeAccessTokenObj = new Token(activeAccessTokenId, activeAccessToken, "some_code", "client1");
 
         String expiredAccessTokenId = TokenUtil.generateTokenId();
         String expiredAccessToken = TokenUtil.generateToken(0, List.of("some_scope"), "some_code",
-                true, "Bearer", expiredAccessTokenId);
+                "user", true, "Bearer", expiredAccessTokenId);
         expiredAccessTokenObj = new Token(expiredAccessTokenId, expiredAccessToken, "some_code", "client1");
     }
 

@@ -21,8 +21,10 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
 
     private static final String BEARER = "Bearer";
 
-    private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
-    private static final int EXPIRE_IN_SECONDS_REFRESH_TOKEN = 604800;
+//    private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 86400;
+    private static final int EXPIRE_IN_SECONDS_ACCESS_TOKEN = 1000;
+//    private static final int EXPIRE_IN_SECONDS_REFRESH_TOKEN = 604800;
+    private static final int EXPIRE_IN_SECONDS_REFRESH_TOKEN = 2000;
 
     private final ResponseBuildingDirector director = new ResponseBuildingDirector();
     private final ResponseBuilder<JSONObject> responseBuilder = new JsonResponseBuilder();
@@ -38,7 +40,7 @@ public class AuthorizationCodeGrantAccessTokenGenerator extends BaseHandler<Auth
                     authorizationCode, true, BEARER);
 
             Token refreshToken = database.getNewToken(EXPIRE_IN_SECONDS_REFRESH_TOKEN, authorizationCode.getScope(),
-                    authorizationCode.getCode(), false, BEARER, authorizationCode.getClientId());
+                    authorizationCode.getCode(), authorizationCode.getUserLogin(), false, BEARER, authorizationCode.getClientId());
 
             JSONObject responseBody = buildResponseBody(accessToken.getToken(), refreshToken.getToken(), authorizationCode);
 

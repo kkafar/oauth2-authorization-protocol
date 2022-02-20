@@ -96,8 +96,8 @@ public class GetNewTokenTests {
     @Test
     public void getNewAccessTokenTest() {
         // when
-        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), true,
-                "Bearer", validAuthCode.getClientId());
+        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), validAuthCode.getUserLogin(),
+                true, "Bearer", validAuthCode.getClientId());
 
         Token generatedAccessToken = queries.getObjectFromCollection(accessTokens, "auth_code", validAuthCode.getCode());
         DecodedToken decodedGeneratedToken = generatedAccessToken.getDecodedToken();
@@ -119,8 +119,8 @@ public class GetNewTokenTests {
     @Test
     public void getNewRefreshTokenTest() {
         // when
-        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), false,
-                "Bearer", validAuthCode.getClientId());
+        mongoDBFacade.getNewToken(1000, validAuthCode.getScope(), validAuthCode.getCode(), validAuthCode.getUserLogin(),
+                false, "Bearer", validAuthCode.getClientId());
 
         Token generatedRefreshToken = queries.getObjectFromCollection(refreshTokens, "auth_code", validAuthCode.getCode());
         DecodedToken decodedGeneratedToken = generatedRefreshToken.getDecodedToken();

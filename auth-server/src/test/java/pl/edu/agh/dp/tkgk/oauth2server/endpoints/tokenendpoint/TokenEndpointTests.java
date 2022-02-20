@@ -108,8 +108,8 @@ public class TokenEndpointTests {
         authCodes = db.getCollection(MongoDBInfo.Collections.AUTH_CODES_COLLECTION.toString(), AuthCode.class);
 
         String refreshTokenId = TokenUtil.generateTokenId();
-        String refreshToken = TokenUtil.generateToken(1000, authCode.getScope(), authCode.getCode(), false,
-                "Bearer", refreshTokenId);
+        String refreshToken = TokenUtil.generateToken(1000, authCode.getScope(), authCode.getCode(), authCode.getUserLogin(),
+                false, "Bearer", refreshTokenId);
 
         refreshTokenObj = new Token(refreshTokenId, refreshToken, authCode.getCode(), client.getClientId());
 
@@ -338,15 +338,18 @@ public class TokenEndpointTests {
     }
 
     private Stream<Arguments> getInvalidRefreshTokens() {
-        String refreshToken1 = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(), false, "Bearer", "x");
+        String refreshToken1 = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(),
+                authCode.getUserLogin(), false, "Bearer", "x");
         Token notAvailableInDatabaseRefreshToken = new Token("x", refreshToken1, authCode.getCode(), authCode.getClientId());
 
         String tokenId2 = TokenUtil.generateTokenId();
-        String refreshToken2 = TokenUtil.generateToken(0, List.of("all"), authCode.getCode(), false, "Bearer", tokenId2);
+        String refreshToken2 = TokenUtil.generateToken(0, List.of("all"), authCode.getCode(),
+                authCode.getUserLogin(), false, "Bearer", tokenId2);
         Token notActiveRefreshToken = new Token(tokenId2, refreshToken2, authCode.getCode(), authCode.getClientId());
 
         String tokenId3 = TokenUtil.generateTokenId();
-        String accessToken = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(), true, "Bearer", tokenId3);
+        String accessToken = TokenUtil.generateToken(1000, List.of("all"), authCode.getCode(),
+                authCode.getUserLogin(), true, "Bearer", tokenId3);
         Token accessTokenObj = new Token(tokenId3, accessToken, authCode.getCode(), authCode.getClientId());
 
         queries.addObjectToCollection(accessTokenObj, accessTokens);
