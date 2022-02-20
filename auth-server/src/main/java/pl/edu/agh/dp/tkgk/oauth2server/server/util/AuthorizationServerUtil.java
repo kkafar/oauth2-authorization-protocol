@@ -44,19 +44,37 @@ public class AuthorizationServerUtil {
     }
 
     public static String loadTextResource(String resourcePath) throws FileNotFoundException {
-        URL resourceURL = AuthorizationServerUtil.class.getResource(resourcePath);
-        if (resourceURL == null){
-            throw new FileNotFoundException("Couldn't find resource: " + resourcePath);
-        }
-
+        Path path =  getPath(resourcePath);
         String textResource = "";
         try {
-            textResource = Files.readString(Path.of(resourceURL.toURI()));
-        } catch (IOException | URISyntaxException e) {
+            textResource = Files.readString(path);
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return textResource;
     }
 
+    public static byte[] loadBytesFromFile(String resourcePath) throws IOException {
+        Path path =  getPath(resourcePath);
+        Objects.requireNonNull(path);
+        byte[] bytes = Files.readAllBytes(path);
+        return bytes;
+    }
+
+    private static Path getPath(String resourcePath) throws FileNotFoundException {
+        URL resourceURL = AuthorizationServerUtil.class.getResource(resourcePath);
+        if (resourceURL == null){
+            throw new FileNotFoundException("Couldn't find resource: " + resourcePath);
+        }
+        Path path = null;
+        try {
+            path = Path.of(resourceURL.toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return path;
+    }
 }
