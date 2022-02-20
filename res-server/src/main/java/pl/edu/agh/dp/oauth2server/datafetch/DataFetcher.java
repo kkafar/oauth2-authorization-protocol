@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DataFetcher {
     public static JSONObject fetchData(FullHttpRequest clientRequest, JSONObject clientTokenData){
-        String userID = clientTokenData.getString("client_id");
+        String userID = clientTokenData.getString("user_login");
         List<String> requestedData = new ArrayList<>(Arrays.asList(clientRequest.headers().get("Requested-Data").split(" ")));
 
         JSONObject data = new JSONObject();
