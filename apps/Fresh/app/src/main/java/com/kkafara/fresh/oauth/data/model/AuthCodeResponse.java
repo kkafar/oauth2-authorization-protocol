@@ -5,9 +5,9 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.kkafara.fresh.oauth.util.OAuthHttpRequestParameter;
+import com.kkafara.fresh.oauth.util.OAuthHttpParameter;
 
-public class AuthCodeResponse {
+public class AuthCodeResponse extends OAuthErrorResponse {
   @Nullable
   public final String state;
 
@@ -16,16 +16,24 @@ public class AuthCodeResponse {
 
   public AuthCodeResponse(
       @Nullable String state,
-      @Nullable String code
+      @Nullable String code,
+      @Nullable String error
   ) {
+    super(error);
     this.state = state;
     this.code = code;
   }
 
-    @NonNull
+  @NonNull
   public static AuthCodeResponse fromUri(@NonNull Uri uri) {
     return new AuthCodeResponse(
-        uri.getQueryParameter(OAuthHttpRequestParameter.STATE),
-        uri.getQueryParameter(OAuthHttpRequestParameter.CODE));
+        uri.getQueryParameter(OAuthHttpParameter.STATE),
+        uri.getQueryParameter(OAuthHttpParameter.CODE),
+        uri.getQueryParameter("error"));
+  }
+
+  @Override
+  public boolean isError() {
+    return error != null || state == null || code == null;
   }
 }

@@ -1,7 +1,7 @@
 package com.kkafara.fresh.servers;
 
 public class AuthServerInfo {
-  public static final String AUTHORITY = "8e4d-91-123-181-221.ngrok.io";
+  public static final String AUTHORITY = "5d66-91-123-181-221.ngrok.io";
   public static final String HTTP_ADDRESS = "https://" + AUTHORITY;
 
   public static final String ENDPOINT_NAME_TOKEN = "token";

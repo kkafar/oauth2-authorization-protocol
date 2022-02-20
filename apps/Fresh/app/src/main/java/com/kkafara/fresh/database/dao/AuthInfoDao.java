@@ -3,6 +3,9 @@ package com.kkafara.fresh.database.dao;
 import static com.kkafara.fresh.database.entity.AuthInfoRecordColumns.ACCESS_TOKEN;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.kkafara.fresh.database.entity.AuthInfoRecord;
@@ -25,4 +28,10 @@ public interface AuthInfoDao {
 
   @Query("select :columnName from AuthInfo where userId == :uid")
   long findLongDataByIdAndName(int uid, String columnName);
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  void insertAuthInfoRecord(AuthInfoRecord authInfoRecord);
+
+  @Delete
+  void deleteAuthInfoRecord(AuthInfoRecord authInfoRecord);
 }

@@ -2,6 +2,7 @@ package com.kkafara.fresh.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,6 +21,9 @@ import com.kkafara.fresh.R;
 import com.kkafara.fresh.database.DatabaseInstanceProvider;
 import com.kkafara.fresh.database.MainDatabase;
 import com.kkafara.fresh.databinding.ActivityMainBinding;
+import com.kkafara.fresh.oauth.data.model.AuthCodeResponse;
+import com.kkafara.fresh.ui.viewmodel.AuthViewModel;
+import com.kkafara.fresh.ui.viewmodel.AuthViewModelFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
   private ActivityMainBinding mBinding;
   private AppBarConfiguration mAppBarConfiguration;
   private MainDatabase mDatabase;
+  private AuthViewModel mAuthViewModel;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     // initialize database
     mDatabase = DatabaseInstanceProvider.getInstance(getApplicationContext());
+
+    mAuthViewModel = new ViewModelProvider(this, new AuthViewModelFactory())
+        .get(AuthViewModel.class);
   }
 
     @Override
@@ -68,6 +77,18 @@ public class MainActivity extends AppCompatActivity {
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     Log.d(TAG, "onNewIntent");
+
+    Uri intentData = intent.getData();
+    AuthCodeResponse response = AuthCodeResponse.fromUri(intentData);
+
+    if (response.isError()) {
+        // TODO: HANDLE INVALID RESPONSE
+    }
+
+    Log.d(TAG, "Whole server response: " + intentData);
+    Log.d(TAG, "Authorization code grant granted by server: " + response.code);
+
+    mAuthViewModel.getAccessTokenByAuthCode(this, response);
   }
 
   private boolean isNetworkAvailable(Context context) {

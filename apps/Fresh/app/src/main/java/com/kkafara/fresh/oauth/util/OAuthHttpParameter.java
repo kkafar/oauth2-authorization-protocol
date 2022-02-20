@@ -1,6 +1,6 @@
 package com.kkafara.fresh.oauth.util;
 
-public class OAuthHttpRequestParameter {
+public class OAuthHttpParameter {
   public final static String RESPONSE_TYPE = "response_type";
   public final static String CLIENT_ID = "client_id";
   public final static String REDIRECT_URI = "redirect_uri";
@@ -14,5 +14,5 @@ public class OAuthHttpRequestParameter {
   public final static String CODE_VERIFIER = "code_verifier";
   public final static String REFRESH_TOKEN = "refresh_token";
 
-  private OAuthHttpRequestParameter() {};
+  private OAuthHttpParameter() {};
 }

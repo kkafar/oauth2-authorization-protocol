@@ -56,12 +56,15 @@ public class ActionFragment extends Fragment {
     mAuthViewModel = new ViewModelProvider(requireActivity(), new AuthViewModelFactory())
         .get(AuthViewModel.class);
 
+    Log.d(TAG, "Setting callback for proceedToDataFragmentButton");
     mBinding.proceedToDataFragmentButton.setOnClickListener(_view -> {
+      Log.d(TAG, "proceedToDataFragmentButton clicked");
       mAuthViewModel.assertUserIsLoggedIn();
       toggleLoadingMode(true);
     });
 
-    mAuthViewModel.getLoginStateLiveData().observeForever(result -> {
+    Log.d(TAG, "Register for login result");
+    mAuthViewModel.getLoginStateLiveData().observe(this, result -> {
       toggleLoadingMode(false);
       if (result.isError()) {
         Log.d(TAG, "Login process failed");
@@ -77,8 +80,10 @@ public class ActionFragment extends Fragment {
         Log.d(TAG, "Login process succeeded");
         LoginState loginState = result.getSuccessValue();
         if (loginState.isLoggedIn()) {
+          Log.d(TAG, "User is logged in; navigating to data fragment");
           Navigation.findNavController(requireView()).navigate(R.id.action_actionFragment_to_dataFragment);
         } else {
+          Log.d(TAG, "User is NOT logged in; navigating to login fragment");
           Navigation.findNavController(requireView()).navigate(R.id.action_actionFragment_to_loginFragment);
         }
       } else {

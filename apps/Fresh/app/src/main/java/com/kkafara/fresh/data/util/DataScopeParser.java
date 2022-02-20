@@ -31,4 +31,11 @@ public class DataScopeParser {
     Collections.addAll(scopesSet, scopes);
     return scopesSet;
   }
+
+  public static Set<String> setStringFromStringIterable(@NonNull Iterable<String> scopes) {
+    Set<String> scopesSet = new HashSet<>();
+    for (String scope : scopes) { scopesSet.add(scope); }
+    return scopesSet;
+  }
+
 }

@@ -3,10 +3,11 @@ package com.kkafara.fresh.oauth.data.model;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.kkafara.fresh.data.util.DataScopeParser;
 import com.kkafara.fresh.oauth.pkce.CodeChallengeMethod;
-import com.kkafara.fresh.oauth.util.OAuthHttpRequestParameter;
+import com.kkafara.fresh.oauth.util.OAuthHttpParameter;
 import com.kkafara.fresh.servers.AuthServerInfo;
 
 import java.util.Set;
@@ -26,7 +27,7 @@ public class AuthCodeRequest {
       @NonNull String clientId,
       @NonNull String responseType,
       @NonNull String codeChallenge,
-      CodeChallengeMethod codeChallengeMethod,
+      @Nullable String codeChallengeMethod,
       String redirectUri,
       String state,
       Set<String> scopesSet
@@ -38,7 +39,7 @@ public class AuthCodeRequest {
     mState = state;
     mScopesSet = scopesSet;
     mCodeChallenge = codeChallenge;
-    mCodeChallengeMethod = codeChallengeMethod == null ? CodeChallengeMethod.PLAIN : codeChallengeMethod.toString();
+    mCodeChallengeMethod = codeChallengeMethod;
   };
 
   public Uri toUri() {
@@ -47,21 +48,21 @@ public class AuthCodeRequest {
     builder.scheme("https")
         .authority(mAuthServerAuthority)
         .appendPath(AuthServerInfo.ENDPOINT_NAME_AUTHORIZE)
-        .appendQueryParameter(OAuthHttpRequestParameter.RESPONSE_TYPE, mResponseType)
-        .appendQueryParameter(OAuthHttpRequestParameter.CLIENT_ID, mClientId)
-        .appendQueryParameter(OAuthHttpRequestParameter.CODE_CHALLENGE, mCodeChallenge);
+        .appendQueryParameter(OAuthHttpParameter.RESPONSE_TYPE, mResponseType)
+        .appendQueryParameter(OAuthHttpParameter.CLIENT_ID, mClientId)
+        .appendQueryParameter(OAuthHttpParameter.CODE_CHALLENGE, mCodeChallenge);
 
     if (mCodeChallengeMethod != null) {
-      builder.appendQueryParameter(OAuthHttpRequestParameter.CODE_CHALLENGE_METHOD.toString(), mCodeChallengeMethod);
+      builder.appendQueryParameter(OAuthHttpParameter.CODE_CHALLENGE_METHOD.toString(), mCodeChallengeMethod);
     }
     if (mRedirectUri != null) {
-      builder.appendQueryParameter(OAuthHttpRequestParameter.REDIRECT_URI.toString(), mRedirectUri);
+      builder.appendQueryParameter(OAuthHttpParameter.REDIRECT_URI.toString(), mRedirectUri);
     }
     if (mState != null) {
-      builder.appendQueryParameter(OAuthHttpRequestParameter.STATE.toString(), mState);
+      builder.appendQueryParameter(OAuthHttpParameter.STATE.toString(), mState);
     }
     if (mScopesSet != null && !mScopesSet.isEmpty()) {
-      builder.appendQueryParameter(OAuthHttpRequestParameter.SCOPE, DataScopeParser.stringFromStringIterable(mScopesSet));
+      builder.appendQueryParameter(OAuthHttpParameter.SCOPE, DataScopeParser.stringFromStringIterable(mScopesSet));
     }
     return builder.build();
   }
