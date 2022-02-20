@@ -17,6 +17,7 @@ import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.converters.HttpRequ
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers.HttpHeadersValidator;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.fullrequesthandlers.RepeatingGetParametersChecker;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.authrequest.requestwithparametershandlers.*;
+import pl.edu.agh.dp.tkgk.oauth2server.endpoints.favicon.FavIconResponder;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.pong.PingHandler;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenendpoint.TokenGrantTypeDispatcher;
 import pl.edu.agh.dp.tkgk.oauth2server.endpoints.tokenendpoint.TokenRequestValidator;
@@ -49,6 +50,11 @@ public class ServerEndpointsBuilder {
         buildAuthorizationEndpoint();
         buildAuthErrorPageEndpoint();
         buildAdminEndpoint();
+        buildFavIconEndpoint();
+    }
+
+    private void buildFavIconEndpoint() {
+        endpointHandlerMap.put("/favicon.ico", new FavIconResponder());
     }
 
     private void buildAdminEndpoint() {

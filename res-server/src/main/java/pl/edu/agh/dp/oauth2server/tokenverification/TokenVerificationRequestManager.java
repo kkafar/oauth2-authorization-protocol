@@ -36,7 +36,7 @@ public class TokenVerificationRequestManager {
     }
 
     private static boolean introspectToken(String token, String tokenTypeHint) {
-        String host = "5d66-91-123-181-221.ngrok.io";
+        String host = "bd6a-91-123-181-221.ngrok.io";
         int port = 443;
         String url = "https://" + host + ":" + port + "/introspect";
         EventLoopGroup workerGroup = new NioEventLoopGroup();
