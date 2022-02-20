@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class TokenVerificationRequestManager {
-    private static final String RESOURCE_SERVER_AUTHENTICATION_TOKEN = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImludHJvc3BlY3Rpb24iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiZXhwIjoxNjc0Nzc0MDAwLCJpYXQiOjE2NDQwMTU2MDAsImlzX2FjY2Vzc190b2tlbiI6dHJ1ZSwianRpIjoiOG1UaGt1aGswYXVhMlpIRHpLNEdjN2k2RmVyYloxTVoiLCJhdXRoX2NvZGUiOiJhdXRoLXNlcnZlciJ9.VRe9jAk54zWrixC8K887NDlXCQhbbajhjcQ20S8QJYI";
+    private static final String RESOURCE_SERVER_AUTHENTICATION_TOKEN = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6WyJpbnRyb3NwZWN0aW9uIl0sInVzZXJfbG9naW4iOiJhdXRoLXNlcnZlciIsInRva2VuX3R5cGUiOiJCZWFyZXIiLCJleHAiOjE2NTUzODQ4MzIsImlhdCI6MTY0NTM4NDgzMiwiaXNfYWNjZXNzX3Rva2VuIjp0cnVlLCJqdGkiOiIweGIyVDgxMFIxT1duN0xLdmFRYnBKazJJcmRmTTVPOCIsImF1dGhfY29kZSI6ImF1dGgtc2VydmVyIn0.c0rd29sz6IQI-7ejlfI5NOlj9EBt2LbRZtBVn-xv4JA";
 
     private static JSONObject clientTokenData;
 
@@ -36,7 +36,7 @@ public class TokenVerificationRequestManager {
     }
 
     private static boolean introspectToken(String token, String tokenTypeHint) {
-        String host = "8e4d-91-123-181-221.ngrok.io";
+        String host = "5d66-91-123-181-221.ngrok.io";
         int port = 443;
         String url = "https://" + host + ":" + port + "/introspect";
         EventLoopGroup workerGroup = new NioEventLoopGroup();
