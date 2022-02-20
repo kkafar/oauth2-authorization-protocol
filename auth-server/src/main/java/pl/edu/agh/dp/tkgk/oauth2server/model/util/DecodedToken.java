@@ -1,6 +1,7 @@
 package pl.edu.agh.dp.tkgk.oauth2server.model.util;
 
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.json.JSONPropertyIgnore;
 import org.json.JSONPropertyName;
@@ -21,7 +22,7 @@ public class DecodedToken {
     private final String authCode;
     private final String userLogin;
 
-    public DecodedToken(Token token)
+    public DecodedToken(Token token) throws JWTVerificationException
     {
         this.jwtId = token.getJwtId();
         this.clientId = token.getClientId();

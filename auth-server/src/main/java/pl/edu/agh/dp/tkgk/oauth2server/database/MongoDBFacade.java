@@ -1,7 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.database;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mongodb.client.MongoCollection;
@@ -19,7 +18,6 @@ import pl.edu.agh.dp.tkgk.oauth2server.model.util.TokenUtil;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -30,6 +28,8 @@ public final class MongoDBFacade implements Database {
     private final Queries queries = new Queries();
     private final Random random;
     private final Map<String, Session> sessionMap;
+    private final List<String> privateUsers =
+            Arrays.stream(MongoDBInfo.PrivateUsers.values()).map(MongoDBInfo.PrivateUsers::toString).toList();
 
     private final static long CODE_LIFE_TIME_IN_SECONDS = 120;
     public final static long SESSION_LIFE_TIME_IN_SECONDS = 1200;
@@ -220,40 +220,26 @@ public final class MongoDBFacade implements Database {
     }
 
     @Override
-    public Map<String, Boolean> getUserLoginsWithActiveInfo() {
-        List<Credentials> credentialsList =
-                queries.getObjectsFromCollection(credentialsCollection, "_id", null);
+    public List<String> getLoggedUsers() {
+        Set<String> loggedUsers = new HashSet<>();
 
-        Map<String, Boolean> result = new HashMap<>();
+        List<Token> tokens =
+                queries.getObjectsFromCollection(accessTokensCollection, Token.JsonFields.ID, null);
 
-        credentialsList.forEach(credential -> {
-            String login = credential.getLogin();
-            result.put(login, isUserLogged(login));
-        });
+        tokens.addAll(queries.getObjectsFromCollection(refreshTokensCollection, Token.JsonFields.ID, null));
 
-        return result;
-    }
-
-    private boolean isUserLogged(String userLogin) {
-        List<AuthCode> authCodesList =
-                queries.getObjectsFromCollection(authCodesCollection, AuthCode.JsonFields.USER_LOGIN, userLogin);
-
-        for (AuthCode authCode : authCodesList) {
-            if (!authCode.isUsed()) continue;
-            List<Token> accessTokens =
-                    queries.getObjectsFromCollection(accessTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
-            for (Token accessToken : accessTokens) {
-                if (accessToken.getDecodedToken().isActive()) return true;
+        for (Token token : tokens) {
+            DecodedToken decodedToken;
+            try {
+                decodedToken = token.getDecodedToken();
+            } catch (JWTVerificationException e) {
+                continue;
             }
-
-            List<Token> refreshTokens =
-                    queries.getObjectsFromCollection(refreshTokensCollection, Token.JsonFields.AUTH_CODE, authCode.getCode());
-            for (Token refreshToken : refreshTokens) {
-                if (refreshToken.getDecodedToken().isActive()) return true;
-            }
+            String login = decodedToken.getUserLogin();
+            if (!privateUsers.contains(login)) loggedUsers.add(login);
         }
 
-        return false;
+        return new ArrayList<>(loggedUsers);
     }
 
     @Override

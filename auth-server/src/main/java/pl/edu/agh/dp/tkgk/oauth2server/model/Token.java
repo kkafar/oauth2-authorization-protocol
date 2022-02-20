@@ -1,5 +1,6 @@
 package pl.edu.agh.dp.tkgk.oauth2server.model;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
@@ -74,7 +75,7 @@ public class Token {
     }
 
     @BsonIgnore
-    public DecodedToken getDecodedToken() {
+    public DecodedToken getDecodedToken() throws JWTVerificationException {
         return new DecodedToken(this);
     }
 }
