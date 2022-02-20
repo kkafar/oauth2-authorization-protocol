@@ -103,14 +103,16 @@ public class AuthRepository {
   }
 
 
-  public void checkIfUserLoggedIn() {
+  public Future<LoginState> checkIfUserLoggedInAsync() {
     Log.d(TAG, "checkIfUserLoggedIn");
-    mExecutor.submit(() -> {
+    return mExecutor.submit(() -> {
+      LoginState loginState;
       // first we check if there is anything stored in database
       AuthInfoRecord authInfo = mAuthInfoDao.findByUserId(0);
 
       if (authInfo == null) {
-        pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+        loginState = new LoginState(false);
+        pushResultToLiveDataStream(Result.newSuccess(loginState));
       } else { // data record is available
         if (authInfo.accessToken != null) {
           // there are 2 main cases:
@@ -120,30 +122,36 @@ public class AuthRepository {
             // we can only verify it on data request (or on additional endpoint)
 
             // TODO: CHECK IF TOKEN HAS NOT BEEN REVOKED ON SERVER SIDE
-
-            pushResultToLiveDataStream(Result.newSuccess(new LoginState(true)));
+            loginState = new LoginState(true);
+            pushResultToLiveDataStream(Result.newSuccess(loginState));
           } else if (hasRefreshToken(authInfo)) {
             // 2: token has expired, but there is refresh token
             // try to obtain the access token
             try {
               Result<TokenResponse, Throwable> result = tryToObtainAccessTokenWithRefreshTokenWithFuture(authInfo).get();
               if (result.isError()) {
-                pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+                loginState = new LoginState(false);
+                pushResultToLiveDataStream(Result.newSuccess(loginState));
               } else {
-                pushResultToLiveDataStream(Result.newSuccess(new LoginState(true)));
+                loginState = new LoginState(true);
+                pushResultToLiveDataStream(Result.newSuccess(loginState));
               }
             } catch (ExecutionException | InterruptedException e) {
               // if this process failed, we return that user is not logged in
-              pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+              loginState = new LoginState(false);
+              pushResultToLiveDataStream(Result.newSuccess(loginState));
             }
           } else {
             // token has expired and there is no refresh token
-            pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+            loginState = new LoginState(false);
+            pushResultToLiveDataStream(Result.newSuccess(loginState));
           }
         } else {
-          pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
+          loginState = new LoginState(false);
+          pushResultToLiveDataStream(Result.newSuccess(loginState));
         }
       }
+      return loginState;
     });
   }
 
@@ -167,6 +175,11 @@ public class AuthRepository {
           } else if (refreshTokenResponse.isError()) {
             return Result.newError(new RuntimeException(refreshTokenResponse.getError()));
           } else {
+            AuthInfoRecord record = mAuthInfoDao.findByUserId(0);
+            record.accessToken = refreshTokenResponse.getAccessToken();
+            record.tokenExpireTime = refreshTokenResponse.getExpireTime();
+            record.tokenGrantTime = Instant.now().getEpochSecond();
+            mAuthInfoDao.updateAuthInfoRecord(record);
             return Result.newSuccess(refreshTokenResponse);
           }
         },

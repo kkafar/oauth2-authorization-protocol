@@ -7,6 +7,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.kkafara.fresh.database.entity.AuthInfoRecord;
 
@@ -34,4 +35,7 @@ public interface AuthInfoDao {
 
   @Delete
   void deleteAuthInfoRecord(AuthInfoRecord authInfoRecord);
+
+  @Update
+  void updateAuthInfoRecord(AuthInfoRecord authInfoRecord);
 }
