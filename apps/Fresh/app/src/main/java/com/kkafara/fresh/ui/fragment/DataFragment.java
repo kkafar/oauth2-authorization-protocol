@@ -37,6 +37,8 @@ public class DataFragment extends Fragment {
   private final float MIN_ALPHA = .2f;
   private final float DEFAULT_ALPHA = 1f;
 
+  private String loadingIndicatorContext = null;
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -65,8 +67,12 @@ public class DataFragment extends Fragment {
         .get(AuthViewModel.class);
 
     mAuthViewModel.getLoginStateLiveData().observe(this, result -> {
-      toggleLoadingMode(false);
+      Log.d(TAG, "login state data stream observer");
+
+      toggleLoadingMode(false, "login");
+
       if (result.isError()) {
+        Log.d(TAG, "result error from login state data stream");
         // TODO: HANDLE ERROR
       } else if (result.hasSuccessValue()) {
         if (!result.getSuccessValue().isLoggedIn()) {
@@ -79,7 +85,8 @@ public class DataFragment extends Fragment {
     });
 
     mDataViewModel.getDataResponseLiveData().observe(this, result -> {
-      toggleLoadingMode(false);
+      Log.d(TAG, "data response stream observer");
+      toggleLoadingMode(false, "data");
       if (result.isError()) {
         Log.d(TAG, "Data fetch failed");
         String errorMessage = result.getError().getMessage();
@@ -104,38 +111,45 @@ public class DataFragment extends Fragment {
 
     mBinding.logoutButton.setOnClickListener(_view -> {
       Log.d(TAG, "logoutButton pressed");
-      toggleLoadingMode(true);
+      toggleLoadingMode(true, "login");
       mAuthViewModel.logout();
     });
 
     mBinding.refreshDataButton.setOnClickListener(_view -> {
       Log.d(TAG, "refreshDataButton pressed");
-      toggleLoadingMode(true);
+      toggleLoadingMode(true, "data");
       mDataViewModel.fetchData(getCurrentScopes());
     });
 
-    toggleLoadingMode(true);
+    toggleLoadingMode(true, "data");
+
     mDataViewModel.fetchData(getCurrentScopes());
   }
 
-  private void toggleLoadingMode(boolean enabled) {
-    float alpha = enabled ? MIN_ALPHA : DEFAULT_ALPHA;
-    mBinding.usernameSwitch.setAlpha(alpha);
-    mBinding.usernameDataTextView.setAlpha(alpha);
-    mBinding.emailSwitch.setAlpha(alpha);
-    mBinding.emailDataTextView.setAlpha(alpha);
-    mBinding.nickSwitch.setAlpha(alpha);
-    mBinding.nicknameDataTextView.setAlpha(alpha);
-    mBinding.logoutButton.setAlpha(alpha);
-    mBinding.refreshDataButton.setAlpha(alpha);
+  private void toggleLoadingMode(boolean enabled, String context) {
+    Log.d(TAG, "toggleLoadingMode: " + enabled);
 
-    mBinding.logoutButton.setClickable(!enabled);
-    mBinding.refreshDataButton.setClickable(!enabled);
-    mBinding.usernameSwitch.setClickable(!enabled);
-    mBinding.emailSwitch.setClickable(!enabled);
-    mBinding.nickSwitch.setClickable(!enabled);
+    if (enabled) loadingIndicatorContext = context;
 
-    mBinding.dataFetchProgressBar.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+    if (loadingIndicatorContext.equals(context)) {
+      float alpha = enabled ? MIN_ALPHA : DEFAULT_ALPHA;
+      mBinding.usernameSwitch.setAlpha(alpha);
+      mBinding.usernameDataTextView.setAlpha(alpha);
+      mBinding.emailSwitch.setAlpha(alpha);
+      mBinding.emailDataTextView.setAlpha(alpha);
+      mBinding.nickSwitch.setAlpha(alpha);
+      mBinding.nicknameDataTextView.setAlpha(alpha);
+      mBinding.logoutButton.setAlpha(alpha);
+      mBinding.refreshDataButton.setAlpha(alpha);
+
+      mBinding.logoutButton.setClickable(!enabled);
+      mBinding.refreshDataButton.setClickable(!enabled);
+      mBinding.usernameSwitch.setClickable(!enabled);
+      mBinding.emailSwitch.setClickable(!enabled);
+      mBinding.nickSwitch.setClickable(!enabled);
+
+      mBinding.dataFetchProgressBar.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+    }
   }
 
   private Set<String> getCurrentScopes() {
