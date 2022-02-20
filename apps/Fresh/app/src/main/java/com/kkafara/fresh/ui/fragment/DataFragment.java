@@ -1,24 +1,21 @@
 package com.kkafara.fresh.ui.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-
 import com.google.android.material.snackbar.Snackbar;
 import com.kkafara.fresh.R;
 import com.kkafara.fresh.data.model.DataResponse;
 import com.kkafara.fresh.data.model.UserData;
 import com.kkafara.fresh.databinding.FragmentDataBinding;
-import com.kkafara.fresh.data.repository.DataRepository;
 import com.kkafara.fresh.ui.viewmodel.AuthViewModel;
 import com.kkafara.fresh.ui.viewmodel.AuthViewModelFactory;
 import com.kkafara.fresh.ui.viewmodel.DataViewModel;
@@ -96,7 +93,7 @@ public class DataFragment extends Fragment {
         UserData userData = UserData.fromDataResponse(response);
         mBinding.usernameDataTextView.setText(userData.getUsername().orElse(getString(R.string.username)));
         mBinding.emailDataTextView.setText(userData.getMail().orElse(getString(R.string.email)));
-        mBinding.emailDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
+        mBinding.nicknameDataTextView.setText(userData.getNick().orElse(getString(R.string.nickname)));
       } else {
         Log.wtf(TAG, "THIS SHOULD NOT HAPPEN");
       }
@@ -114,6 +111,7 @@ public class DataFragment extends Fragment {
       mDataViewModel.fetchData();
     });
 
+    toggleLoadingMode(true);
     mDataViewModel.fetchData();
   }
 
