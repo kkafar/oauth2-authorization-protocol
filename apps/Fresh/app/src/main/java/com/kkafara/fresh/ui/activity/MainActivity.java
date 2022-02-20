@@ -79,16 +79,18 @@ public class MainActivity extends AppCompatActivity {
     Log.d(TAG, "onNewIntent");
 
     Uri intentData = intent.getData();
-    AuthCodeResponse response = AuthCodeResponse.fromUri(intentData);
+    if (intentData != null) {
+      AuthCodeResponse response = AuthCodeResponse.fromUri(intentData);
 
-    if (response.isError()) {
+      if (response.isError()) {
         // TODO: HANDLE INVALID RESPONSE
+      }
+
+      Log.d(TAG, "Whole server response: " + intentData);
+      Log.d(TAG, "Authorization code grant granted by server: " + response.code);
+
+      mAuthViewModel.getAccessTokenByAuthCode(this, response);
     }
-
-    Log.d(TAG, "Whole server response: " + intentData);
-    Log.d(TAG, "Authorization code grant granted by server: " + response.code);
-
-    mAuthViewModel.getAccessTokenByAuthCode(this, response);
   }
 
   private boolean isNetworkAvailable(Context context) {
