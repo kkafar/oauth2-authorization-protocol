@@ -40,7 +40,7 @@ public class LoginFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     Log.d(TAG, "onCreateView");
 
@@ -68,7 +68,7 @@ public class LoginFragment extends Fragment {
       mAuthViewModel.startAuthorizationCodeFlow(requireContext(), Arrays.asList(requiredScopes));
     });
 
-    mAuthViewModel.getLoginStateLiveData().observe(this, result -> {
+    mAuthViewModel.getLoginStateLiveData().observe(getViewLifecycleOwner(), result -> {
       toggleLoadingMode(false);
 
       if (result.isError()) {
@@ -87,10 +87,10 @@ public class LoginFragment extends Fragment {
           Log.d(TAG, "Token obtained");
           Navigation.findNavController(requireView()).navigate(R.id.action_loginFragment_to_dataFragment);
         } else {
-          Log.d(TAG, "Token was NOT obtained!!!!");
+          Log.d(TAG, "User is logged out");
           View _view = getView();
           if (_view != null) {
-            Snackbar.make(_view, "TOKEN WAS NOT OBTAINED!", mSnackBarDuration).show();
+            Snackbar.make(_view, "User is logged out", mSnackBarDuration).show();
           }
         }
       }

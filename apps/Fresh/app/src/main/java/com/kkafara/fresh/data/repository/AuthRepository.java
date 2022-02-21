@@ -2,6 +2,7 @@ package com.kkafara.fresh.data.repository;
 
 import android.util.Log;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -340,26 +341,31 @@ public class AuthRepository {
 
     if (oldAuthInfoRecord == null || oldAuthInfoRecord.accessToken == null) {
       mLoginStateLiveData.setValue(Result.newSuccess(new LoginState(false)));
+      return;
     }
 
     AuthInfoRecord finalOldAuthInfoRecord = oldAuthInfoRecord;
     mExecutor.submit((Runnable) new HttpRequestTask<Void>(
         new TokenRevocationRequestFactory(oldAuthInfoRecord.accessToken),
         httpResponse -> {
-          Log.d(TAG, "AUTH SERVER REVOKE TOKEN");
+          Log.d(TAG, "AUTH SERVER REVOKE TOKEN RESPONSE");
           Log.d(TAG, httpResponse.toString());
           Log.d(TAG, Arrays.toString(httpResponse.getHeaders()));
 
-          if (finalOldAuthInfoRecord != null) {
-            mAuthInfoDao.deleteAuthInfoRecord(finalOldAuthInfoRecord);
-          }
+          mAuthInfoDao.deleteAuthInfoRecord(finalOldAuthInfoRecord);
           pushResultToLiveDataStream(Result.newSuccess(new LoginState(false)));
           return null;
         },
         exception -> {
+          pushResultToLiveDataStream(Result.newError(new RuntimeException("connection issue")));
           return null;
         }
     ));
+  }
+
+  @MainThread
+  public void notifyOnBadAuthCodeResponse(AuthCodeResponse response) {
+    mLoginStateLiveData.setValue(Result.newError(new RuntimeException("Auth code flow failed; most likely due to invalid credentials; try again")));
   }
 
 
