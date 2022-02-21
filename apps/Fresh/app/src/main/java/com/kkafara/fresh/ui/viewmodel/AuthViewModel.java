@@ -83,4 +83,8 @@ public class AuthViewModel extends ViewModel {
   public void logout() {
     mAuthRepository.tokenRevocationFlow();
   }
+
+  public void notifyOnBadAuthCodeResponse(AuthCodeResponse response) {
+    mAuthRepository.notifyOnBadAuthCodeResponse(response);
+  }
 }

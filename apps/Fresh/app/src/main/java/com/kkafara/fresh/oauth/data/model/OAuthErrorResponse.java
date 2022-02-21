@@ -1,5 +1,6 @@
 package com.kkafara.fresh.oauth.data.model;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public abstract class OAuthErrorResponse {
@@ -14,11 +15,16 @@ public abstract class OAuthErrorResponse {
     return this.error != null;
   };
 
+  @NonNull
   public String getError() {
     if (this.error != null) {
       return this.error;
     } else {
       throw new IllegalStateException("Attempt to get error while there isn't one!");
     }
+  }
+
+  public final boolean hasError() {
+    return error != null;
   }
 }

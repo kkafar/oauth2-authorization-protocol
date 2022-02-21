@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.kkafara.fresh.R;
 
 import com.kkafara.fresh.database.DatabaseInstanceProvider;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
   private MainDatabase mDatabase;
   private AuthViewModel mAuthViewModel;
 
+  private final int mSnackBarDuration = 2000;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -56,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     mAuthViewModel = new ViewModelProvider(this, new AuthViewModelFactory(this))
         .get(AuthViewModel.class);
+
+    handleCustomTabsActivityReturn(getIntent());
   }
 
     @Override
@@ -78,18 +83,43 @@ public class MainActivity extends AppCompatActivity {
     super.onNewIntent(intent);
     Log.d(TAG, "onNewIntent");
 
-    Uri intentData = intent.getData();
-    if (intentData != null) {
-      AuthCodeResponse response = AuthCodeResponse.fromUri(intentData);
+    handleCustomTabsActivityReturn(intent);
+  }
 
-      if (response.isError()) {
-        // TODO: HANDLE INVALID RESPONSE
-      }
+  private void handleCustomTabsActivityReturn(Intent intent) {
+    Log.d(TAG, "handleCustomTabsActivityReturn");
+
+    if (intent == null) {
+      Log.d(TAG, "null intent");
+      return;
+    }
+
+    Uri intentData = intent.getData();
+
+    if (intentData != null) {
+      Log.d(TAG, "Intent contained data; most likely returning from Custom tab Activity");
+
+      AuthCodeResponse response = AuthCodeResponse.fromUri(intentData);
 
       Log.d(TAG, "Whole server response: " + intentData);
       Log.d(TAG, "Authorization code grant granted by server: " + response.code);
 
-      mAuthViewModel.getAccessTokenByAuthCode(this, response);
+      if (response.isError()) {
+        Log.d(TAG, "Response classified as error");
+
+        if (response.hasError()) {
+          Log.d(TAG, "Response contained error message");
+          Log.d(TAG, response.getError());
+
+          mAuthViewModel.notifyOnBadAuthCodeResponse(response);
+        }
+
+      } else {
+        Log.d(TAG, "Attempting to obtain access token");
+        mAuthViewModel.getAccessTokenByAuthCode(this, response);
+      }
+    } else {
+      Log.d(TAG, "Intent contained no data; most likely returning from different context");
     }
   }
 
