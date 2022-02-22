@@ -110,10 +110,8 @@ public class MainActivity extends AppCompatActivity {
         if (response.hasError()) {
           Log.d(TAG, "Response contained error message");
           Log.d(TAG, response.getError());
-
-          mAuthViewModel.notifyOnBadAuthCodeResponse(response);
         }
-
+        mAuthViewModel.notifyOnBadAuthCodeResponse(response);
       } else {
         Log.d(TAG, "Attempting to obtain access token");
         mAuthViewModel.getAccessTokenByAuthCode(this, response);
@@ -146,5 +144,5 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "No network available!");
     }
     return false;
-}
+  }
 }
