@@ -1,0 +1,28 @@
+<resources>
+    <!--  Application information  -->
+    <string name="app_name">Fresh2</string>
+    <string name="client_id">FreshApplicationClientId2</string>
+    <string-array name="valid_scopes">
+        <item>username</item>
+        <item>mail</item>
+        <item>nick</item>
+    </string-array>
+
+    <!--    Authorization callback information    -->
+    <string name="scheme">fresh</string>
+    <string name="host">main</string>
+
+    <!--    UI strings    -->
+    <string name="greeting">Welcome to the OAuth 2.0 testing application!</string>
+    <string name="proceed">Proceed</string>
+    <string name="info_proceed_to_data">Click the button below to see your data!</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="nickname">Nickname</string>
+    <string name="logout">Log out</string>
+    <string name="refresh">Refresh</string>
+    <string name="login">Log in</string>
+    <string name="info_login">Hi User! It seems that you need to log in first!</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

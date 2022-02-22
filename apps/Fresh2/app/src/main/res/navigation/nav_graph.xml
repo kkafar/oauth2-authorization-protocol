@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/nav_graph"
+        app:startDestination="@id/greetingFragment">
+
+    <fragment
+            android:id="@+id/greetingFragment"
+            android:name="com.kkafara.fresh.ui.fragment.GreetingFragment"
+            android:label="fragment_greeting"
+            tools:layout="@layout/fragment_greeting" >
+        <action
+                android:id="@+id/action_greetingFragment_to_actionFragment"
+                app:destination="@id/actionFragment"
+                app:enterAnim="@android:anim/fade_in"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popEnterAnim="@android:anim/slide_in_left"
+                app:popExitAnim="@android:anim/slide_out_right"
+                app:launchSingleTop="false" />
+    </fragment>
+    <fragment
+            android:id="@+id/actionFragment"
+            android:name="com.kkafara.fresh.ui.fragment.ActionFragment"
+            android:label="fragment_action"
+            tools:layout="@layout/fragment_action" >
+        <action
+                android:id="@+id/action_actionFragment_to_dataFragment"
+                app:destination="@id/dataFragment"
+                app:enterAnim="@android:anim/slide_in_left"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popEnterAnim="@android:anim/slide_in_left"
+                app:popExitAnim="@android:anim/slide_out_right" />
+        <action
+                android:id="@+id/action_actionFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:enterAnim="@android:anim/slide_in_left"
+                app:popEnterAnim="@android:anim/slide_in_left"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+            android:id="@+id/dataFragment"
+            android:name="com.kkafara.fresh.ui.fragment.DataFragment"
+            android:label="fragment_data"
+            tools:layout="@layout/fragment_data" >
+        <action
+                android:id="@+id/action_dataFragment_to_actionFragment"
+                app:destination="@id/actionFragment"
+                app:enterAnim="@android:anim/slide_in_left"
+                app:popExitAnim="@android:anim/slide_out_right"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popEnterAnim="@android:anim/slide_in_left" />
+        <action
+                android:id="@+id/action_dataFragment_to_loginFragment"
+                app:destination="@id/loginFragment"
+                app:enterAnim="@android:anim/slide_in_left"
+                app:popEnterAnim="@android:anim/slide_in_left"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+    <fragment
+            android:id="@+id/loginFragment"
+            android:name="com.kkafara.fresh.ui.fragment.LoginFragment"
+            android:label="fragment_login"
+            tools:layout="@layout/fragment_login" >
+        <action
+                android:id="@+id/action_loginFragment_to_dataFragment"
+                app:destination="@id/dataFragment"
+                app:enterAnim="@android:anim/slide_in_left"
+                app:popEnterAnim="@android:anim/slide_in_left"
+                app:exitAnim="@android:anim/slide_out_right"
+                app:popExitAnim="@android:anim/slide_out_right" />
+    </fragment>
+</navigation>
