@@ -12,7 +12,7 @@ OAuth2 protocol with PKCE flow implementation with public Android client and aut
 
 # Client demo
 
-![demo](https://im4.ezgif.com/tmp/ezgif-4-c6926076a1.gif)
+![demo](https://media.giphy.com/media/7bfBNjLJ6dEj3Id1TB/giphy.gif)
 
 #
 
